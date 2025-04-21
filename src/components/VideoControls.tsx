@@ -26,9 +26,9 @@ const VideoControls: React.FC<VideoControlsProps> = ({
   currentTime,
   duration
 }) => (
-  <div className="toolbar mb-6 flex items-center rounded-2xl px-4 py-3 bg-gradient-to-r from-[#D3E4FD] to-[#F2FCE2] shadow-xl border border-blue-200 max-w-3xl mx-auto studio-card font-ui">
+  <div className="toolbar mb-6 flex items-center rounded-2xl px-4 py-3 bg-gradient-to-r from-[#D3E4FD] to-[#F2FCE2] shadow-xl border border-blue-300 max-w-3xl mx-auto studio-card font-ui">
     <button
-      className="toolbar-button text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-150"
+      className="toolbar-button text-blue-700 hover:bg-blue-100 hover:text-blue-800 transition-colors duration-150"
       title="Go to Start"
       onClick={() => seekTo(0)}
       aria-label="Go to start of video"
@@ -36,7 +36,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
       <SkipBack size={24} />
     </button>
     <button
-      className="toolbar-button text-blue-600 hover:bg-blue-100 hover:text-blue-700 mx-2 transition-colors duration-150"
+      className="toolbar-button text-blue-700 hover:bg-blue-100 hover:text-blue-800 mx-2 transition-colors duration-150"
       title={isPlaying ? "Pause" : "Play"}
       onClick={togglePlay}
       aria-label={isPlaying ? "Pause video" : "Play video"}
@@ -44,7 +44,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
       {isPlaying ? <Pause size={26} /> : <Play size={26} />}
     </button>
     <button
-      className="toolbar-button text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-150"
+      className="toolbar-button text-blue-700 hover:bg-blue-100 hover:text-blue-800 transition-colors duration-150"
       title="Go to End"
       onClick={() => seekTo(duration)}
       aria-label="Go to end of video"
@@ -61,7 +61,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
         className="h-3 rounded-full"
       />
     </div>
-    <div className="text-sm font-semibold tracking-wide min-w-[96px] text-right text-blue-700 select-none">
+    <div className="text-sm font-semibold tracking-wide min-w-[96px] text-right text-blue-800 select-none">
       {formatTime(currentTime)} / {formatTime(duration)}
     </div>
   </div>

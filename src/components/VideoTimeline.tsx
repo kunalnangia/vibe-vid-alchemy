@@ -56,7 +56,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
       markers.push(
         <div
           key={`marker-${i}`}
-          className="time-marker"
+          className="time-marker text-blue-700 font-semibold"
           style={{ left: `${i * timelineScale}px` }}
         >
           {formatTime(i)}
@@ -89,18 +89,20 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     <div className="flex flex-col h-44 mb-2 border-0 bg-transparent rounded-2xl shadow studio-card overflow-hidden px-0 pt-2 max-w-5xl mx-auto font-ui">
       {/* Zoom controls */}
       <div className="flex items-center justify-end p-2 bg-transparent">
-        <div className="flex items-center space-x-2 bg-white/60 dark:bg-editor-darker/80 rounded-lg px-3 py-1 shadow-sm">
-          <span className="text-xs text-gray-400">Zoom:</span>
+        <div className="flex items-center space-x-2 bg-white/70 rounded-lg px-3 py-1 shadow-sm">
+          <span className="text-xs text-blue-600">Zoom:</span>
           <button
-            className="text-gray-700 dark:text-gray-200 font-bold hover:text-editor-purple text-xs px-2 bg-transparent rounded-lg border border-transparent hover:border-editor-purple transition"
+            className="text-blue-700 font-bold hover:text-blue-900 text-xs px-2 rounded-lg bg-transparent border border-transparent hover:border-blue-700 transition"
             onClick={() => setZoom(Math.max(0.2, zoom - 0.2))}
+            aria-label="Zoom out"
           >
             -
           </button>
-          <span className="text-xs text-gray-700 dark:text-gray-200">{zoom.toFixed(1)}x</span>
+          <span className="text-xs text-blue-800">{zoom.toFixed(1)}x</span>
           <button
-            className="text-gray-700 dark:text-gray-200 font-bold hover:text-editor-purple text-xs px-2 bg-transparent rounded-lg border border-transparent hover:border-editor-purple transition"
+            className="text-blue-700 font-bold hover:text-blue-900 text-xs px-2 rounded-lg bg-transparent border border-transparent hover:border-blue-700 transition"
             onClick={() => setZoom(Math.min(2, zoom + 0.2))}
+            aria-label="Zoom in"
           >
             +
           </button>
@@ -115,21 +117,22 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         className="flex-1 overflow-x-auto overflow-y-hidden relative"
         onClick={handleTimelineClick}
         ref={timelineRef}
+        aria-label="Video timeline"
       >
-        <div className="timeline-track" style={{ width: totalWidth }}>
+        <div className="timeline-track bg-blue-100 dark:bg-editor-blue/30" style={{ width: totalWidth }}>
           {/* Playhead */}
           <div
-            className="playhead"
+            className="playhead bg-blue-700"
             style={{
               left: `${currentTime * timelineScale}px`,
-              boxShadow: "0 0 0 4px rgba(148, 114, 255, 0.16)"
+              boxShadow: "0 0 0 4px rgba(0, 112, 244, 0.4)"
             }}
           />
           {/* Video clips */}
           {project.clips.map((clip) => (
             <div
               key={clip.id}
-              className={`timeline-item font-ui ${selectedClipId === clip.id ? 'selected popped' : ''}`}
+              className={`timeline-item font-ui ${selectedClipId === clip.id ? 'selected popped border-blue-700 bg-blue-200 scale-105 z-10' : ''}`}
               style={{
                 left: `${clip.position * timelineScale}px`,
                 width: `${clip.duration * timelineScale}px`,
@@ -138,8 +141,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               onMouseDown={(e) => handleClipMouseDown(e, clip.id)}
               tabIndex={0}
               title="Drag or click to select"
+              role="button"
+              aria-pressed={selectedClipId === clip.id}
+              aria-label={`Clip starting at ${clip.position} seconds`}
             >
-              <div className="text-xs text-white truncate p-1">
+              <div className="text-xs text-blue-900 truncate p-1">
                 Video Clip
               </div>
             </div>
@@ -148,13 +154,15 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           {project.textOverlays.map((overlay) => (
             <div
               key={overlay.id}
-              className="absolute h-3 bg-gradient-to-r from-editor-purple via-editor-blue to-editor-purple rounded-sm top-1.5"
+              className="absolute h-3 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 rounded-sm top-1.5"
               style={{
                 left: `${overlay.startTime * timelineScale}px`,
                 width: `${(overlay.endTime - overlay.startTime) * timelineScale}px`,
                 opacity: 0.85,
                 zIndex: 14,
               }}
+              aria-label="Text overlay segment"
+              role="presentation"
             >
               <div className="text-xs text-white truncate px-1">T</div>
             </div>
