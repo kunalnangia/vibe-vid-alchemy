@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Youtube, Instagram, Tiktok, Share } from "lucide-react";
+import { Youtube, Instagram, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const SocialExportPanel: React.FC = () => (
