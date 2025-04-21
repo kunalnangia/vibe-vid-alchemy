@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
   Scissors, Download, Undo, Redo, Music, Sticker,
-  Captions, Video, ArrowsUpDown, Share, Filter
+  Captions, Video, ArrowUpDown, Share, Filter
 } from 'lucide-react';
 import { toast } from "sonner";
 

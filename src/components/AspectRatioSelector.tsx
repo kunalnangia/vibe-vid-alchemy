@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowsUpDown } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -43,7 +43,7 @@ const AspectRatioSelector: React.FC<AspectRatioSelectorProps> = ({
   return (
     <div className="bg-white/90 rounded-2xl shadow-lg p-5 border border-blue-100">
       <h2 className="text-lg font-bold text-blue-900 mb-4 flex items-center">
-        <ArrowsUpDown className="mr-2 h-5 w-5 text-blue-600" />
+        <ArrowUpDown className="mr-2 h-5 w-5 text-blue-600" />
         Magic Resize
       </h2>
       

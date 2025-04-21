@@ -1,6 +1,6 @@
 
 import React from "react";
-import { LayoutTemplate } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -50,7 +50,7 @@ const TemplatesPanel: React.FC = () => {
   return (
     <div>
       <h3 className="font-semibold text-white mb-3 flex items-center">
-        <LayoutTemplate className="w-5 h-5 mr-2 text-blue-400" />
+        <LayoutGrid className="w-5 h-5 mr-2 text-blue-400" />
         Templates &amp; Presets
       </h3>
       <div className="space-y-3">

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -14,7 +13,7 @@ import TemplateLibrary from './TemplateLibrary';
 import AspectRatioSelector from './AspectRatioSelector';
 import { 
   Play, Pause, SkipBack, SkipForward, Download, Upload, Scissors,
-  Music, Captions, Store, Share, Users, Filter, ArrowsUpDown, Video
+  Music, Captions, Store, Share, Users, Filter, ArrowUpDown, Video, LayoutGrid
 } from 'lucide-react';
 
 // Define types for our video project
@@ -361,7 +360,7 @@ const VideoEditor: React.FC = () => {
               className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
               onClick={() => setShowTemplateLibrary(!showTemplateLibrary)}
             >
-              <LayoutTemplate className="h-4 w-4" />
+              <LayoutGrid className="h-4 w-4" />
               <span>Templates</span>
             </Button>
             <Button 
@@ -379,7 +378,7 @@ const VideoEditor: React.FC = () => {
               className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
               onClick={() => setShowAspectRatio(!showAspectRatio)}
             >
-              <ArrowsUpDown className="h-4 w-4" />
+              <ArrowUpDown className="h-4 w-4" />
               <span>Aspect Ratio</span>
             </Button>
             <Button 
