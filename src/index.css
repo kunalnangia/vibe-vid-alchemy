@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 262.1 83.3% 57.8%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -35,24 +36,17 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 240 10% 3.9%;
     --foreground: 210 40% 98%;
 
     --card: 222.2 84% 4.9%;
@@ -61,8 +55,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 40% 98%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -79,6 +73,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -96,6 +91,43 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-editor-dark text-foreground;
   }
+}
+
+/* Video Editor Specific Styles */
+.timeline-track {
+  @apply h-16 bg-editor-darker relative border-t border-b border-gray-700;
+}
+
+.timeline-item {
+  @apply absolute h-full bg-editor-blue bg-opacity-50 border-2 border-editor-blue rounded cursor-pointer;
+}
+
+.timeline-item.selected {
+  @apply border-editor-purple;
+}
+
+.playhead {
+  @apply absolute h-full w-0.5 bg-editor-purple z-10 pointer-events-none;
+}
+
+.time-markers {
+  @apply flex h-6 border-b border-gray-700;
+}
+
+.time-marker {
+  @apply text-xs text-gray-400 flex-shrink-0 w-20 border-r border-gray-700 flex justify-center items-center;
+}
+
+.video-canvas {
+  @apply bg-black rounded-md overflow-hidden;
+}
+
+.toolbar {
+  @apply flex space-x-2 p-2 bg-editor-darker rounded-md;
+}
+
+.toolbar-button {
+  @apply p-2 rounded hover:bg-editor-dark text-gray-300 hover:text-white transition-colors;
 }
