@@ -1,191 +1,212 @@
 
-import React, { useState } from "react";
-import { Music, Search, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { Music, Play, Pause, Search, Plus, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 
-interface AudioTrack {
+interface MusicTrack {
   id: string;
   title: string;
   artist: string;
   duration: string;
   category: string;
-  previewUrl: string | null;
+  src: string;
 }
 
 const StockMusicPanel: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentTrack, setCurrentTrack] = useState<MusicTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<AudioTrack | null>(null);
-  const [volume, setVolume] = useState(80);
+  const [volume, setVolume] = useState([80]);
   const [isMuted, setIsMuted] = useState(false);
   
-  const audioTracks: AudioTrack[] = [
-    {
-      id: "track-1",
-      title: "Summer Vibes",
-      artist: "AudioWave",
-      duration: "2:45",
-      category: "Upbeat",
-      previewUrl: null
-    },
-    {
-      id: "track-2",
-      title: "Calm Waters",
-      artist: "SoundScape",
-      duration: "3:12",
-      category: "Ambient",
-      previewUrl: null
-    },
-    {
-      id: "track-3",
-      title: "Epic Journey",
-      artist: "MusicMasters",
-      duration: "4:05",
-      category: "Cinematic",
-      previewUrl: null
-    }
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  const musicTracks: MusicTrack[] = [
+    { id: "1", title: "Summer Vibes", artist: "AudioStock", duration: "2:34", category: "Upbeat", src: "https://cdn.plyr.io/static/demo/Kishi_Bashi_-_It_All_Began_With_a_Burst.mp3" },
+    { id: "2", title: "Emotional Journey", artist: "MusicPro", duration: "3:12", category: "Cinematic", src: "https://cdn.plyr.io/static/demo/Kishi_Bashi_-_It_All_Began_With_a_Burst.mp3" },
+    { id: "3", title: "Tech Innovate", artist: "SoundLab", duration: "2:45", category: "Corporate", src: "https://cdn.plyr.io/static/demo/Kishi_Bashi_-_It_All_Began_With_a_Burst.mp3" },
+    { id: "4", title: "Nature Ambience", artist: "EcoSounds", duration: "4:18", category: "Ambient", src: "https://cdn.plyr.io/static/demo/Kishi_Bashi_-_It_All_Began_With_a_Burst.mp3" },
+    { id: "5", title: "Epic Cinematic", artist: "FilmScore", duration: "3:52", category: "Cinematic", src: "https://cdn.plyr.io/static/demo/Kishi_Bashi_-_It_All_Began_With_a_Burst.mp3" },
+    { id: "6", title: "Gentle Piano", artist: "ClassicTouch", duration: "2:15", category: "Instrumental", src: "https://cdn.plyr.io/static/demo/Kishi_Bashi_-_It_All_Began_With_a_Burst.mp3" },
   ];
   
-  const filteredTracks = audioTracks.filter(track => 
-    track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredTracks = musicTracks.filter(track => 
+    track.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
     track.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
     track.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
-  const handlePlayPause = (track: AudioTrack) => {
+  const playTrack = (track: MusicTrack) => {
     if (currentTrack?.id === track.id) {
+      // Toggle play/pause for current track
+      if (isPlaying) {
+        audioRef.current?.pause();
+      } else {
+        audioRef.current?.play();
+      }
       setIsPlaying(!isPlaying);
     } else {
+      // Play new track
       setCurrentTrack(track);
       setIsPlaying(true);
-    }
-    
-    // In production, this would trigger actual audio playback
-    if (!track.previewUrl) {
-      toast.info("Preview not available in demo mode");
+      
+      if (audioRef.current) {
+        audioRef.current.src = track.src;
+        audioRef.current.volume = volume[0] / 100;
+        audioRef.current.play();
+      }
     }
   };
   
-  const handleVolumeChange = (value: number[]) => {
-    setVolume(value[0]);
-    if (isMuted && value[0] > 0) {
+  const addToTimeline = (track: MusicTrack) => {
+    toast.success(`Added "${track.title}" to timeline`);
+  };
+  
+  const handleVolumeChange = (newVolume: number[]) => {
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume[0] / 100;
+    }
+    
+    if (newVolume[0] === 0) {
+      setIsMuted(true);
+    } else if (isMuted) {
       setIsMuted(false);
     }
   };
   
   const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-  
-  const handleAddToProject = () => {
-    if (!currentTrack) {
-      toast.warning("Please select a track first");
-      return;
+    if (audioRef.current) {
+      if (isMuted) {
+        audioRef.current.volume = volume[0] / 100;
+      } else {
+        audioRef.current.volume = 0;
+      }
+      setIsMuted(!isMuted);
     }
-    
-    toast.success(`"${currentTrack.title}" added to project`);
   };
 
   return (
     <div className="bg-white/95 rounded-2xl shadow-lg p-6 border border-blue-100 max-w-xl mx-auto animate-fade-in">
-      <h2 className="flex gap-2 items-center text-lg font-bold text-blue-900 mb-3">
-        <Music className="w-5 h-5 text-purple-600" /> Stock Music &amp; SFX Library
+      <h2 className="flex items-center gap-2 text-lg font-bold text-blue-900 mb-3">
+        <Music className="w-5 h-5 text-purple-500" /> Stock Music & Sound Effects
       </h2>
-      <p className="text-sm text-blue-800 mb-3">
-        Browse royalty-free music and sound effects to enhance your content.
-        <span className="ml-1 font-semibold text-yellow-500">Full access: Pro/Subscription</span>
-      </p>
       
-      {/* Search bar */}
-      <div className="flex gap-2 mb-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 pointer-events-none" />
-          <Input
-            type="text"
-            placeholder="Search by title, artist or mood..."
-            className="pl-9"
+      <div className="mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input 
+            type="text" 
+            placeholder="Search by title, artist or category..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
           />
         </div>
       </div>
       
-      {/* Audio tracks list */}
-      <div className="mb-4 max-h-60 overflow-y-auto">
+      <div className="space-y-2 max-h-64 overflow-y-auto mb-4 pr-1">
         {filteredTracks.length > 0 ? (
-          filteredTracks.map(track => (
+          filteredTracks.map((track) => (
             <div 
-              key={track.id}
-              className={`p-3 mb-2 rounded-lg flex items-center justify-between ${
-                currentTrack?.id === track.id 
-                  ? 'bg-purple-100 border border-purple-300' 
-                  : 'bg-white border border-gray-200 hover:bg-gray-50'
-              }`}
+              key={track.id} 
+              className={`flex items-center justify-between p-2 rounded ${currentTrack?.id === track.id ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'}`}
             >
-              <div className="flex-1">
-                <div className="font-medium text-blue-900">{track.title}</div>
-                <div className="text-xs text-gray-500 flex justify-between">
-                  <span>{track.artist}</span>
-                  <span className="bg-purple-100 text-purple-800 px-2 rounded-full">{track.category}</span>
+              <div className="flex items-center gap-3">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="h-8 w-8 p-0 rounded-full"
+                  onClick={() => playTrack(track)}
+                >
+                  {currentTrack?.id === track.id && isPlaying ? 
+                    <Pause className="h-4 w-4" /> : 
+                    <Play className="h-4 w-4" />
+                  }
+                </Button>
+                <div>
+                  <div className="text-sm font-medium">{track.title}</div>
+                  <div className="text-xs text-gray-500 flex gap-2">
+                    <span>{track.artist}</span>
+                    <span>•</span>
+                    <span>{track.duration}</span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">{track.duration}</span>
+                <div className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                  {track.category}
+                </div>
                 <Button 
+                  size="sm" 
                   variant="ghost" 
-                  size="sm"
-                  className="h-8 w-8 p-0 rounded-full"
-                  onClick={() => handlePlayPause(track)}
+                  onClick={() => addToTimeline(track)}
+                  className="h-7 w-7 p-0"
                 >
-                  {currentTrack?.id === track.id && isPlaying 
-                    ? <Pause className="h-4 w-4" /> 
-                    : <Play className="h-4 w-4" />
-                  }
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           ))
         ) : (
-          <div className="text-center py-8 text-gray-500">No tracks found</div>
+          <div className="text-center py-8 text-gray-400">
+            No tracks found matching your search
+          </div>
         )}
       </div>
       
-      {/* Audio player controls */}
-      <div className="flex items-center gap-3 mb-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="p-2"
-          onClick={toggleMute}
-        >
-          {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-        </Button>
-        <div className="flex-1">
-          <Slider
-            value={[isMuted ? 0 : volume]}
-            min={0}
-            max={100}
-            step={1}
-            onValueChange={handleVolumeChange}
-            className="w-full"
-          />
+      {currentTrack && (
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+          <div className="flex justify-between items-center mb-2">
+            <div>
+              <div className="font-medium text-sm">{currentTrack.title}</div>
+              <div className="text-xs text-gray-500">{currentTrack.artist}</div>
+            </div>
+            <Button 
+              size="sm" 
+              onClick={() => addToTimeline(currentTrack)}
+            >
+              <Plus className="mr-1 h-3 w-3" />
+              Add to Timeline
+            </Button>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 w-8 p-0"
+              onClick={toggleMute}
+            >
+              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </Button>
+            <Slider
+              value={volume}
+              onValueChange={handleVolumeChange}
+              max={100}
+              step={1}
+              className="w-32"
+            />
+          </div>
+          
+          <audio ref={audioRef} onEnded={() => setIsPlaying(false)} />
         </div>
-        <span className="text-xs text-gray-500 w-8 text-right">
-          {isMuted ? "0%" : `${volume}%`}
-        </span>
-      </div>
+      )}
       
-      <Button 
-        className="bg-gradient-to-r from-purple-500 to-pink-400 text-white px-5 font-semibold rounded-lg w-full"
-        onClick={handleAddToProject}
-        disabled={!currentTrack}
-      >
-        {currentTrack ? `Add "${currentTrack.title}" to Project` : "Select a Track"}
-      </Button>
-      <div className="mt-3 text-xs text-blue-600">Submit your own tracks or acquire licenses for exclusive SFX!</div>
+      <div className="mt-4 flex justify-between items-center text-xs text-blue-600">
+        <span>All tracks licensed for commercial use</span>
+        <Button 
+          size="sm" 
+          variant="link" 
+          className="text-xs h-auto p-0"
+          onClick={() => toast.info("Premium library includes 10,000+ tracks and sound effects")}
+        >
+          Upgrade for Premium Tracks
+        </Button>
+      </div>
     </div>
   );
 };
