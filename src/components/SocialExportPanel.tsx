@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Youtube, Instagram, Share } from "lucide-react";
+import { Youtube, Instagram, Share, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const SocialExportPanel: React.FC = () => (
@@ -14,12 +14,15 @@ const SocialExportPanel: React.FC = () => (
     </p>
     <div className="flex gap-2 mb-4">
       <Button className="bg-blue-600 text-white px-3 rounded" disabled>
+        <Youtube className="inline-block w-4 h-4 mr-1" />
         YouTube
       </Button>
       <Button className="bg-pink-500 text-white px-3 rounded" disabled>
+        <Instagram className="inline-block w-4 h-4 mr-1" />
         Instagram
       </Button>
       <Button className="bg-black text-white px-3 rounded" disabled>
+        <Video className="inline-block w-4 h-4 mr-1" />
         TikTok
       </Button>
     </div>
