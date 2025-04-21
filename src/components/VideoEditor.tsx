@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -290,13 +291,13 @@ const VideoEditor: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex-none p-4 bg-editor-darker">
-        <h1 className="text-2xl font-bold text-white">VideoVibesCraft</h1>
+    <div className="flex flex-col min-h-screen bg-gradient-to-bl from-[#131322] via-[#191836] to-[#232859]">
+      <div className="flex-none p-4 bg-white/60 dark:bg-editor-darker/90 shadow studio-card border-0">
+        <h1 className="text-3xl font-extrabold font-ui text-editor-purple mb-0 tracking-tight select-none">VideoVibesCraft</h1>
       </div>
       <div className="flex flex-1 overflow-hidden">
         {/* Left sidebar */}
-        <div className="w-72 bg-editor-darker p-4 overflow-y-auto">
+        <div className="w-80 studio-sidebar pr-0 border-0">
           <SidebarPanels
             handleFileUpload={handleFileUpload}
             addTextOverlay={addTextOverlay}
@@ -309,9 +310,9 @@ const VideoEditor: React.FC = () => {
           />
         </div>
         {/* Main content */}
-        <div className="flex-1 flex flex-col p-4 overflow-hidden">
+        <div className="flex-1 flex flex-col px-8 py-6 overflow-hidden studio-panel">
           {/* Preview */}
-          <div className="flex-1 flex items-center justify-center mb-4 relative">
+          <div className="flex-1 flex items-center justify-center mb-3 relative">
             <VideoPreview
               clips={project.clips}
               textOverlays={project.textOverlays}
@@ -345,12 +346,12 @@ const VideoEditor: React.FC = () => {
             onSelectClip={setSelectedClipId}
           />
           {/* Export & Sharing Info Bar */}
-          <div className="mt-2 p-2 flex items-center justify-between bg-editor-dark rounded text-xs text-gray-400">
+          <div className="mt-3 px-4 py-2 flex items-center justify-between studio-card text-[13px] text-gray-500">
             <span>
               Export to MP4, MOV, AVI &amp; more (multi-resolution export coming soon)
             </span>
             <span>
-              <span className="font-semibold text-white">Cross-platform</span>: Edit on web, desktop, and mobile (coming soon)
+              <span className="font-semibold text-editor-purple">Cross-platform</span>: Edit on web, desktop, and mobile (coming soon)
             </span>
           </div>
         </div>
