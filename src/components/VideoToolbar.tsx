@@ -2,8 +2,10 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
-  Scissors, Download, Undo, Redo, Music, Sticker
+  Scissors, Download, Undo, Redo, Music, Sticker,
+  Captions, Video, ArrowsUpDown, Share, Filter
 } from 'lucide-react';
+import { toast } from "sonner";
 
 interface VideoToolbarProps {
   onSplit: () => void;
@@ -16,8 +18,12 @@ const VideoToolbar: React.FC<VideoToolbarProps> = ({
   onExport,
   hasSelectedClip,
 }) => {
+  const handleComingSoonClick = (feature: string) => {
+    toast.info(`${feature} feature coming soon!`);
+  };
+
   return (
-    <div className="flex items-center space-x-3 mb-6 p-4 rounded-2xl bg-gradient-to-r from-[#E8F7E4] via-[#B0D9FF] to-[#E7F5FF] shadow-xl studio-card border border-blue-400 max-w-3xl mx-auto font-ui">
+    <div className="flex items-center space-x-3 mb-6 p-4 rounded-2xl bg-gradient-to-r from-[#E8F7E4] via-[#B0D9FF] to-[#E7F5FF] shadow-xl studio-card border border-blue-300 max-w-3xl mx-auto font-ui">
       <Button
         variant="outline"
         size="sm"
@@ -28,44 +34,61 @@ const VideoToolbar: React.FC<VideoToolbarProps> = ({
         <Scissors className="mr-1 h-5 w-5" />
         Split
       </Button>
+      
       <Button
         variant="outline"
         size="sm"
-        className="flex items-center rounded-lg text-blue-400 border-blue-400 cursor-not-allowed"
-        disabled
+        className="flex items-center rounded-lg border-blue-300 text-blue-700 hover:bg-blue-200"
+        onClick={() => handleComingSoonClick("Green Screen")}
       >
-        <Undo className="mr-1 h-5 w-5" />
-        Undo
+        <Video className="mr-1 h-5 w-5" />
+        Chroma Key
       </Button>
+      
       <Button
         variant="outline"
         size="sm"
-        className="flex items-center rounded-lg text-blue-400 border-blue-400 cursor-not-allowed"
-        disabled
+        className="flex items-center rounded-lg border-blue-300 text-blue-700 hover:bg-blue-200"
+        onClick={() => handleComingSoonClick("Auto Captions")}
       >
-        <Redo className="mr-1 h-5 w-5" />
-        Redo
+        <Captions className="mr-1 h-5 w-5" />
+        Captions
       </Button>
-      <div className="border-r border-blue-400 h-9"></div>
+      
       <Button
         variant="outline"
         size="sm"
-        className="flex items-center rounded-lg text-blue-400 border-blue-400 cursor-not-allowed"
-        disabled
+        className="flex items-center rounded-lg border-blue-300 text-blue-700 hover:bg-blue-200"
+        onClick={() => handleComingSoonClick("Music Library")}
       >
         <Music className="mr-1 h-5 w-5" />
         Audio
       </Button>
+      
       <Button
         variant="outline"
         size="sm"
-        className="flex items-center rounded-lg text-blue-400 border-blue-400 cursor-not-allowed"
-        disabled
+        className="flex items-center rounded-lg border-blue-300 text-blue-700 hover:bg-blue-200"
+        onClick={() => handleComingSoonClick("Effects Library")}
       >
-        <Sticker className="mr-1 h-5 w-5" />
-        Stickers
+        <Filter className="mr-1 h-5 w-5" />
+        Effects
       </Button>
+      
+      <div className="border-r border-blue-300 h-9"></div>
+      
+      <Button
+        variant="outline"
+        size="sm"
+        className="flex items-center rounded-lg border-blue-300 text-blue-700 hover:bg-blue-200"
+        onClick={() => handleComingSoonClick("Social Sharing")}
+      >
+        <Share className="mr-1 h-5 w-5" />
+        Share
+      </Button>
+      
       <div className="flex-1"></div>
+      
       <Button
         variant="default"
         size="sm"

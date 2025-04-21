@@ -26,9 +26,9 @@ const VideoControls: React.FC<VideoControlsProps> = ({
   currentTime,
   duration
 }) => (
-  <div className="toolbar mb-6 flex items-center rounded-2xl px-4 py-3 bg-gradient-to-r from-[#B0D9FF] via-[#E7F5FF] to-[#E8F7E4] shadow-xl border border-blue-300 max-w-3xl mx-auto studio-card font-ui">
+  <div className="toolbar mb-6 flex items-center rounded-2xl px-4 py-3 bg-gradient-to-r from-[#D4F4FF] via-[#E7F5FF] to-[#E8F7E4] shadow-xl border border-blue-200 max-w-3xl mx-auto studio-card font-ui">
     <button
-      className="toolbar-button text-blue-700 hover:bg-blue-200 hover:text-blue-900 transition-colors duration-150"
+      className="toolbar-button text-blue-700 hover:bg-blue-100 hover:text-blue-900 transition-colors duration-150 p-2 rounded-full"
       title="Go to Start"
       onClick={() => seekTo(0)}
       aria-label="Go to start of video"
@@ -36,15 +36,15 @@ const VideoControls: React.FC<VideoControlsProps> = ({
       <SkipBack size={24} />
     </button>
     <button
-      className="toolbar-button text-blue-700 hover:bg-blue-200 hover:text-blue-900 mx-2 transition-colors duration-150"
+      className="toolbar-button text-blue-700 bg-blue-100/70 hover:bg-blue-200 hover:text-blue-900 mx-2 transition-colors duration-150 p-2 rounded-full"
       title={isPlaying ? "Pause" : "Play"}
       onClick={togglePlay}
       aria-label={isPlaying ? "Pause video" : "Play video"}
     >
-      {isPlaying ? <Pause size={26} /> : <Play size={26} />}
+      {isPlaying ? <Pause size={28} /> : <Play size={28} className="ml-0.5" />}
     </button>
     <button
-      className="toolbar-button text-blue-700 hover:bg-blue-200 hover:text-blue-900 transition-colors duration-150"
+      className="toolbar-button text-blue-700 hover:bg-blue-100 hover:text-blue-900 transition-colors duration-150 p-2 rounded-full"
       title="Go to End"
       onClick={() => seekTo(duration)}
       aria-label="Go to end of video"

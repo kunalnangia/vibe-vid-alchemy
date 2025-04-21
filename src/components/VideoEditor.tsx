@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -8,8 +9,12 @@ import VideoToolbar from './VideoToolbar';
 import TextOverlayEditor from './TextOverlayEditor';
 import MediaLibraryPanel from "./MediaLibraryPanel";
 import TemplatesPanel from "./TemplatesPanel";
+import VideoFilters from './VideoFilters';
+import TemplateLibrary from './TemplateLibrary';
+import AspectRatioSelector from './AspectRatioSelector';
 import { 
-  Play, Pause, SkipBack, SkipForward, Download, Upload, Scissors
+  Play, Pause, SkipBack, SkipForward, Download, Upload, Scissors,
+  Music, Captions, Store, Share, Users, Filter, ArrowsUpDown, Video
 } from 'lucide-react';
 
 // Define types for our video project
@@ -39,6 +44,8 @@ interface VideoProject {
   clips: VideoClip[];
   textOverlays: TextOverlay[];
   duration: number;
+  aspectRatio: string;
+  currentFilter: string;
 }
 
 import SidebarPanels from './SidebarPanels';
@@ -50,11 +57,16 @@ const VideoEditor: React.FC = () => {
     clips: [],
     textOverlays: [],
     duration: 0,
+    aspectRatio: 'landscape', // Default to 16:9
+    currentFilter: 'normal', // Default to no filter
   });
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
   const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(null);
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showAspectRatio, setShowAspectRatio] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -208,6 +220,37 @@ const VideoEditor: React.FC = () => {
     }));
   };
 
+  // Apply filter to video
+  const handleApplyFilter = (filter: any) => {
+    if (filter.isPremium) {
+      toast.info("This is a premium filter. Upgrade to access all filters!");
+      return;
+    }
+    setProject(prev => ({
+      ...prev,
+      currentFilter: filter.id
+    }));
+    toast.success(`Applied "${filter.name}" filter`);
+  };
+
+  // Apply aspect ratio
+  const handleAspectRatioChange = (ratio: any) => {
+    setProject(prev => ({
+      ...prev,
+      aspectRatio: ratio.id
+    }));
+  };
+
+  // Handle template selection
+  const handleTemplateSelect = (template: any) => {
+    if (template.isPremium) {
+      toast.info("This is a premium template. Upgrade to access all templates!");
+      return;
+    }
+    toast.success(`Template "${template.name}" selected!`);
+    // In a real app, this would load the template assets and configuration
+  };
+
   // Export video (mock functionality for now)
   const exportVideo = () => {
     toast.info("Preparing to export video...");
@@ -310,6 +353,78 @@ const VideoEditor: React.FC = () => {
         </div>
         {/* Main content */}
         <div className="flex-1 flex flex-col px-8 py-6 overflow-hidden studio-panel">
+          {/* New feature buttons */}
+          <div className="flex justify-center space-x-2 mb-4 max-w-3xl mx-auto">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
+              onClick={() => setShowTemplateLibrary(!showTemplateLibrary)}
+            >
+              <LayoutTemplate className="h-4 w-4" />
+              <span>Templates</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="h-4 w-4" />
+              <span>Filters</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
+              onClick={() => setShowAspectRatio(!showAspectRatio)}
+            >
+              <ArrowsUpDown className="h-4 w-4" />
+              <span>Aspect Ratio</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
+              onClick={() => toast.info("This feature will be available soon!")}
+              disabled
+            >
+              <Captions className="h-4 w-4" />
+              <span>Captions</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
+              onClick={() => toast.info("This feature will be available soon!")}
+              disabled
+            >
+              <Music className="h-4 w-4" />
+              <span>Music</span>
+            </Button>
+          </div>
+          
+          {/* Template library panel */}
+          {showTemplateLibrary && (
+            <div className="mb-4 max-w-3xl mx-auto">
+              <TemplateLibrary onSelectTemplate={handleTemplateSelect} />
+            </div>
+          )}
+          
+          {/* Filters panel */}
+          {showFilters && (
+            <div className="mb-4 max-w-3xl mx-auto">
+              <VideoFilters onApplyFilter={handleApplyFilter} currentFilterId={project.currentFilter} />
+            </div>
+          )}
+          
+          {/* Aspect ratio panel */}
+          {showAspectRatio && (
+            <div className="mb-4 max-w-3xl mx-auto">
+              <AspectRatioSelector onSelectRatio={handleAspectRatioChange} currentRatio={project.aspectRatio} />
+            </div>
+          )}
+          
           {/* Preview */}
           <div className="flex-1 flex items-center justify-center mb-3 relative">
             <VideoPreview
@@ -320,6 +435,8 @@ const VideoEditor: React.FC = () => {
               isPlaying={isPlaying}
               setIsPlaying={setIsPlaying}
               projectDuration={project.duration}
+              currentFilter={project.currentFilter}
+              aspectRatio={project.aspectRatio}
             />
           </div>
           {/* Controls */}
@@ -352,6 +469,60 @@ const VideoEditor: React.FC = () => {
             <span>
               <span className="font-semibold text-blue-900">Cross-platform</span>: Edit on web, desktop, and mobile (coming soon)
             </span>
+          </div>
+          
+          {/* Feature highlights / monetization info */}
+          <div className="mt-4 grid grid-cols-3 gap-3 max-w-4xl mx-auto">
+            <div className="bg-white/80 shadow rounded-xl p-4 border border-blue-100">
+              <div className="flex items-center text-blue-700 font-medium mb-2">
+                <Store className="h-5 w-5 mr-2 text-blue-500" />
+                Template Marketplace
+              </div>
+              <p className="text-xs text-blue-700">
+                Create and sell your own video templates or purchase from professionals.
+              </p>
+              <Button 
+                variant="link" 
+                size="sm" 
+                className="mt-2 text-blue-600 h-auto p-0"
+              >
+                Explore marketplace
+              </Button>
+            </div>
+            
+            <div className="bg-white/80 shadow rounded-xl p-4 border border-blue-100">
+              <div className="flex items-center text-blue-700 font-medium mb-2">
+                <Users className="h-5 w-5 mr-2 text-blue-500" />
+                Collaboration
+              </div>
+              <p className="text-xs text-blue-700">
+                Work with your team in real-time and share feedback instantly.
+              </p>
+              <Button 
+                variant="link" 
+                size="sm" 
+                className="mt-2 text-blue-600 h-auto p-0"
+              >
+                Invite collaborators
+              </Button>
+            </div>
+            
+            <div className="bg-white/80 shadow rounded-xl p-4 border border-blue-100">
+              <div className="flex items-center text-blue-700 font-medium mb-2">
+                <Share className="h-5 w-5 mr-2 text-blue-500" />
+                Social Export
+              </div>
+              <p className="text-xs text-blue-700">
+                Publish directly to social media platforms with one click.
+              </p>
+              <Button 
+                variant="link" 
+                size="sm" 
+                className="mt-2 text-blue-600 h-auto p-0"
+              >
+                Connect accounts
+              </Button>
+            </div>
           </div>
         </div>
       </div>
