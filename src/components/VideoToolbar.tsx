@@ -17,13 +17,13 @@ const VideoToolbar: React.FC<VideoToolbarProps> = ({
   hasSelectedClip,
 }) => {
   return (
-    <div className="flex items-center space-x-3 mb-6 p-4 rounded-2xl bg-gradient-to-r from-[#F2FCE2] via-[#D3E4FD] to-[#E5DEFF] shadow-xl studio-card border border-blue-400 max-w-3xl mx-auto font-ui">
+    <div className="flex items-center space-x-3 mb-6 p-4 rounded-2xl bg-gradient-to-r from-[#E8F7E4] via-[#B0D9FF] to-[#E7F5FF] shadow-xl studio-card border border-blue-400 max-w-3xl mx-auto font-ui">
       <Button
         variant="outline"
         size="sm"
         onClick={onSplit}
         disabled={!hasSelectedClip}
-        className="flex items-center rounded-lg font-semibold border-blue-500 text-blue-800 hover:bg-blue-200 hover:text-blue-900 shadow-sm"
+        className="flex items-center rounded-lg font-semibold border-blue-600 text-blue-900 hover:bg-blue-300 hover:text-blue-900 shadow-sm"
       >
         <Scissors className="mr-1 h-5 w-5" />
         Split
@@ -70,7 +70,7 @@ const VideoToolbar: React.FC<VideoToolbarProps> = ({
         variant="default"
         size="sm"
         onClick={onExport}
-        className="bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-800 hover:to-blue-700 shadow-md flex items-center rounded-lg font-semibold px-6 text-white"
+        className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-md flex items-center rounded-lg font-semibold px-6 text-white"
       >
         <Download className="mr-1 h-5 w-5" />
         Export

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -291,9 +290,9 @@ const VideoEditor: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-bl from-[#131322] via-[#191836] to-[#232859]">
-      <div className="flex-none p-4 bg-white/60 dark:bg-editor-darker/90 shadow studio-card border-0">
-        <h1 className="text-3xl font-extrabold font-ui text-editor-purple mb-0 tracking-tight select-none">VideoVibesCraft</h1>
+    <div className="flex flex-col min-h-screen bg-gradient-to-tr from-[#E8F7E4] via-[#B0D9FF] to-[#E7F5FF]">
+      <div className="flex-none p-4 bg-white/80 dark:bg-editor-darker/90 shadow studio-card border-0">
+        <h1 className="text-3xl font-extrabold font-ui text-blue-900 mb-0 tracking-tight select-none">VideoVibesCraft</h1>
       </div>
       <div className="flex flex-1 overflow-hidden">
         {/* Left sidebar */}
@@ -346,12 +345,12 @@ const VideoEditor: React.FC = () => {
             onSelectClip={setSelectedClipId}
           />
           {/* Export & Sharing Info Bar */}
-          <div className="mt-3 px-4 py-2 flex items-center justify-between studio-card text-[13px] text-gray-500">
+          <div className="mt-3 px-4 py-2 flex items-center justify-between studio-card text-[13px] text-blue-900">
             <span>
               Export to MP4, MOV, AVI &amp; more (multi-resolution export coming soon)
             </span>
             <span>
-              <span className="font-semibold text-editor-purple">Cross-platform</span>: Edit on web, desktop, and mobile (coming soon)
+              <span className="font-semibold text-blue-900">Cross-platform</span>: Edit on web, desktop, and mobile (coming soon)
             </span>
           </div>
         </div>
