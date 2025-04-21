@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,9 @@ interface SidebarPanelsProps {
   clips: any[];
 }
 
+import AutoCaptionsPanel from "./AutoCaptionsPanel"
+import StockMusicPanel from "./StockMusicPanel"
+
 const SidebarPanels: React.FC<SidebarPanelsProps> = ({
   handleFileUpload,
   addTextOverlay,
@@ -29,11 +31,13 @@ const SidebarPanels: React.FC<SidebarPanelsProps> = ({
   clips
 }) => (
   <Tabs defaultValue="assets">
-    <TabsList className="w-full grid grid-cols-4">
+    <TabsList className="w-full grid grid-cols-6">
       <TabsTrigger className="flex-1" value="assets">Assets</TabsTrigger>
       <TabsTrigger className="flex-1" value="media">Media</TabsTrigger>
       <TabsTrigger className="flex-1" value="templates">Templates</TabsTrigger>
       <TabsTrigger className="flex-1" value="text">Text</TabsTrigger>
+      <TabsTrigger className="flex-1" value="captions">Captions</TabsTrigger>
+      <TabsTrigger className="flex-1" value="music">Music</TabsTrigger>
     </TabsList>
     <TabsContent value="assets">
       <div className="mt-4">
@@ -104,8 +108,19 @@ const SidebarPanels: React.FC<SidebarPanelsProps> = ({
         )}
       </div>
     </TabsContent>
+    <TabsContent value="captions">
+      <div className="mt-4">
+        {/* Auto Captions UI Stub */}
+        <AutoCaptionsPanel />
+      </div>
+    </TabsContent>
+    <TabsContent value="music">
+      <div className="mt-4">
+        {/* Stock Music & SFX UI Stub */}
+        <StockMusicPanel />
+      </div>
+    </TabsContent>
   </Tabs>
 );
 
 export default SidebarPanels;
-

@@ -50,6 +50,12 @@ interface VideoProject {
 import SidebarPanels from './SidebarPanels';
 import VideoPreview from './VideoPreview';
 import VideoControls from './VideoControls';
+import AutoCaptionsPanel from "./AutoCaptionsPanel";
+import GreenScreenPanel from "./GreenScreenPanel";
+import StockMusicPanel from "./StockMusicPanel";
+import SocialExportPanel from "./SocialExportPanel";
+import CollaborationPanel from "./CollaborationPanel";
+import TemplateMarketplacePanel from "./TemplateMarketplacePanel";
 
 const VideoEditor: React.FC = () => {
   const [project, setProject] = useState<VideoProject>({
@@ -331,9 +337,16 @@ const VideoEditor: React.FC = () => {
     }));
   };
 
+  const [showAutoCaptions, setShowAutoCaptions] = useState(false);
+  const [showGreenScreen, setShowGreenScreen] = useState(false);
+  const [showStockMusic, setShowStockMusic] = useState(false);
+  const [showSocialExport, setShowSocialExport] = useState(false);
+  const [showCollab, setShowCollab] = useState(false);
+  const [showMarketplace, setShowMarketplace] = useState(false);
+  
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-tr from-[#E8F7E4] via-[#B0D9FF] to-[#E7F5FF]">
-      <div className="flex-none p-4 bg-white/80 dark:bg-editor-darker/90 shadow studio-card border-0">
+    <div className="flex flex-col min-h-screen bg-gradient-to-tr from-[#E7F5FF] via-[#EBF8EC] to-[#F6F8FF] transition-all"> {/* brighten bg */}
+      <div className="flex-none p-4 bg-white/90 dark:bg-editor-darker/90 shadow studio-card border-0">
         <h1 className="text-3xl font-extrabold font-ui text-blue-900 mb-0 tracking-tight select-none">VideoVibesCraft</h1>
       </div>
       <div className="flex flex-1 overflow-hidden">
@@ -352,78 +365,136 @@ const VideoEditor: React.FC = () => {
         </div>
         {/* Main content */}
         <div className="flex-1 flex flex-col px-8 py-6 overflow-hidden studio-panel">
-          {/* New feature buttons */}
-          <div className="flex justify-center space-x-2 mb-4 max-w-3xl mx-auto">
-            <Button 
-              variant="outline" 
+          {/* Feature Launchers: More tabs for scalability */}
+          <div className="flex flex-wrap justify-center space-x-2 space-y-2 mb-4 max-w-3xl mx-auto">
+            <Button
+              variant="outline"
               size="sm"
-              className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
+              className="flex items-center gap-1 bg-white/75 hover:bg-blue-50 text-blue-800 border-blue-200"
               onClick={() => setShowTemplateLibrary(!showTemplateLibrary)}
             >
               <LayoutGrid className="h-4 w-4" />
               <span>Templates</span>
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
-              className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
+              className="flex items-center gap-1 bg-white/75 hover:bg-green-50 text-green-700 border-green-200"
               onClick={() => setShowFilters(!showFilters)}
             >
               <Filter className="h-4 w-4" />
               <span>Filters</span>
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
-              className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
+              className="flex items-center gap-1 bg-white/75 hover:bg-blue-50 text-blue-700 border-blue-200"
               onClick={() => setShowAspectRatio(!showAspectRatio)}
             >
               <ArrowUpDown className="h-4 w-4" />
-              <span>Aspect Ratio</span>
+              <span>Magic Resize</span>
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
-              className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
-              onClick={() => toast.info("This feature will be available soon!")}
-              disabled
+              className="flex items-center gap-1 bg-white/75 hover:bg-yellow-50 text-yellow-800 border-yellow-200"
+              onClick={() => setShowAutoCaptions(!showAutoCaptions)}
             >
               <Captions className="h-4 w-4" />
-              <span>Captions</span>
+              <span>Auto-Captions</span>
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
-              className="flex items-center gap-1 bg-white/80 hover:bg-blue-50 text-blue-700 border-blue-200"
-              onClick={() => toast.info("This feature will be available soon!")}
-              disabled
+              className="flex items-center gap-1 bg-white/75 hover:bg-green-50 text-green-700 border-green-200"
+              onClick={() => setShowGreenScreen(!showGreenScreen)}
+            >
+              <Video className="h-4 w-4" />
+              <span>Green Screen</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 bg-white/75 hover:bg-purple-50 text-purple-700 border-purple-200"
+              onClick={() => setShowStockMusic(!showStockMusic)}
             >
               <Music className="h-4 w-4" />
-              <span>Music</span>
+              <span>Stock Music</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 bg-white/75 hover:bg-sky-50 text-sky-700 border-sky-200"
+              onClick={() => setShowSocialExport(!showSocialExport)}
+            >
+              <Share className="h-4 w-4" />
+              <span>Social Export</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 bg-white/75 hover:bg-blue-200 text-blue-700 border-blue-300"
+              onClick={() => setShowCollab(!showCollab)}
+            >
+              <Users className="h-4 w-4" />
+              <span>Collab</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 bg-white/75 hover:bg-yellow-50 text-yellow-700 border-yellow-200"
+              onClick={() => setShowMarketplace(!showMarketplace)}
+            >
+              <Store className="h-4 w-4" />
+              <span>Marketplace</span>
             </Button>
           </div>
-          
-          {/* Template library panel */}
+          {/* Panels for new features */}
           {showTemplateLibrary && (
             <div className="mb-4 max-w-3xl mx-auto">
               <TemplateLibrary onSelectTemplate={handleTemplateSelect} />
             </div>
           )}
-          
-          {/* Filters panel */}
           {showFilters && (
             <div className="mb-4 max-w-3xl mx-auto">
               <VideoFilters onApplyFilter={handleApplyFilter} currentFilterId={project.currentFilter} />
             </div>
           )}
-          
-          {/* Aspect ratio panel */}
           {showAspectRatio && (
             <div className="mb-4 max-w-3xl mx-auto">
               <AspectRatioSelector onSelectRatio={handleAspectRatioChange} currentRatio={project.aspectRatio} />
             </div>
           )}
-          
+          {showAutoCaptions && (
+            <div className="mb-4 max-w-3xl mx-auto animate-fade-in">
+              <AutoCaptionsPanel />
+            </div>
+          )}
+          {showGreenScreen && (
+            <div className="mb-4 max-w-3xl mx-auto animate-fade-in">
+              <GreenScreenPanel />
+            </div>
+          )}
+          {showStockMusic && (
+            <div className="mb-4 max-w-3xl mx-auto animate-fade-in">
+              <StockMusicPanel />
+            </div>
+          )}
+          {showSocialExport && (
+            <div className="mb-4 max-w-3xl mx-auto animate-fade-in">
+              <SocialExportPanel />
+            </div>
+          )}
+          {showCollab && (
+            <div className="mb-4 max-w-3xl mx-auto animate-fade-in">
+              <CollaborationPanel />
+            </div>
+          )}
+          {showMarketplace && (
+            <div className="mb-4 max-w-3xl mx-auto animate-fade-in">
+              <TemplateMarketplacePanel />
+            </div>
+          )}
           {/* Preview */}
           <div className="flex-1 flex items-center justify-center mb-3 relative">
             <VideoPreview
