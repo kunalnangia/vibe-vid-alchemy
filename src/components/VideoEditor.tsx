@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import VideoTimeline from './VideoTimeline';
 import VideoToolbar from './VideoToolbar';
 import TextOverlayEditor from './TextOverlayEditor';
+import MediaLibraryPanel from "./MediaLibraryPanel";
+import TemplatesPanel from "./TemplatesPanel";
 import { 
   Play, Pause, SkipBack, SkipForward, Download, Upload, Scissors
 } from 'lucide-react';
@@ -268,9 +270,6 @@ const VideoEditor: React.FC = () => {
       }
     });
   }, [currentTime, project.textOverlays]);
-
-import MediaLibraryPanel from "./MediaLibraryPanel";
-import TemplatesPanel from "./TemplatesPanel";
 
   return (
     <div className="flex flex-col h-screen">
