@@ -26,31 +26,45 @@ const VideoControls: React.FC<VideoControlsProps> = ({
   currentTime,
   duration
 }) => (
-  <div className="toolbar mb-4 flex items-center rounded-xl px-3 py-2 bg-white/70 dark:bg-editor-darker/75 shadow-lg border border-gray-200 dark:border-editor-purple/50 max-w-3xl mx-auto studio-card font-ui">
-    <button className="toolbar-button" title="Go to Start" onClick={() => seekTo(0)}>
-      <SkipBack size={22} />
+  <div className="toolbar mb-6 flex items-center rounded-2xl px-4 py-3 bg-gradient-to-r from-[#D3E4FD] to-[#F2FCE2] shadow-xl border border-blue-200 max-w-3xl mx-auto studio-card font-ui">
+    <button
+      className="toolbar-button text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-150"
+      title="Go to Start"
+      onClick={() => seekTo(0)}
+      aria-label="Go to start of video"
+    >
+      <SkipBack size={24} />
     </button>
-    <button className="toolbar-button" title={isPlaying ? "Pause" : "Play"} onClick={togglePlay}>
-      {isPlaying ? <Pause size={22} /> : <Play size={22} />}
+    <button
+      className="toolbar-button text-blue-600 hover:bg-blue-100 hover:text-blue-700 mx-2 transition-colors duration-150"
+      title={isPlaying ? "Pause" : "Play"}
+      onClick={togglePlay}
+      aria-label={isPlaying ? "Pause video" : "Play video"}
+    >
+      {isPlaying ? <Pause size={26} /> : <Play size={26} />}
     </button>
-    <button className="toolbar-button" title="Go to End" onClick={() => seekTo(duration)}>
-      <SkipForward size={22} />
+    <button
+      className="toolbar-button text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-150"
+      title="Go to End"
+      onClick={() => seekTo(duration)}
+      aria-label="Go to end of video"
+    >
+      <SkipForward size={24} />
     </button>
-    <div className="flex-1 mx-6">
+    <div className="flex-1 mx-8">
       <Slider
         value={[currentTime]}
         min={0}
         max={duration || 100}
         step={0.01}
         onValueChange={(values) => seekTo(values[0])}
-        className="h-2"
+        className="h-3 rounded-full"
       />
     </div>
-    <div className="text-xs text-gray-500 font-semibold tracking-wide min-w-[86px] text-right">
+    <div className="text-sm font-semibold tracking-wide min-w-[96px] text-right text-blue-700 select-none">
       {formatTime(currentTime)} / {formatTime(duration)}
     </div>
   </div>
 );
 
 export default VideoControls;
-
