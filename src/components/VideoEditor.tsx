@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -270,19 +269,22 @@ const VideoEditor: React.FC = () => {
     });
   }, [currentTime, project.textOverlays]);
 
+import MediaLibraryPanel from "./MediaLibraryPanel";
+import TemplatesPanel from "./TemplatesPanel";
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-none p-4 bg-editor-darker">
         <h1 className="text-2xl font-bold text-white">VideoVibesCraft</h1>
       </div>
-      
       <div className="flex flex-1 overflow-hidden">
         {/* Left sidebar */}
-        <div className="w-64 bg-editor-darker p-4 overflow-y-auto">
+        <div className="w-72 bg-editor-darker p-4 overflow-y-auto">
           <Tabs defaultValue="assets">
-            <TabsList className="w-full">
+            <TabsList className="w-full grid grid-cols-4">
               <TabsTrigger className="flex-1" value="assets">Assets</TabsTrigger>
-              <TabsTrigger className="flex-1" value="effects">Effects</TabsTrigger>
+              <TabsTrigger className="flex-1" value="media">Media</TabsTrigger>
+              <TabsTrigger className="flex-1" value="templates">Templates</TabsTrigger>
               <TabsTrigger className="flex-1" value="text">Text</TabsTrigger>
             </TabsList>
             <TabsContent value="assets">
@@ -298,28 +300,57 @@ const VideoEditor: React.FC = () => {
                   className="hidden"
                   onChange={handleFileUpload}
                 />
-                
                 <div className="mt-4">
                   <h3 className="font-medium text-sm text-gray-400 mb-2">Project Videos</h3>
-                  {project.clips.map((clip) => (
-                    <div 
-                      key={clip.id} 
-                      className={`p-2 rounded mb-2 cursor-pointer ${selectedClipId === clip.id ? 'bg-editor-purple bg-opacity-50' : 'bg-editor-dark'}`}
-                      onClick={() => setSelectedClipId(clip.id)}
-                    >
-                      <div className="text-sm truncate">Video Clip</div>
-                      <div className="text-xs text-gray-400">{clip.duration.toFixed(1)}s</div>
-                    </div>
-                  ))}
-                  {project.clips.length === 0 && (
-                    <div className="text-sm text-gray-500 italic">No videos added yet</div>
-                  )}
+                  {/* Enable drag-and-drop for clip reordering */}
+                  <div
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => {
+                      const fromId = e.dataTransfer.getData("clip");
+                      if (!fromId) return;
+                      const toIndex = Number(e.currentTarget.getAttribute("data-index"));
+                      const fromIndex = project.clips.findIndex(c => c.id === fromId);
+                      if (fromIndex === -1) return;
+                      if (fromIndex === toIndex) return;
+                      const newClips = [...project.clips];
+                      const [moved] = newClips.splice(fromIndex, 1);
+                      newClips.splice(toIndex, 0, moved);
+                      setProject(prev => ({
+                        ...prev,
+                        clips: newClips,
+                      }));
+                    }}
+                  >
+                    {project.clips.map((clip, idx) => (
+                      <div
+                        key={clip.id}
+                        data-index={idx}
+                        className={`p-2 rounded mb-2 cursor-pointer ${selectedClipId === clip.id ? 'bg-editor-purple bg-opacity-50' : 'bg-editor-dark'}`}
+                        draggable
+                        onClick={() => setSelectedClipId(clip.id)}
+                        onDragStart={e => {
+                          e.dataTransfer.setData("clip", clip.id);
+                        }}
+                      >
+                        <div className="text-sm truncate">Video Clip</div>
+                        <div className="text-xs text-gray-400">{clip.duration.toFixed(1)}s</div>
+                      </div>
+                    ))}
+                    {project.clips.length === 0 && (
+                      <div className="text-sm text-gray-500 italic">No videos added yet</div>
+                    )}
+                  </div>
                 </div>
               </div>
             </TabsContent>
-            <TabsContent value="effects">
-              <div className="mt-4 text-center text-gray-400 text-sm">
-                Effects will be available in the next version
+            <TabsContent value="media">
+              <div className="mt-4">
+                <MediaLibraryPanel />
+              </div>
+            </TabsContent>
+            <TabsContent value="templates">
+              <div className="mt-4">
+                <TemplatesPanel />
               </div>
             </TabsContent>
             <TabsContent value="text">
@@ -327,7 +358,6 @@ const VideoEditor: React.FC = () => {
                 <Button className="w-full" onClick={addTextOverlay}>
                   Add Text
                 </Button>
-                
                 {selectedOverlayId && (
                   <TextOverlayEditor
                     overlay={project.textOverlays.find(o => o.id === selectedOverlayId)!}
@@ -338,7 +368,6 @@ const VideoEditor: React.FC = () => {
             </TabsContent>
           </Tabs>
         </div>
-        
         {/* Main content */}
         <div className="flex-1 flex flex-col p-4 overflow-hidden">
           {/* Preview */}
@@ -364,7 +393,6 @@ const VideoEditor: React.FC = () => {
               )}
             </div>
           </div>
-          
           {/* Controls */}
           <div className="toolbar mb-4">
             <button className="toolbar-button" onClick={() => seekTo(0)}>
@@ -389,14 +417,12 @@ const VideoEditor: React.FC = () => {
               {formatTime(currentTime)} / {formatTime(project.duration)}
             </div>
           </div>
-          
           {/* Video Toolbar */}
           <VideoToolbar 
             onSplit={splitClip} 
             onExport={exportVideo} 
             hasSelectedClip={!!selectedClipId}
           />
-          
           {/* Timeline */}
           <VideoTimeline 
             project={project}
@@ -405,11 +431,20 @@ const VideoEditor: React.FC = () => {
             onSeek={seekTo}
             onSelectClip={setSelectedClipId}
           />
+          {/* Export & Sharing Info Bar */}
+          <div className="mt-2 p-2 flex items-center justify-between bg-editor-dark rounded text-xs text-gray-400">
+            <span>
+              Export to MP4, MOV, AVI &amp; more (multi-resolution export coming soon)
+            </span>
+            <span>
+              <span className="font-semibold text-white">Cross-platform</span>: Edit on web, desktop, and mobile (coming soon)
+            </span>
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 // Helper to format time as MM:SS.ms
 const formatTime = (seconds: number): string => {
