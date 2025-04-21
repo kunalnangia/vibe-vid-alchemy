@@ -41,6 +41,10 @@ interface VideoProject {
   duration: number;
 }
 
+import SidebarPanels from './SidebarPanels';
+import VideoPreview from './VideoPreview';
+import VideoControls from './VideoControls';
+
 const VideoEditor: React.FC = () => {
   const [project, setProject] = useState<VideoProject>({
     clips: [],
@@ -271,6 +275,20 @@ const VideoEditor: React.FC = () => {
     });
   }, [currentTime, project.textOverlays]);
 
+  // Keep drag-and-drop for clips in VideoEditor so project.clips can be updated
+  const handleClipDrop = (fromId: string, toIndex: number) => {
+    const fromIndex = project.clips.findIndex(c => c.id === fromId);
+    if (fromIndex === -1) return;
+    if (fromIndex === toIndex) return;
+    const newClips = [...project.clips];
+    const [moved] = newClips.splice(fromIndex, 1);
+    newClips.splice(toIndex, 0, moved);
+    setProject(prev => ({
+      ...prev,
+      clips: newClips,
+    }));
+  };
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-none p-4 bg-editor-darker">
@@ -279,151 +297,47 @@ const VideoEditor: React.FC = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Left sidebar */}
         <div className="w-72 bg-editor-darker p-4 overflow-y-auto">
-          <Tabs defaultValue="assets">
-            <TabsList className="w-full grid grid-cols-4">
-              <TabsTrigger className="flex-1" value="assets">Assets</TabsTrigger>
-              <TabsTrigger className="flex-1" value="media">Media</TabsTrigger>
-              <TabsTrigger className="flex-1" value="templates">Templates</TabsTrigger>
-              <TabsTrigger className="flex-1" value="text">Text</TabsTrigger>
-            </TabsList>
-            <TabsContent value="assets">
-              <div className="mt-4">
-                <Button className="w-full" onClick={() => document.getElementById('upload-video')?.click()}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload Video
-                </Button>
-                <input
-                  id="upload-video"
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                />
-                <div className="mt-4">
-                  <h3 className="font-medium text-sm text-gray-400 mb-2">Project Videos</h3>
-                  {/* Enable drag-and-drop for clip reordering */}
-                  <div
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={e => {
-                      const fromId = e.dataTransfer.getData("clip");
-                      if (!fromId) return;
-                      const toIndex = Number(e.currentTarget.getAttribute("data-index"));
-                      const fromIndex = project.clips.findIndex(c => c.id === fromId);
-                      if (fromIndex === -1) return;
-                      if (fromIndex === toIndex) return;
-                      const newClips = [...project.clips];
-                      const [moved] = newClips.splice(fromIndex, 1);
-                      newClips.splice(toIndex, 0, moved);
-                      setProject(prev => ({
-                        ...prev,
-                        clips: newClips,
-                      }));
-                    }}
-                  >
-                    {project.clips.map((clip, idx) => (
-                      <div
-                        key={clip.id}
-                        data-index={idx}
-                        className={`p-2 rounded mb-2 cursor-pointer ${selectedClipId === clip.id ? 'bg-editor-purple bg-opacity-50' : 'bg-editor-dark'}`}
-                        draggable
-                        onClick={() => setSelectedClipId(clip.id)}
-                        onDragStart={e => {
-                          e.dataTransfer.setData("clip", clip.id);
-                        }}
-                      >
-                        <div className="text-sm truncate">Video Clip</div>
-                        <div className="text-xs text-gray-400">{clip.duration.toFixed(1)}s</div>
-                      </div>
-                    ))}
-                    {project.clips.length === 0 && (
-                      <div className="text-sm text-gray-500 italic">No videos added yet</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="media">
-              <div className="mt-4">
-                <MediaLibraryPanel />
-              </div>
-            </TabsContent>
-            <TabsContent value="templates">
-              <div className="mt-4">
-                <TemplatesPanel />
-              </div>
-            </TabsContent>
-            <TabsContent value="text">
-              <div className="mt-4">
-                <Button className="w-full" onClick={addTextOverlay}>
-                  Add Text
-                </Button>
-                {selectedOverlayId && (
-                  <TextOverlayEditor
-                    overlay={project.textOverlays.find(o => o.id === selectedOverlayId)!}
-                    onUpdate={(updates) => updateTextOverlay(selectedOverlayId, updates)}
-                  />
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
+          <SidebarPanels
+            handleFileUpload={handleFileUpload}
+            addTextOverlay={addTextOverlay}
+            selectedOverlayId={selectedOverlayId}
+            textOverlays={project.textOverlays}
+            onUpdateOverlay={updateTextOverlay}
+            selectedClipId={selectedClipId}
+            setSelectedClipId={setSelectedClipId}
+            clips={project.clips}
+          />
         </div>
         {/* Main content */}
         <div className="flex-1 flex flex-col p-4 overflow-hidden">
           {/* Preview */}
           <div className="flex-1 flex items-center justify-center mb-4 relative">
-            <div className="video-canvas relative" style={{ width: '640px', height: '360px' }}>
-              <canvas 
-                ref={canvasRef} 
-                width={640} 
-                height={360}
-                className="absolute top-0 left-0 w-full h-full z-10"
-              />
-              <video 
-                ref={videoRef} 
-                className="w-full h-full"
-                src={project.clips[0]?.src}
-                muted
-                style={{ visibility: 'hidden' }}
-              />
-              {project.clips.length === 0 && (
-                <div className="absolute inset-0 flex items-center justify-center text-gray-500">
-                  Upload a video to get started
-                </div>
-              )}
-            </div>
+            <VideoPreview
+              clips={project.clips}
+              textOverlays={project.textOverlays}
+              currentTime={currentTime}
+              setCurrentTime={setCurrentTime}
+              isPlaying={isPlaying}
+              setIsPlaying={setIsPlaying}
+              projectDuration={project.duration}
+            />
           </div>
           {/* Controls */}
-          <div className="toolbar mb-4">
-            <button className="toolbar-button" onClick={() => seekTo(0)}>
-              <SkipBack size={20} />
-            </button>
-            <button className="toolbar-button" onClick={togglePlay}>
-              {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-            </button>
-            <button className="toolbar-button" onClick={() => seekTo(project.duration)}>
-              <SkipForward size={20} />
-            </button>
-            <div className="flex-1 mx-4">
-              <Slider
-                value={[currentTime]}
-                min={0}
-                max={project.duration || 100}
-                step={0.01}
-                onValueChange={(values) => seekTo(values[0])}
-              />
-            </div>
-            <div className="text-sm text-gray-300">
-              {formatTime(currentTime)} / {formatTime(project.duration)}
-            </div>
-          </div>
+          <VideoControls
+            isPlaying={isPlaying}
+            togglePlay={togglePlay}
+            seekTo={seekTo}
+            currentTime={currentTime}
+            duration={project.duration}
+          />
           {/* Video Toolbar */}
-          <VideoToolbar 
-            onSplit={splitClip} 
-            onExport={exportVideo} 
+          <VideoToolbar
+            onSplit={splitClip}
+            onExport={exportVideo}
             hasSelectedClip={!!selectedClipId}
           />
           {/* Timeline */}
-          <VideoTimeline 
+          <VideoTimeline
             project={project}
             currentTime={currentTime}
             selectedClipId={selectedClipId}
