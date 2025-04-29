@@ -1,14 +1,10 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Slider } from "@/components/ui/slider";
-import { 
-  Play, Upload, Record, Scissors, 
-  InsertToken, ConnectCrm, ConnectSalesforce, 
-  Video, Download, Crop 
-} from "lucide-react";
+import { Play, Upload, Scissors, Video, Download, Crop } from "lucide-react";
+import { Record, InsertToken, ConnectCrm, ConnectSalesforce } from "@/components/ui/lucide-icons";
 import { AppSidebar } from './AppSidebar';
 
 const VideoEditor: React.FC = () => {
