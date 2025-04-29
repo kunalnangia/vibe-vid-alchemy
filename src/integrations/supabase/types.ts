@@ -9,6 +9,155 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string
+          device_info: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          user_id: string | null
+          video_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_info?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          user_id?: string | null
+          video_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_info?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          user_id?: string | null
+          video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      captions: {
+        Row: {
+          created_at: string
+          end_time: number
+          id: string
+          start_time: number
+          text: string
+          updated_at: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: number
+          id?: string
+          start_time: number
+          text: string
+          updated_at?: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: number
+          id?: string
+          start_time?: number
+          text?: string
+          updated_at?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "captions_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collaborators: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborators_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          timestamp: number | null
+          updated_at: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          timestamp?: number | null
+          updated_at?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          timestamp?: number | null
+          updated_at?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -30,6 +179,220 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_name: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_name: string
+          status: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_name?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      text_overlays: {
+        Row: {
+          color: string | null
+          created_at: string
+          end_time: number | null
+          font_family: string | null
+          font_size: number | null
+          id: string
+          position_x: number | null
+          position_y: number | null
+          start_time: number | null
+          text: string
+          updated_at: string
+          video_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          end_time?: number | null
+          font_family?: string | null
+          font_size?: number | null
+          id?: string
+          position_x?: number | null
+          position_y?: number | null
+          start_time?: number | null
+          text: string
+          updated_at?: string
+          video_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          end_time?: number | null
+          font_family?: string | null
+          font_size?: number | null
+          id?: string
+          position_x?: number | null
+          position_y?: number | null
+          start_time?: number | null
+          text?: string
+          updated_at?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "text_overlays_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_clips: {
+        Row: {
+          created_at: string
+          end_time: number | null
+          file_url: string | null
+          id: string
+          name: string
+          order_position: number | null
+          start_time: number | null
+          updated_at: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_time?: number | null
+          file_url?: string | null
+          id?: string
+          name: string
+          order_position?: number | null
+          start_time?: number | null
+          updated_at?: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: number | null
+          file_url?: string | null
+          id?: string
+          name?: string
+          order_position?: number | null
+          start_time?: number | null
+          updated_at?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_clips_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          click_count: number | null
+          created_at: string
+          description: string | null
+          duration: number | null
+          file_url: string | null
+          has_landing_page: boolean | null
+          id: string
+          landing_page_url: string | null
+          status: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          view_count: number | null
+        }
+        Insert: {
+          click_count?: number | null
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          file_url?: string | null
+          has_landing_page?: boolean | null
+          id?: string
+          landing_page_url?: string | null
+          status?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          view_count?: number | null
+        }
+        Update: {
+          click_count?: number | null
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          file_url?: string | null
+          has_landing_page?: boolean | null
+          id?: string
+          landing_page_url?: string | null
+          status?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          view_count?: number | null
         }
         Relationships: []
       }
