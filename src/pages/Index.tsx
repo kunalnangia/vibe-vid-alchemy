@@ -1,11 +1,14 @@
 
 import VideoEditor from "@/components/VideoEditor";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-editor-dark">
-      <VideoEditor />
-    </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gray-50">
+        <VideoEditor />
+      </div>
+    </SidebarProvider>
   );
 };
 
