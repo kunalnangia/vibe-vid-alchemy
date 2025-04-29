@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { toast } from "sonner";
 import { AppSidebar } from './AppSidebar';
@@ -12,8 +13,14 @@ import ScriptIdeaSection from './ScriptIdeaSection';
 import AnalyticsSection from './AnalyticsSection';
 import VideoPreviewPlaceholder from './VideoPreviewPlaceholder';
 import EditorRightSidebar from './EditorRightSidebar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LayoutGrid, Users, Share2, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import TemplateMarketplacePanel from './TemplateMarketplacePanel';
+import { useNavigate } from 'react-router-dom';
 
 const VideoEditor: React.FC = () => {
+  const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(25); // 25 seconds for example
@@ -26,6 +33,7 @@ const VideoEditor: React.FC = () => {
   const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(null);
   const [clips, setClips] = useState<any[]>([]);
   const [activeTool, setActiveTool] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("editor");
   
   const handleUpload = () => {
     toast.info("Upload Video feature clicked");
@@ -136,16 +144,22 @@ const VideoEditor: React.FC = () => {
     toast.success("Exporting video...");
   };
   
-  const renderTool = () => {
-    switch (activeTool) {
-      case "greenscreen":
-        return <GreenScreenPanel />;
-      case "collaborate":
-        return <CollaborationPanel />;
-      case "export":
-        return <SocialExportPanel />;
-      default:
-        return null;
+  const handleBackToProjects = () => {
+    navigate('/projects');
+  };
+  
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    
+    // Set the appropriate tool based on the tab
+    if (value === "marketplace") {
+      setActiveTool("marketplace");
+    } else if (value === "collaborate") {
+      setActiveTool("collaborate");
+    } else if (value === "export") {
+      setActiveTool("export");
+    } else {
+      setActiveTool(null);
     }
   };
   
@@ -155,49 +169,90 @@ const VideoEditor: React.FC = () => {
       
       <div className="flex flex-1 p-6">
         <div className="flex-1 pr-4 space-y-6">
-          {/* Top buttons */}
-          <UploadSection 
-            handleUpload={handleUpload}
-            handleRecord={handleRecord}
-          />
+          {/* Top Navigation */}
+          <div className="flex items-center justify-between mb-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-1" 
+              onClick={handleBackToProjects}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Projects
+            </Button>
+            
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-auto">
+              <TabsList className="bg-blue-50 border border-blue-200">
+                <TabsTrigger value="editor" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                  Editor
+                </TabsTrigger>
+                <TabsTrigger value="marketplace" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                  <LayoutGrid className="w-4 h-4 mr-1" />
+                  Marketplace
+                </TabsTrigger>
+                <TabsTrigger value="collaborate" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                  <Users className="w-4 h-4 mr-1" />
+                  Collaborate
+                </TabsTrigger>
+                <TabsTrigger value="export" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                  <Share2 className="w-4 h-4 mr-1" />
+                  Export
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
           
-          {/* Script Idea section */}
-          <ScriptIdeaSection
-            scriptIdea={scriptIdea}
-            setScriptIdea={setScriptIdea}
-          />
+          <TabsContent value={activeTab} className="m-0">
+            {activeTab === "editor" ? (
+              <>
+                {/* Upload Video Section */}
+                <UploadSection 
+                  handleUpload={handleUpload}
+                  handleRecord={handleRecord}
+                />
+                
+                {/* Script Idea section */}
+                <ScriptIdeaSection
+                  scriptIdea={scriptIdea}
+                  setScriptIdea={setScriptIdea}
+                />
 
-          {/* Video Toolbar */}
-          <VideoToolbar 
-            onSplit={handleSplitClip}
-            onExport={handleExport}
-            hasSelectedClip={!!selectedClipId}
-          />
-          
-          {/* Video preview box (placeholder) */}
-          <VideoPreviewPlaceholder />
-          
-          {/* Video progress slider */}
-          <VideoPlayer
-            isPlaying={isPlaying}
-            currentTime={currentTime}
-            duration={duration}
-            handlePlay={handlePlay}
-            handleSliderChange={handleSliderChange}
-          />
-          
-          {/* Tool Panel Area */}
-          {renderTool()}
-          
-          {/* Analytics section */}
-          <AnalyticsSection
-            views={views}
-            clicks={clicks}
-            handleDownloadAnalytics={handleDownloadAnalytics}
-          />
+                {/* Video Toolbar */}
+                <VideoToolbar 
+                  onSplit={handleSplitClip}
+                  onExport={handleExport}
+                  hasSelectedClip={!!selectedClipId}
+                />
+                
+                {/* Video preview box */}
+                <VideoPreviewPlaceholder />
+                
+                {/* Video progress slider */}
+                <VideoPlayer
+                  isPlaying={isPlaying}
+                  currentTime={currentTime}
+                  duration={duration}
+                  handlePlay={handlePlay}
+                  handleSliderChange={handleSliderChange}
+                />
+                
+                {/* Analytics section */}
+                <AnalyticsSection
+                  views={views}
+                  clicks={clicks}
+                  handleDownloadAnalytics={handleDownloadAnalytics}
+                />
+              </>
+            ) : activeTab === "marketplace" ? (
+              <TemplateMarketplacePanel />
+            ) : activeTab === "collaborate" ? (
+              <CollaborationPanel />
+            ) : (
+              <SocialExportPanel />
+            )}
+          </TabsContent>
         </div>
         
-        {/* Right sidebar */}
+        {/* Right sidebar - always shown regardless of tab */}
         <EditorRightSidebar
           videoTitle={videoTitle}
           setVideoTitle={setVideoTitle}
