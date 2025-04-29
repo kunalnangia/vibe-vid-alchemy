@@ -9,6 +9,7 @@ import {
   SidebarMenuButton
 } from "@/components/ui/sidebar";
 import { Lightbulb, Users, Play } from "lucide-react";
+import UserProfile from "./UserProfile";
 
 export function AppSidebar() {
   return (
@@ -46,6 +47,10 @@ export function AppSidebar() {
             <div className="text-2xl font-bold py-2">SmartSprk</div>
             <div className="text-2xl font-bold py-2">CoCreate</div>
             <div className="text-2xl font-bold py-2">LocaleBot</div>
+          </div>
+          
+          <div className="mt-auto pt-8 border-t border-gray-700">
+            <UserProfile />
           </div>
         </div>
       </SidebarContent>
