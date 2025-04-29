@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,11 @@ import { Slider } from "@/components/ui/slider";
 import { Play, Upload, Scissors, Video, Download, Crop } from "lucide-react";
 import { Record, InsertToken, ConnectCrm, ConnectSalesforce } from "@/components/ui/lucide-icons";
 import { AppSidebar } from './AppSidebar';
+import VideoToolbar from './VideoToolbar';
+import SidebarPanels from './SidebarPanels';
+import GreenScreenPanel from './GreenScreenPanel';
+import CollaborationPanel from './CollaborationPanel';
+import SocialExportPanel from './SocialExportPanel';
 
 const VideoEditor: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -15,6 +21,11 @@ const VideoEditor: React.FC = () => {
   const [videoTitle, setVideoTitle] = useState("");
   const [views, setViews] = useState(0);
   const [clicks, setClicks] = useState(0);
+  const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
+  const [textOverlays, setTextOverlays] = useState<any[]>([]);
+  const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(null);
+  const [clips, setClips] = useState<any[]>([]);
+  const [activeTool, setActiveTool] = useState<string | null>(null);
   
   const handleUpload = () => {
     toast.info("Upload Video feature clicked");
@@ -41,22 +52,27 @@ const VideoEditor: React.FC = () => {
   
   const handleTrimVideo = () => {
     toast.info("Trim Video feature clicked");
+    setActiveTool("trim");
   };
   
   const handleCropFrame = () => {
     toast.info("Crop Frame feature clicked");
+    setActiveTool("crop");
   };
   
   const handleInsertToken = () => {
     toast.info("Insert Token feature clicked");
+    setActiveTool("token");
   };
   
   const handleConnectCRM = () => {
     toast.info("Connect CRM feature clicked");
+    setActiveTool("crm");
   };
   
   const handleConnectSalesforce = () => {
     toast.info("Connect Salesforce feature clicked");
+    setActiveTool("salesforce");
   };
   
   const handleDownloadAnalytics = () => {
@@ -69,6 +85,74 @@ const VideoEditor: React.FC = () => {
       return;
     }
     toast.success(`Publishing "${videoTitle}" and generating landing page...`);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      toast.success(`Uploaded file: ${file.name}`);
+      
+      // Add new clip to the timeline
+      const newClip = {
+        id: `clip-${Date.now()}`,
+        name: file.name,
+        duration: Math.random() * 20 + 5, // Random duration for example
+        type: "video"
+      };
+      
+      setClips([...clips, newClip]);
+      setSelectedClipId(newClip.id);
+    }
+  };
+  
+  const addTextOverlay = () => {
+    const newOverlay = {
+      id: `text-${Date.now()}`,
+      text: "New Text",
+      position: { x: 100, y: 100 },
+      style: {
+        color: "#ffffff",
+        fontSize: 24,
+        fontFamily: "Arial"
+      }
+    };
+    
+    setTextOverlays([...textOverlays, newOverlay]);
+    setSelectedOverlayId(newOverlay.id);
+    toast.success("Text overlay added");
+  };
+  
+  const updateTextOverlay = (id: string, updates: any) => {
+    setTextOverlays(
+      textOverlays.map(overlay => 
+        overlay.id === id ? { ...overlay, ...updates } : overlay
+      )
+    );
+  };
+  
+  const handleSplitClip = () => {
+    if (selectedClipId) {
+      toast.success("Clip split at current position");
+    } else {
+      toast.error("Please select a clip first");
+    }
+  };
+  
+  const handleExport = () => {
+    toast.success("Exporting video...");
+  };
+  
+  const renderTool = () => {
+    switch (activeTool) {
+      case "greenscreen":
+        return <GreenScreenPanel />;
+      case "collaborate":
+        return <CollaborationPanel />;
+      case "export":
+        return <SocialExportPanel />;
+      default:
+        return null;
+    }
   };
   
   return (
@@ -108,6 +192,13 @@ const VideoEditor: React.FC = () => {
               onChange={(e) => setScriptIdea(e.target.value)}
             />
           </div>
+
+          {/* Video Toolbar */}
+          <VideoToolbar 
+            onSplit={handleSplitClip}
+            onExport={handleExport}
+            hasSelectedClip={!!selectedClipId}
+          />
           
           {/* Video preview box (placeholder) */}
           <div className="grid grid-cols-3 gap-4">
@@ -143,6 +234,9 @@ const VideoEditor: React.FC = () => {
               <span>{formatTime(duration)}</span>
             </div>
           </div>
+          
+          {/* Tool Panel Area */}
+          {renderTool()}
           
           {/* Analytics section */}
           <div className="bg-gray-100 p-6 rounded-md space-y-4">
