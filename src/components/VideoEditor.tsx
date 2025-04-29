@@ -1,17 +1,17 @@
-
-import React, { useState, useRef } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React, { useState } from 'react';
 import { toast } from "sonner";
-import { Slider } from "@/components/ui/slider";
-import { Play, Upload, Scissors, Video, Download, Crop } from "lucide-react";
-import { Record, InsertToken, ConnectCrm, ConnectSalesforce } from "@/components/ui/lucide-icons";
 import { AppSidebar } from './AppSidebar';
 import VideoToolbar from './VideoToolbar';
 import SidebarPanels from './SidebarPanels';
 import GreenScreenPanel from './GreenScreenPanel';
 import CollaborationPanel from './CollaborationPanel';
 import SocialExportPanel from './SocialExportPanel';
+import VideoPlayer from './VideoPlayer';
+import UploadSection from './UploadSection';
+import ScriptIdeaSection from './ScriptIdeaSection';
+import AnalyticsSection from './AnalyticsSection';
+import VideoPreviewPlaceholder from './VideoPreviewPlaceholder';
+import EditorRightSidebar from './EditorRightSidebar';
 
 const VideoEditor: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -42,12 +42,6 @@ const VideoEditor: React.FC = () => {
   
   const handleSliderChange = (value: number[]) => {
     setCurrentTime(value[0]);
-  };
-  
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
   
   const handleTrimVideo = () => {
@@ -162,36 +156,16 @@ const VideoEditor: React.FC = () => {
       <div className="flex flex-1 p-6">
         <div className="flex-1 pr-4 space-y-6">
           {/* Top buttons */}
-          <div className="flex space-x-4">
-            <Button 
-              className="px-8 py-6 text-lg bg-gray-100 hover:bg-gray-200 text-gray-800" 
-              variant="outline"
-              onClick={handleUpload}
-            >
-              <Upload className="mr-2 h-5 w-5" />
-              Upload Video
-            </Button>
-            
-            <Button 
-              className="px-8 py-6 text-lg bg-gray-100 hover:bg-gray-200 text-gray-800" 
-              variant="outline"
-              onClick={handleRecord}
-            >
-              <Record className="mr-2 h-5 w-5" />
-              Record Video
-            </Button>
-          </div>
+          <UploadSection 
+            handleUpload={handleUpload}
+            handleRecord={handleRecord}
+          />
           
           {/* Script Idea section */}
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold">Script Idea</h2>
-            <Input
-              className="py-6 text-lg bg-gray-100"
-              placeholder="Script Idea"
-              value={scriptIdea}
-              onChange={(e) => setScriptIdea(e.target.value)}
-            />
-          </div>
+          <ScriptIdeaSection
+            scriptIdea={scriptIdea}
+            setScriptIdea={setScriptIdea}
+          />
 
           {/* Video Toolbar */}
           <VideoToolbar 
@@ -201,141 +175,53 @@ const VideoEditor: React.FC = () => {
           />
           
           {/* Video preview box (placeholder) */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-gray-200 h-24 rounded-md"></div>
-            <div className="bg-gray-200 h-24 rounded-md"></div>
-            <div className="grid grid-cols-2 grid-rows-2 gap-2">
-              <div className="bg-gray-200 rounded-md"></div>
-              <div className="bg-gray-200 rounded-md"></div>
-              <div className="bg-gray-200 rounded-md"></div>
-              <div className="bg-gray-200 rounded-md"></div>
-            </div>
-          </div>
+          <VideoPreviewPlaceholder />
           
           {/* Video progress slider */}
-          <div className="space-y-4">
-            <div className="flex items-center">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="mr-2"
-                onClick={handlePlay}
-              >
-                <Play className="h-6 w-6" />
-              </Button>
-              <span>{formatTime(currentTime)}</span>
-              <Slider
-                value={[currentTime]}
-                max={duration}
-                step={1}
-                className="mx-4 flex-1"
-                onValueChange={handleSliderChange}
-              />
-              <span>{formatTime(duration)}</span>
-            </div>
-          </div>
+          <VideoPlayer
+            isPlaying={isPlaying}
+            currentTime={currentTime}
+            duration={duration}
+            handlePlay={handlePlay}
+            handleSliderChange={handleSliderChange}
+          />
           
           {/* Tool Panel Area */}
           {renderTool()}
           
           {/* Analytics section */}
-          <div className="bg-gray-100 p-6 rounded-md space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xl">Views: {views}</span>
-              <div className="h-2 bg-gray-300 rounded-full w-72"></div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-xl">Clicks: {clicks}</span>
-              <div className="h-2 bg-gray-300 rounded-full w-72"></div>
-            </div>
-            
-            <Button 
-              variant="outline" 
-              className="w-full py-6 text-lg bg-white hover:bg-gray-50"
-              onClick={handleDownloadAnalytics}
-            >
-              <Download className="mr-2 h-5 w-5" />
-              Download Analytics Report
-            </Button>
-          </div>
+          <AnalyticsSection
+            views={views}
+            clicks={clicks}
+            handleDownloadAnalytics={handleDownloadAnalytics}
+          />
         </div>
         
         {/* Right sidebar */}
-        <div className="w-[400px]">
-          <h2 className="text-3xl font-bold mb-6">EDIT VIDEO</h2>
-          
-          <div className="space-y-4">
-            <Button 
-              variant="outline" 
-              className="w-full py-6 text-lg justify-start px-6 bg-gray-100 hover:bg-gray-200"
-              onClick={handleTrimVideo}
-            >
-              <Scissors className="mr-3 h-5 w-5" />
-              Trim Video
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="w-full py-6 text-lg justify-start px-6 bg-gray-100 hover:bg-gray-200"
-              onClick={handleCropFrame}
-            >
-              <Crop className="mr-3 h-5 w-5" />
-              Crop Frame
-            </Button>
-          </div>
-          
-          <h2 className="text-3xl font-bold mt-10 mb-6">PERSONALIZATION</h2>
-          
-          <div className="space-y-4">
-            <Button 
-              variant="outline" 
-              className="w-full py-6 text-lg justify-start px-6 bg-gray-100 hover:bg-gray-200"
-              onClick={handleInsertToken}
-            >
-              <InsertToken className="mr-3 h-5 w-5" />
-              Insert Token
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="w-full py-6 text-lg justify-start px-6 bg-gray-100 hover:bg-gray-200"
-              onClick={handleConnectCRM}
-            >
-              <ConnectCrm className="mr-3 h-5 w-5" />
-              Connect CRM
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="w-full py-6 text-lg justify-start px-6 bg-gray-100 hover:bg-gray-200"
-              onClick={handleConnectSalesforce}
-            >
-              <ConnectSalesforce className="mr-3 h-5 w-5" />
-              Connect Salesforce
-            </Button>
-          </div>
-          
-          <h2 className="text-3xl font-bold mt-10 mb-6">VIDEO ANALYTICS</h2>
-          
-          <div className="space-y-4">
-            <Input
-              className="py-6 text-lg bg-gray-100"
-              placeholder="Video Title"
-              value={videoTitle}
-              onChange={(e) => setVideoTitle(e.target.value)}
-            />
-            
-            <Button 
-              variant="outline" 
-              className="w-full py-6 text-lg justify-center px-6 bg-gray-100 hover:bg-gray-200"
-              onClick={handlePublishLanding}
-            >
-              <Video className="mr-3 h-5 w-5" />
-              Publish & Generate Landing Page
-            </Button>
-          </div>
-        </div>
+        <EditorRightSidebar
+          videoTitle={videoTitle}
+          setVideoTitle={setVideoTitle}
+          handleTrimVideo={handleTrimVideo}
+          handleCropFrame={handleCropFrame}
+          handleInsertToken={handleInsertToken}
+          handleConnectCRM={handleConnectCRM}
+          handleConnectSalesforce={handleConnectSalesforce}
+          handlePublishLanding={handlePublishLanding}
+        />
+      </div>
+
+      {/* SidebarPanels component needs to be included to keep functionality */}
+      <div className="hidden">
+        <SidebarPanels
+          handleFileUpload={handleFileUpload}
+          addTextOverlay={addTextOverlay}
+          selectedOverlayId={selectedOverlayId}
+          textOverlays={textOverlays}
+          onUpdateOverlay={updateTextOverlay}
+          selectedClipId={selectedClipId}
+          setSelectedClipId={setSelectedClipId}
+          clips={clips}
+        />
       </div>
     </>
   );
