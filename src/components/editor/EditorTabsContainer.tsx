@@ -87,10 +87,8 @@ const EditorTabsContainer: React.FC<EditorTabsContainerProps> = ({
             Export
           </TabsTrigger>
         </TabsList>
-      </Tabs>
-      
-      <TabsContent value={activeTab} className="m-0">
-        {activeTab === "editor" ? (
+        
+        <TabsContent value="editor">
           <EditorMainView 
             scriptIdea={scriptIdea}
             setScriptIdea={setScriptIdea}
@@ -108,14 +106,17 @@ const EditorTabsContainer: React.FC<EditorTabsContainerProps> = ({
             handleExport={handleExport}
             handleDownloadAnalytics={handleDownloadAnalytics}
           />
-        ) : activeTab === "marketplace" ? (
+        </TabsContent>
+        <TabsContent value="marketplace">
           <TemplateMarketplacePanel />
-        ) : activeTab === "collaborate" ? (
+        </TabsContent>
+        <TabsContent value="collaborate">
           <CollaborationPanel />
-        ) : (
+        </TabsContent>
+        <TabsContent value="export">
           <SocialExportPanel />
-        )}
-      </TabsContent>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
