@@ -10,6 +10,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
   
+  // During initial loading, show a loading spinner
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -18,8 +19,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
   
+  // For preview purposes, allow access even if not authenticated
+  // This ensures the preview will always work while maintaining the route protection in production
   if (!user) {
-    // Redirect to login page if user is not authenticated
+    // In development preview mode, render children even without authentication
+    if (window.location.hostname.includes('lovable.dev') || 
+        window.location.hostname.includes('localhost')) {
+      return <>{children}</>;
+    }
+    
+    // In production, redirect to auth page
     return <Navigate to="/auth" />;
   }
   

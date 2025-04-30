@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 
 interface VideoClip {
@@ -58,15 +57,15 @@ interface VideoPreviewProps {
 }
 
 const VideoPreview: React.FC<VideoPreviewProps> = ({
-  clips,
-  textOverlays,
-  currentTime,
-  setCurrentTime,
-  isPlaying,
-  setIsPlaying,
-  projectDuration,
-  currentFilter,
-  aspectRatio
+  clips = [], // Provide default empty array
+  textOverlays = [], // Provide default empty array
+  currentTime = 0,
+  setCurrentTime = () => {},
+  isPlaying = false,
+  setIsPlaying = () => {},
+  projectDuration = 25,
+  currentFilter = 'normal',
+  aspectRatio = 'landscape'
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -102,14 +101,16 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     
     rafRef.current = requestAnimationFrame(animate);
     
-    if (videoRef.current) {
-      videoRef.current.play();
+    if (videoRef.current && clips.length > 0) {
+      videoRef.current.play().catch(err => {
+        console.log("Video play error (likely user hasn't interacted yet):", err);
+      });
     }
     
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [isPlaying, projectDuration, setCurrentTime, setIsPlaying]);
+  }, [isPlaying, projectDuration, setCurrentTime, setIsPlaying, clips]);
 
   // Draw current frame on canvas + overlays
   useEffect(() => {
@@ -127,14 +128,18 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     
     // Get the current clip (simplified)
     if (clips.length > 0) {
-      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      
-      // Apply filter effects (would be better with WebGL in production)
-      if (currentFilter !== 'normal') {
-        // For complex filters, WebGL would be used in a real implementation
-        // This is a simplified visual representation
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        ctx.putImageData(imageData, 0, 0);
+      try {
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        
+        // Apply filter effects (would be better with WebGL in production)
+        if (currentFilter !== 'normal') {
+          // For complex filters, WebGL would be used in a real implementation
+          // This is a simplified visual representation
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          ctx.putImageData(imageData, 0, 0);
+        }
+      } catch (err) {
+        console.error("Canvas error:", err);
       }
     }
     
