@@ -80,7 +80,7 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
           width: ratioConfig.width,
           height: ratioConfig.height,
           maxWidth: '100%',
-          aspectRatio: ratioConfig.aspectRatio,
+          aspectRatio: `${ratioConfig.width}/${ratioConfig.height}`,
           backgroundColor: '#000'
         }}
       />
