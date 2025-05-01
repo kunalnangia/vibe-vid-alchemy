@@ -9,6 +9,9 @@ import SidebarPanels from './SidebarPanels';
 import { toast } from "sonner";
 import VideoPreview from './VideoPreview';
 import VideoControls from './VideoControls';
+import ScriptIdeaSection from './ScriptIdeaSection';
+import AnalyticsSection from './AnalyticsSection';
+import UploadSection from './UploadSection';
 
 const VideoEditor: React.FC = () => {
   const [currentFilter, setCurrentFilter] = useState('normal');
@@ -47,8 +50,20 @@ const VideoEditor: React.FC = () => {
                 handleExport={editorState.handleExport}
                 handleDownloadAnalytics={editorState.handleDownloadAnalytics}
               />
+              
+              {/* Script Idea section */}
+              <ScriptIdeaSection
+                scriptIdea={editorState.scriptIdea}
+                setScriptIdea={editorState.setScriptIdea}
+              />
+              
+              {/* Upload Section */}
+              <UploadSection
+                handleUpload={editorState.handleUpload}
+                handleRecord={editorState.handleRecord}
+              />
 
-              {/* Display video preview when clips are available */}
+              {/* Display video preview when clips are available or show instruction to add first clip */}
               <div className="flex justify-center p-4">
                 <VideoPreview
                   clips={editorState.clips}
@@ -75,6 +90,13 @@ const VideoEditor: React.FC = () => {
                   />
                 </div>
               )}
+              
+              {/* Analytics section */}
+              <AnalyticsSection
+                views={editorState.views}
+                clicks={editorState.clicks}
+                handleDownloadAnalytics={editorState.handleDownloadAnalytics}
+              />
             </div>
             
             {/* Right sidebar - always shown regardless of tab */}

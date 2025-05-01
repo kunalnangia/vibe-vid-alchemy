@@ -51,12 +51,20 @@ export const useVideoRenderer = ({
         const objectUrl = URL.createObjectURL(clips[0].file);
         videoRef.current.src = objectUrl;
         console.log("Loading video from file:", clips[0].name);
+        
+        // Add preload attribute to ensure content is loaded
+        videoRef.current.preload = "auto";
       }
       
       const handleLoaded = () => {
         setVideoLoaded(true);
         console.log("Video loaded successfully");
         toast.success("Video loaded successfully");
+        
+        // Set video currentTime to match app's currentTime
+        if (videoRef.current) {
+          videoRef.current.currentTime = currentTime;
+        }
       };
       
       const handleError = (err: any) => {
@@ -82,7 +90,7 @@ export const useVideoRenderer = ({
     } else {
       setVideoLoaded(false);
     }
-  }, [clips]);
+  }, [clips, currentTime]);
   
   // Update video playback state
   useEffect(() => {
@@ -182,19 +190,19 @@ export const useVideoRenderer = ({
             ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
           }
         }
+        
+        // Draw text overlays
+        textOverlays.forEach(overlay => {
+          if (currentTime >= overlay.startTime && currentTime <= overlay.endTime) {
+            ctx.fillStyle = overlay.style.color;
+            ctx.font = `${overlay.style.fontSize}px ${overlay.style.fontFamily}`;
+            ctx.fillText(overlay.text, overlay.position.x, overlay.position.y);
+          }
+        });
       } catch (err) {
         console.error("Canvas drawing error:", err);
       }
     }
-    
-    // Draw text overlays
-    textOverlays.forEach(overlay => {
-      if (currentTime >= overlay.startTime && currentTime <= overlay.endTime) {
-        ctx.fillStyle = overlay.style.color;
-        ctx.font = `${overlay.style.fontSize}px ${overlay.style.fontFamily}`;
-        ctx.fillText(overlay.text, overlay.position.x, overlay.position.y);
-      }
-    });
   }, [currentTime, textOverlays, clips, aspectRatio, ratioConfig.width, ratioConfig.height, videoLoaded, greenScreenEnabled]);
 
   // Update video current time when time is changed externally

@@ -20,13 +20,20 @@ export const useBasicActions = () => {
     // In a real app, you'd upload this to a server
     console.log("Uploading file:", file);
     
-    // You could set this as active file or pass to a file handler
+    // Trigger file upload in the editor's clip handler
+    const event = new CustomEvent('video-upload', { detail: { file } });
+    document.dispatchEvent(event);
   }, []);
 
   // Handle video recording from webcam
   const handleRecord = useCallback(() => {
-    toast.info("Recording feature will be available soon");
-    // In a real app, you'd access the user's webcam here
+    // Video recording handled in UploadSection component
+    const recordButton = document.querySelector('[data-record-button]');
+    if (recordButton instanceof HTMLButtonElement) {
+      recordButton.click();
+    } else {
+      toast.info("Recording feature initialized");
+    }
   }, []);
 
   // Handle exporting the final video

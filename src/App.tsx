@@ -10,6 +10,10 @@ import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Projects from "./pages/Projects";
+import Templates from "./pages/Templates";
+import AICreator from "./pages/AICreator";
+import Publishing from "./pages/Publishing";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -37,8 +41,39 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/templates" 
+              element={
+                <ProtectedRoute>
+                  <Templates />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/ai-creator" 
+              element={
+                <ProtectedRoute>
+                  <AICreator />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/publishing" 
+              element={
+                <ProtectedRoute>
+                  <Publishing />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/auth" element={<Auth />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

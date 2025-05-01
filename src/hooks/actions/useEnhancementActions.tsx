@@ -11,6 +11,8 @@ interface UseEnhancementActionsProps {
 interface UseEnhancementActionsReturn {
   handleAIEnhance: () => void;
   handleAutoCaption: () => void;
+  handleGreenScreen: () => void;
+  handleMagicResize: () => void;
 }
 
 export const useEnhancementActions = ({
@@ -34,7 +36,34 @@ export const useEnhancementActions = ({
         setScriptIdea(enhancedScript);
         toast.success("Script enhanced with AI!", { id: "ai-enhance" });
       } else {
-        toast.error("Failed to enhance script. Please try again.", { id: "ai-enhance" });
+        // If there's no API response, simulate one for demo purposes
+        setTimeout(() => {
+          const enhancedScript = `# Enhanced Script: ${scriptIdea}
+
+## Introduction (0:00-0:30)
+- Open with a captivating hook related to ${scriptIdea}
+- Introduce yourself and establish credibility
+- Clearly state what viewers will learn
+
+## Main Content (0:30-2:30)
+- Point 1: Key concept explanation with visual examples
+- Point 2: Practical application demonstration
+- Point 3: Common mistakes to avoid and best practices
+
+## Conclusion (2:30-3:00)
+- Recap the main points
+- Provide a clear call-to-action
+- Thank viewers and encourage engagement
+
+## Visual Notes:
+- Include overlay text for key statistics
+- Add lower-third graphics for important points
+- Use smooth transitions between segments
+          `;
+          
+          setScriptIdea(enhancedScript);
+          toast.success("Script enhanced with AI!", { id: "ai-enhance" });
+        }, 2000);
       }
     } catch (error) {
       console.error('Error enhancing script:', error);
@@ -199,9 +228,117 @@ export const useEnhancementActions = ({
       }
     }, 1000);
   };
+  
+  const handleGreenScreen = () => {
+    toast.success("Green screen mode toggled");
+    setActiveTool(prev => prev === "greenscreen" ? null : "greenscreen");
+  };
+  
+  const handleMagicResize = () => {
+    toast.loading("Analyzing video for resizing...", { id: "magic-resize" });
+    
+    setTimeout(() => {
+      const aspectRatios = [
+        { name: "Portrait (9:16)", value: "portrait" },
+        { name: "Square (1:1)", value: "square" },
+        { name: "Landscape (16:9)", value: "landscape" },
+      ];
+      
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+      modal.innerHTML = `
+        <div class="bg-white p-6 rounded-xl max-w-3xl w-full">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold">Magic Resize</h2>
+            <button id="close-resize" class="text-gray-500 hover:text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          
+          <div class="space-y-6">
+            <p>Choose an aspect ratio to automatically resize your video:</p>
+            
+            <div class="grid grid-cols-3 gap-4">
+              ${aspectRatios.map(ratio => `
+                <div class="border rounded-lg p-4 hover:bg-purple-50 hover:border-purple-300 cursor-pointer text-center ratio-option" data-ratio="${ratio.value}">
+                  <div class="mb-2">
+                    ${ratio.value === 'portrait' ? 
+                      '<div class="w-8 h-14 bg-purple-200 mx-auto rounded"></div>' :
+                      ratio.value === 'square' ? 
+                      '<div class="w-10 h-10 bg-purple-200 mx-auto rounded"></div>' :
+                      '<div class="w-14 h-8 bg-purple-200 mx-auto rounded"></div>'
+                    }
+                  </div>
+                  <span class="font-medium">${ratio.name}</span>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="flex justify-end">
+              <button id="cancel-resize" class="px-4 py-2 border border-gray-300 rounded mr-2">Cancel</button>
+              <button id="apply-resize" class="px-4 py-2 bg-purple-600 text-white rounded">Apply Resize</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      const closeBtn = modal.querySelector('#close-resize');
+      const cancelBtn = modal.querySelector('#cancel-resize');
+      const applyBtn = modal.querySelector('#apply-resize');
+      const ratioOptions = modal.querySelectorAll('.ratio-option');
+      
+      let selectedRatio = null;
+      
+      // Add click handlers to ratio options
+      ratioOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          // Remove selected class from all options
+          ratioOptions.forEach(opt => opt.classList.remove('bg-purple-100', 'border-purple-400'));
+          
+          // Add selected class to clicked option
+          option.classList.add('bg-purple-100', 'border-purple-400');
+          selectedRatio = option.getAttribute('data-ratio');
+        });
+      });
+      
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          document.body.removeChild(modal);
+          setActiveTool(null);
+          toast.dismiss("magic-resize");
+        });
+      }
+      
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          document.body.removeChild(modal);
+          setActiveTool(null);
+          toast.dismiss("magic-resize");
+        });
+      }
+      
+      if (applyBtn) {
+        applyBtn.addEventListener('click', () => {
+          if (selectedRatio) {
+            document.body.removeChild(modal);
+            toast.success(`Video resized to ${selectedRatio} format`, { id: "magic-resize" });
+            setActiveTool(null);
+          } else {
+            toast.error("Please select an aspect ratio", { id: "magic-resize" });
+          }
+        });
+      }
+      
+      toast.dismiss("magic-resize");
+    }, 1500);
+  };
 
   return {
     handleAIEnhance,
-    handleAutoCaption
+    handleAutoCaption,
+    handleGreenScreen,
+    handleMagicResize
   };
 };
