@@ -4,7 +4,6 @@ import { VideoPreviewProps } from '@/lib/video/types';
 import VideoCanvas from './video/VideoCanvas';
 import VideoFormatIndicator from './video/VideoFormatIndicator';
 import { Button } from './ui/button';
-import { Crop, Download, RefreshCw } from 'lucide-react';
 
 const VideoPreview: React.FC<VideoPreviewProps> = ({
   clips = [],
@@ -15,12 +14,13 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   setIsPlaying = () => {},
   projectDuration = 25,
   currentFilter = 'normal',
-  aspectRatio = 'landscape'
+  aspectRatio = 'landscape',
+  greenScreenEnabled = false
 }) => {
-  const [greenScreenEnabled, setGreenScreenEnabled] = useState(false);
+  const [localGreenScreenEnabled, setLocalGreenScreenEnabled] = useState(greenScreenEnabled);
 
   const toggleGreenScreen = () => {
-    setGreenScreenEnabled(!greenScreenEnabled);
+    setLocalGreenScreenEnabled(!localGreenScreenEnabled);
   };
 
   return (
@@ -30,9 +30,9 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
           variant="outline" 
           size="sm"
           onClick={toggleGreenScreen}
-          className={greenScreenEnabled ? "bg-green-100 text-green-800 border-green-300" : ""}
+          className={localGreenScreenEnabled ? "bg-green-100 text-green-800 border-green-300" : ""}
         >
-          {greenScreenEnabled ? "Disable Green Screen" : "Enable Green Screen"}
+          {localGreenScreenEnabled ? "Disable Green Screen" : "Enable Green Screen"}
         </Button>
       </div>
       
@@ -46,7 +46,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
         projectDuration={projectDuration}
         currentFilter={currentFilter}
         aspectRatio={aspectRatio}
-        greenScreenEnabled={greenScreenEnabled}
+        greenScreenEnabled={localGreenScreenEnabled}
       />
       
       <VideoFormatIndicator 
