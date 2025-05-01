@@ -2,7 +2,7 @@
 export interface VideoClip {
   id: string;
   src: string;
-  file?: File;
+  file?: File;  // Making sure file property is properly defined
   start: number;
   end: number;
   position: number;

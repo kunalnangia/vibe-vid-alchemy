@@ -25,6 +25,20 @@ serve(async (req) => {
       );
     }
 
+    // Check if we have the OpenAI API key
+    if (!openAIApiKey) {
+      console.error('OpenAI API key not found in environment variables');
+      return new Response(
+        JSON.stringify({ 
+          error: 'OpenAI API key not configured',
+          enhancedPrompt: null 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
+
+    console.log('Making request to OpenAI API with prompt:', prompt.substring(0, 30) + '...');
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -48,8 +62,16 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
     const data = await response.json();
     const enhancedPrompt = data.choices?.[0]?.message?.content || '';
+
+    console.log('Successfully enhanced prompt with OpenAI');
 
     return new Response(
       JSON.stringify({ enhancedPrompt }),
@@ -59,7 +81,11 @@ serve(async (req) => {
     console.error('Error enhancing prompt:', error);
     
     return new Response(
-      JSON.stringify({ error: 'Failed to enhance prompt' }),
+      JSON.stringify({ 
+        error: 'Failed to enhance prompt', 
+        details: error.message,
+        enhancedPrompt: null
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }

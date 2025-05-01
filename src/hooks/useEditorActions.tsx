@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { toast } from "sonner";
 import { Crop, Scissors, Wand2 } from "lucide-react";
+import { usePromptEnhancement } from '@/hooks/usePromptEnhancement';
 
 interface UseEditorActionsReturn {
   videoTitle: string;
@@ -34,6 +34,7 @@ export const useEditorActions = (): UseEditorActionsReturn => {
   const [views] = useState(128);
   const [clicks] = useState(43);
   const [activeTool, setActiveTool] = useState<string | null>(null);
+  const { enhancePrompt, isEnhancing } = usePromptEnhancement();
   
   const handleUpload = (file?: File) => {
     if (file) {
@@ -531,29 +532,16 @@ export const useEditorActions = (): UseEditorActionsReturn => {
     toast.loading("Enhancing with AI...", { id: "ai-enhance" });
     
     try {
-      // Try to use the Supabase edge function for enhancement
-      const { enhancePrompt } = await import('@/hooks/usePromptEnhancement');
-      
-      if (typeof enhancePrompt === 'function') {
-        const enhancedScript = await enhancePrompt(scriptIdea);
+      const enhancedScript = await enhancePrompt(scriptIdea);
+      if (enhancedScript) {
         setScriptIdea(enhancedScript);
         toast.success("Script enhanced with AI!", { id: "ai-enhance" });
       } else {
-        // Fallback to a simple enhancement if the function isn't available
-        const enhancedScript = `${scriptIdea}\n\n[Enhanced with AI: This script now includes improved structure, engaging narrative, and professional phrasing to better connect with your audience.]`;
-        setScriptIdea(enhancedScript);
-        toast.success("Script enhanced with AI!", { id: "ai-enhance" });
+        toast.error("Failed to enhance script. Please try again.", { id: "ai-enhance" });
       }
     } catch (error) {
       console.error('Error enhancing script:', error);
       toast.error("Failed to enhance script. Please try again.", { id: "ai-enhance" });
-      
-      // Fallback enhancement
-      setTimeout(() => {
-        const enhancedScript = `${scriptIdea}\n\n[Enhanced with AI: Added professional tone and structure]`;
-        setScriptIdea(enhancedScript);
-        toast.success("Script enhanced with basic AI features", { id: "ai-enhance" });
-      }, 1000);
     }
   };
   
@@ -749,134 +737,4 @@ export const useEditorActions = (): UseEditorActionsReturn => {
           
           <div>
             <label class="block text-sm font-medium mb-1">Edge Smoothness</label>
-            <input type="range" min="1" max="100" value="30" class="w-full" />
-          </div>
-          
-          <div class="border rounded p-4">
-            <label class="block text-sm font-medium mb-1">Replace With</label>
-            <div class="grid grid-cols-3 gap-2 mt-2">
-              <div class="aspect-video bg-gradient-to-r from-blue-500 to-purple-500 rounded cursor-pointer"></div>
-              <div class="aspect-video bg-gradient-to-r from-green-500 to-blue-500 rounded cursor-pointer"></div>
-              <div class="aspect-video bg-gradient-to-r from-orange-500 to-red-500 rounded cursor-pointer"></div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="flex justify-end gap-2 mt-6">
-          <button id="cancel-greenscreen" class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
-          <button id="apply-greenscreen" class="px-4 py-2 bg-purple-600 text-white rounded">Apply</button>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Add event listeners
-    const cancelBtn = modal.querySelector('#cancel-greenscreen');
-    const applyBtn = modal.querySelector('#apply-greenscreen');
-    
-    if (cancelBtn) {
-      cancelBtn.addEventListener('click', () => {
-        document.body.removeChild(modal);
-        setActiveTool(null);
-      });
-    }
-    
-    if (applyBtn) {
-      applyBtn.addEventListener('click', () => {
-        document.body.removeChild(modal);
-        toast.success("Green screen effect applied!");
-        setActiveTool(null);
-      });
-    }
-  };
-  
-  const handleMagicResize = () => {
-    toast.info("Opening Magic Resize tool");
-    setActiveTool("magicresize");
-    
-    // Show modal for magic resize
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
-    modal.innerHTML = `
-      <div class="bg-white p-6 rounded-xl max-w-xl w-full">
-        <h2 class="text-2xl font-bold mb-4">Magic Resize</h2>
-        <p class="mb-4">Automatically resize your video for different platforms while keeping the subject in frame.</p>
-        
-        <div class="grid grid-cols-3 gap-4 my-6">
-          <div class="border-2 border-purple-500 p-4 rounded-lg text-center cursor-pointer">
-            <div class="aspect-[9/16] bg-gray-200 mb-2"></div>
-            <span class="text-sm">Instagram Story</span>
-          </div>
-          <div class="border-2 border-gray-200 p-4 rounded-lg text-center cursor-pointer">
-            <div class="aspect-[1/1] bg-gray-200 mb-2"></div>
-            <span class="text-sm">Square</span>
-          </div>
-          <div class="border-2 border-gray-200 p-4 rounded-lg text-center cursor-pointer">
-            <div class="aspect-[16/9] bg-gray-200 mb-2"></div>
-            <span class="text-sm">Landscape</span>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium mb-1">Focus on Subject</label>
-          <div class="aspect-video relative bg-gray-200 rounded">
-            <div class="absolute w-24 h-24 bg-purple-200 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 border-purple-500 opacity-50"></div>
-          </div>
-          <div class="text-xs text-gray-500 mt-1">Drag to position the focus area on your main subject</div>
-        </div>
-        
-        <div class="flex justify-end gap-2 mt-6">
-          <button id="cancel-resize" class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
-          <button id="apply-resize" class="px-4 py-2 bg-purple-600 text-white rounded">Apply Resize</button>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Add event listeners
-    const cancelBtn = modal.querySelector('#cancel-resize');
-    const applyBtn = modal.querySelector('#apply-resize');
-    
-    if (cancelBtn) {
-      cancelBtn.addEventListener('click', () => {
-        document.body.removeChild(modal);
-        setActiveTool(null);
-      });
-    }
-    
-    if (applyBtn) {
-      applyBtn.addEventListener('click', () => {
-        document.body.removeChild(modal);
-        toast.success("Video resized successfully");
-        setActiveTool(null);
-      });
-    }
-  };
-  
-  return {
-    videoTitle,
-    setVideoTitle,
-    scriptIdea,
-    setScriptIdea,
-    views,
-    clicks,
-    activeTool,
-    setActiveTool,
-    handleUpload,
-    handleRecord,
-    handleTrimVideo,
-    handleCropFrame,
-    handleInsertToken,
-    handleConnectCRM,
-    handleConnectSalesforce,
-    handleExport,
-    handlePublishLanding,
-    handleDownloadAnalytics,
-    handleAIEnhance,
-    handleAutoCaption,
-    handleGreenScreen,
-    handleMagicResize
-  };
-};
+            <input type="range" min="1" max
