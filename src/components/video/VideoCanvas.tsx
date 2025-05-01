@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { VideoClip, TextOverlay } from '@/lib/video/types';
 import { useVideoRenderer } from '@/hooks/useVideoRenderer';
 import { filterMap } from '@/lib/video/constants';
@@ -29,8 +29,9 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
   aspectRatio
 }) => {
   const filterStyle = filterMap[currentFilter] || 'none';
+  const [greenScreenEnabled, setGreenScreenEnabled] = useState(false);
   
-  const { videoRef, canvasRef, ratioConfig } = useVideoRenderer({
+  const { videoRef, canvasRef, ratioConfig, videoLoaded } = useVideoRenderer({
     clips,
     textOverlays,
     currentTime,
@@ -39,7 +40,8 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
     setIsPlaying,
     projectDuration,
     currentFilter,
-    aspectRatio
+    aspectRatio,
+    greenScreenEnabled
   });
 
   // Handle file object URLs from uploaded clips
@@ -57,6 +59,11 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
       return () => {
         URL.revokeObjectURL(objectUrl);
       };
+    } else if (clips.length > 0 && clips[0].src) {
+      // If there's no file but there is a src, use that instead
+      if (videoRef.current) {
+        videoRef.current.src = clips[0].src;
+      }
     }
   }, [clips, videoRef]);
 

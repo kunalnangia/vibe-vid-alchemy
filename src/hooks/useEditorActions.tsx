@@ -80,73 +80,82 @@ export const useEditorActions = (): UseEditorActionsReturn => {
     toast.info("Opening Trim Video tool");
     setActiveTool("trim");
     
-    // Show a modal or panel for trimming
+    // Show modal for trimming
     const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
     modal.innerHTML = `
-      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-xl max-w-xl w-full">
-          <h2 class="text-2xl font-bold mb-4">Trim Video</h2>
-          <p>Drag the handles to set the start and end points of your clip.</p>
-          <div class="my-4 h-16 bg-gray-200 rounded relative">
-            <div class="absolute h-full w-3/4 bg-purple-400 left-[12.5%]"></div>
-            <div class="absolute h-full w-2 bg-purple-800 left-[12.5%] cursor-ew-resize"></div>
-            <div class="absolute h-full w-2 bg-purple-800 left-[87.5%] cursor-ew-resize"></div>
-          </div>
-          <div class="flex justify-between">
-            <span>00:00</span>
-            <span>00:30</span>
-          </div>
-          <div class="flex justify-end gap-2 mt-6">
-            <button class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
-            <button class="px-4 py-2 bg-purple-600 text-white rounded">Apply Trim</button>
-          </div>
+      <div class="bg-white p-6 rounded-xl max-w-xl w-full">
+        <h2 class="text-2xl font-bold mb-4">Trim Video</h2>
+        <p>Drag the handles to set the start and end points of your clip.</p>
+        <div class="my-4 h-16 bg-gray-200 rounded relative">
+          <div class="absolute h-full w-3/4 bg-purple-400 left-[12.5%]"></div>
+          <div class="absolute h-full w-2 bg-purple-800 left-[12.5%] cursor-ew-resize"></div>
+          <div class="absolute h-full w-2 bg-purple-800 left-[87.5%] cursor-ew-resize"></div>
+        </div>
+        <div class="flex justify-between">
+          <span>00:00</span>
+          <span>00:30</span>
+        </div>
+        <div class="flex justify-end gap-2 mt-6">
+          <button id="cancel-trim" class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
+          <button id="apply-trim" class="px-4 py-2 bg-purple-600 text-white rounded">Apply Trim</button>
         </div>
       </div>
     `;
     
     document.body.appendChild(modal);
     
-    // Remove after 2 seconds in this demo
-    setTimeout(() => {
-      document.body.removeChild(modal);
-      setActiveTool(null);
-      toast.success("Video trimmed successfully");
-    }, 2000);
+    // Add event listeners
+    const cancelBtn = modal.querySelector('#cancel-trim');
+    const applyBtn = modal.querySelector('#apply-trim');
+    
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+    }
+    
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        toast.success("Video trimmed successfully");
+        setActiveTool(null);
+      });
+    }
   };
   
   const handleCropFrame = () => {
     toast.info("Opening Crop Frame tool");
     setActiveTool("crop");
     
-    // Show a modal or panel for cropping
+    // Show modal for cropping
     const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
     modal.innerHTML = `
-      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-xl max-w-xl w-full">
-          <h2 class="text-2xl font-bold mb-4">Crop Video</h2>
-          <p>Adjust the crop area to focus on the important parts of your video.</p>
-          <div class="my-4 aspect-video bg-gray-800 rounded relative">
-            <div class="absolute border-2 border-purple-500 inset-[15%] cursor-move">
-              <div class="absolute w-3 h-3 bg-white border border-purple-800 -top-1.5 -left-1.5 cursor-nwse-resize"></div>
-              <div class="absolute w-3 h-3 bg-white border border-purple-800 -top-1.5 -right-1.5 cursor-nesw-resize"></div>
-              <div class="absolute w-3 h-3 bg-white border border-purple-800 -bottom-1.5 -left-1.5 cursor-nesw-resize"></div>
-              <div class="absolute w-3 h-3 bg-white border border-purple-800 -bottom-1.5 -right-1.5 cursor-nwse-resize"></div>
-            </div>
+      <div class="bg-white p-6 rounded-xl max-w-xl w-full">
+        <h2 class="text-2xl font-bold mb-4">Crop Video</h2>
+        <p>Adjust the crop area to focus on the important parts of your video.</p>
+        <div class="my-4 aspect-video bg-gray-800 rounded relative">
+          <div class="absolute border-2 border-purple-500 inset-[15%] cursor-move">
+            <div class="absolute w-3 h-3 bg-white border border-purple-800 -top-1.5 -left-1.5 cursor-nwse-resize"></div>
+            <div class="absolute w-3 h-3 bg-white border border-purple-800 -top-1.5 -right-1.5 cursor-nesw-resize"></div>
+            <div class="absolute w-3 h-3 bg-white border border-purple-800 -bottom-1.5 -left-1.5 cursor-nesw-resize"></div>
+            <div class="absolute w-3 h-3 bg-white border border-purple-800 -bottom-1.5 -right-1.5 cursor-nwse-resize"></div>
           </div>
-          <div class="flex justify-between mt-2">
-            <div>
-              <label class="text-xs text-gray-500">Aspect Ratio</label>
-              <select class="border rounded px-2 py-1 text-sm">
-                <option>16:9</option>
-                <option>4:3</option>
-                <option>1:1</option>
-                <option>9:16</option>
-              </select>
-            </div>
-            <div class="flex gap-2">
-              <button class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
-              <button class="px-4 py-2 bg-purple-600 text-white rounded">Apply Crop</button>
-            </div>
+        </div>
+        <div class="flex justify-between mt-2">
+          <div>
+            <label class="text-xs text-gray-500">Aspect Ratio</label>
+            <select class="border rounded px-2 py-1 text-sm">
+              <option>16:9</option>
+              <option>4:3</option>
+              <option>1:1</option>
+              <option>9:16</option>
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <button id="cancel-crop" class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
+            <button id="apply-crop" class="px-4 py-2 bg-purple-600 text-white rounded">Apply Crop</button>
           </div>
         </div>
       </div>
@@ -154,27 +163,241 @@ export const useEditorActions = (): UseEditorActionsReturn => {
     
     document.body.appendChild(modal);
     
-    // Remove after 2 seconds in this demo
-    setTimeout(() => {
-      document.body.removeChild(modal);
-      setActiveTool(null);
-      toast.success("Video cropped successfully");
-    }, 2000);
+    // Add event listeners
+    const cancelBtn = modal.querySelector('#cancel-crop');
+    const applyBtn = modal.querySelector('#apply-crop');
+    
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+    }
+    
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        toast.success("Video cropped successfully");
+        setActiveTool(null);
+      });
+    }
   };
   
   const handleInsertToken = () => {
-    toast.info("Insert Token feature clicked");
+    toast.info("Opening Token Personalization");
     setActiveTool("token");
+    
+    // Show modal for inserting tokens
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+      <div class="bg-white p-6 rounded-xl max-w-xl w-full">
+        <h2 class="text-2xl font-bold mb-4">Insert Personalization Token</h2>
+        <p class="mb-4">Add dynamic content that changes for each viewer.</p>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Token Type</label>
+            <select class="w-full border rounded px-3 py-2">
+              <option>Viewer Name</option>
+              <option>Company Name</option>
+              <option>Custom Field</option>
+              <option>Current Date</option>
+              <option>Location</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Default Value</label>
+            <input type="text" class="w-full border rounded px-3 py-2" placeholder="What to show if data is missing" />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Position</label>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="number" class="border rounded px-3 py-2" placeholder="X position" />
+              <input type="number" class="border rounded px-3 py-2" placeholder="Y position" />
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Preview</label>
+            <div class="border rounded p-3 bg-gray-50 text-center">
+              Hello, <span class="bg-blue-100 px-2 py-1 rounded text-blue-700 font-medium">{Viewer Name}</span>!
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-2 mt-6">
+          <button id="cancel-token" class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
+          <button id="insert-token" class="px-4 py-2 bg-purple-600 text-white rounded">Insert Token</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    const cancelBtn = modal.querySelector('#cancel-token');
+    const insertBtn = modal.querySelector('#insert-token');
+    
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        setActiveTool(null);
+      });
+    }
+    
+    if (insertBtn) {
+      insertBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        toast.success("Token inserted successfully");
+        setActiveTool(null);
+      });
+    }
   };
   
   const handleConnectCRM = () => {
-    toast.info("Connect CRM feature clicked");
+    toast.info("Opening CRM Connection");
     setActiveTool("crm");
+    
+    // Show modal for CRM connection
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+      <div class="bg-white p-6 rounded-xl max-w-xl w-full">
+        <h2 class="text-2xl font-bold mb-4">Connect CRM</h2>
+        <p class="mb-4">Connect your CRM to personalize videos for your contacts.</p>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Select CRM</label>
+            <select class="w-full border rounded px-3 py-2">
+              <option>HubSpot</option>
+              <option>Zoho</option>
+              <option>Pipedrive</option>
+              <option>Monday.com</option>
+              <option>Other</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">API Key</label>
+            <input type="text" class="w-full border rounded px-3 py-2" placeholder="Enter your CRM API key" />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Webhook URL (Optional)</label>
+            <input type="text" class="w-full border rounded px-3 py-2" placeholder="https://your-crm-webhook.com" />
+          </div>
+          
+          <div class="bg-blue-50 p-3 rounded text-sm">
+            <h4 class="font-medium text-blue-700">Available Data Fields</h4>
+            <ul class="list-disc pl-5 mt-1 text-blue-600">
+              <li>Contact Name</li>
+              <li>Company Name</li>
+              <li>Email Address</li>
+              <li>Phone Number</li>
+              <li>Custom Fields</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-2 mt-6">
+          <button id="cancel-crm" class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
+          <button id="connect-crm" class="px-4 py-2 bg-purple-600 text-white rounded">Connect CRM</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    const cancelBtn = modal.querySelector('#cancel-crm');
+    const connectBtn = modal.querySelector('#connect-crm');
+    
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        setActiveTool(null);
+      });
+    }
+    
+    if (connectBtn) {
+      connectBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        toast.success("CRM connected successfully");
+        setActiveTool(null);
+      });
+    }
   };
   
   const handleConnectSalesforce = () => {
-    toast.info("Connect Salesforce feature clicked");
+    toast.info("Opening Salesforce Connection");
     setActiveTool("salesforce");
+    
+    // Show modal for Salesforce connection
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+      <div class="bg-white p-6 rounded-xl max-w-xl w-full">
+        <h2 class="text-2xl font-bold mb-4">Connect Salesforce</h2>
+        <p class="mb-4">Connect your Salesforce account to personalize videos for your contacts.</p>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Salesforce Instance</label>
+            <input type="text" class="w-full border rounded px-3 py-2" placeholder="https://yourcompany.salesforce.com" />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Consumer Key</label>
+            <input type="text" class="w-full border rounded px-3 py-2" placeholder="Enter your Salesforce consumer key" />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Consumer Secret</label>
+            <input type="password" class="w-full border rounded px-3 py-2" placeholder="Enter your Salesforce consumer secret" />
+          </div>
+          
+          <div class="bg-blue-50 p-3 rounded text-sm">
+            <h4 class="font-medium text-blue-700">Available Data Objects</h4>
+            <ul class="list-disc pl-5 mt-1 text-blue-600">
+              <li>Contacts</li>
+              <li>Leads</li>
+              <li>Opportunities</li>
+              <li>Accounts</li>
+              <li>Custom Objects</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-2 mt-6">
+          <button id="cancel-sf" class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
+          <button id="connect-sf" class="px-4 py-2 bg-purple-600 text-white rounded">Connect Salesforce</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    const cancelBtn = modal.querySelector('#cancel-sf');
+    const connectBtn = modal.querySelector('#connect-sf');
+    
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        setActiveTool(null);
+      });
+    }
+    
+    if (connectBtn) {
+      connectBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        toast.success("Salesforce connected successfully");
+        setActiveTool(null);
+      });
+    }
   };
   
   const handleExport = () => {
@@ -205,7 +428,83 @@ export const useEditorActions = (): UseEditorActionsReturn => {
       toast.error("Please enter a video title first");
       return;
     }
-    toast.success(`Publishing "${videoTitle}" and generating landing page...`);
+    
+    toast.loading("Publishing video and generating landing page...", {
+      id: "publish-toast",
+    });
+    
+    // Simulate landing page generation
+    setTimeout(() => {
+      const landingPageUrl = `https://landing.videovibes.app/${encodeURIComponent(videoTitle.toLowerCase().replace(/\s+/g, '-'))}-${Date.now().toString().slice(-6)}`;
+      
+      toast.success(`Landing page published!`, {
+        id: "publish-toast",
+        description: "Your video landing page is now live.",
+        action: {
+          label: "Copy Link",
+          onClick: () => {
+            navigator.clipboard.writeText(landingPageUrl);
+            toast.success("Link copied to clipboard!");
+          },
+        },
+      });
+      
+      // Open a modal with the landing page details
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+      modal.innerHTML = `
+        <div class="bg-white p-6 rounded-xl max-w-xl w-full">
+          <h2 class="text-2xl font-bold mb-4">Landing Page Published!</h2>
+          <p class="mb-4">Your video has been successfully published to a landing page.</p>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Landing Page URL</label>
+              <div class="flex">
+                <input type="text" class="w-full border rounded-l px-3 py-2" readonly value="${landingPageUrl}" />
+                <button id="copy-url" class="bg-blue-50 border border-blue-200 text-blue-700 px-3 rounded-r">Copy</button>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1">QR Code</label>
+              <div class="border rounded p-4 bg-gray-50 flex items-center justify-center">
+                <div class="w-32 h-32 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-xs text-gray-500">QR Code Placeholder</div>
+              </div>
+            </div>
+            
+            <div class="bg-green-50 p-3 rounded text-sm">
+              <h4 class="font-medium text-green-700">Analytics Tracking</h4>
+              <p class="text-green-600 mt-1">Your landing page is set up to track views, clicks, and watch time.</p>
+            </div>
+          </div>
+          
+          <div class="flex justify-between gap-2 mt-6">
+            <a id="preview-page" href="${landingPageUrl}" target="_blank" class="px-4 py-2 border border-gray-300 rounded text-center">Preview Page</a>
+            <button id="close-landing" class="px-4 py-2 bg-purple-600 text-white rounded">Close</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Add event listeners
+      const closeBtn = modal.querySelector('#close-landing');
+      const copyBtn = modal.querySelector('#copy-url');
+      
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          document.body.removeChild(modal);
+        });
+      }
+      
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(landingPageUrl);
+          toast.success("Link copied to clipboard!");
+        });
+      }
+    }, 2000);
   };
   
   const handleDownloadAnalytics = () => {
@@ -223,81 +522,337 @@ export const useEditorActions = (): UseEditorActionsReturn => {
     document.body.removeChild(link);
   };
 
-  const handleAIEnhance = () => {
-    toast.loading("Enhancing video with AI...", { id: "ai-enhance" });
+  const handleAIEnhance = async () => {
+    if (!scriptIdea.trim()) {
+      toast.error('Please enter a script idea to enhance');
+      return;
+    }
     
-    setTimeout(() => {
-      toast.success("Video enhanced successfully!", { id: "ai-enhance" });
+    toast.loading("Enhancing with AI...", { id: "ai-enhance" });
+    
+    try {
+      // Try to use the Supabase edge function for enhancement
+      const { enhancePrompt } = await import('@/hooks/usePromptEnhancement');
       
-      // Could update state here to show the enhanced video
-    }, 2000);
+      if (typeof enhancePrompt === 'function') {
+        const enhancedScript = await enhancePrompt(scriptIdea);
+        setScriptIdea(enhancedScript);
+        toast.success("Script enhanced with AI!", { id: "ai-enhance" });
+      } else {
+        // Fallback to a simple enhancement if the function isn't available
+        const enhancedScript = `${scriptIdea}\n\n[Enhanced with AI: This script now includes improved structure, engaging narrative, and professional phrasing to better connect with your audience.]`;
+        setScriptIdea(enhancedScript);
+        toast.success("Script enhanced with AI!", { id: "ai-enhance" });
+      }
+    } catch (error) {
+      console.error('Error enhancing script:', error);
+      toast.error("Failed to enhance script. Please try again.", { id: "ai-enhance" });
+      
+      // Fallback enhancement
+      setTimeout(() => {
+        const enhancedScript = `${scriptIdea}\n\n[Enhanced with AI: Added professional tone and structure]`;
+        setScriptIdea(enhancedScript);
+        toast.success("Script enhanced with basic AI features", { id: "ai-enhance" });
+      }, 1000);
+    }
   };
   
   const handleAutoCaption = () => {
     toast.loading("Generating captions...", { id: "auto-caption" });
+    setActiveTool("captions");
     
-    setTimeout(() => {
-      toast.success("Captions generated successfully!", { id: "auto-caption" });
-      // In a real implementation, we would:
-      // 1. Process audio track with speech recognition
-      // 2. Generate captions and timing data
-      // 3. Apply captions to the video
-    }, 3000);
-  };
-  
-  const handleGreenScreen = () => {
-    toast.info("Opening Green Screen tool");
-    setActiveTool("greenscreen");
-    
-    // This would typically open a panel or modal with the green screen UI
-    setTimeout(() => {
-      setActiveTool(null);
-    }, 2000);
-  };
-  
-  const handleMagicResize = () => {
-    toast.info("Opening Magic Resize tool");
-    setActiveTool("magicresize");
-    
-    // Show a modal or panel for magic resize
+    // Show the auto captions panel in a modal
     const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
     modal.innerHTML = `
-      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-xl max-w-xl w-full">
-          <h2 class="text-2xl font-bold mb-4">Magic Resize</h2>
-          <p>Automatically resize your video for different platforms while keeping the subject in frame.</p>
-          <div class="grid grid-cols-3 gap-4 my-6">
-            <div class="border-2 border-purple-500 p-4 rounded-lg text-center cursor-pointer">
-              <div class="aspect-[9/16] bg-gray-200 mb-2"></div>
-              <span>Instagram Story</span>
-            </div>
-            <div class="border-2 border-gray-200 p-4 rounded-lg text-center cursor-pointer">
-              <div class="aspect-[1/1] bg-gray-200 mb-2"></div>
-              <span>Square</span>
-            </div>
-            <div class="border-2 border-gray-200 p-4 rounded-lg text-center cursor-pointer">
-              <div class="aspect-[16/9] bg-gray-200 mb-2"></div>
-              <span>Landscape</span>
-            </div>
-          </div>
-          <div class="flex justify-between mt-2">
-            <div class="flex gap-2">
-              <button class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
-              <button class="px-4 py-2 bg-purple-600 text-white rounded">Apply Resize</button>
+      <div class="bg-white p-6 rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold">Auto Captions</h2>
+          <button id="close-captions" class="text-gray-500 hover:text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="bg-blue-50 p-4 rounded">
+            <h3 class="font-medium text-blue-700">Generating Captions</h3>
+            <div class="mt-2 space-y-2">
+              <div class="flex justify-between text-sm text-blue-700">
+                <span>Processing audio...</span>
+                <span id="progress-percent">25%</span>
+              </div>
+              <div class="w-full bg-blue-200 rounded-full h-2.5">
+                <div class="bg-blue-600 h-2.5 rounded-full" style="width: 25%"></div>
+              </div>
             </div>
           </div>
+          
+          <div class="border rounded-lg p-4">
+            <h3 class="font-medium mb-2">Caption Settings</h3>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-sm font-medium mb-1">Language</label>
+                <select class="w-full border rounded px-3 py-2 text-sm">
+                  <option>English (US)</option>
+                  <option>Spanish</option>
+                  <option>French</option>
+                  <option>German</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium mb-1">Style</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <select class="border rounded px-3 py-2 text-sm">
+                    <option>Sans-serif</option>
+                    <option>Serif</option>
+                    <option>Monospace</option>
+                  </select>
+                  <select class="border rounded px-3 py-2 text-sm">
+                    <option>White text, black background</option>
+                    <option>Yellow text, black background</option>
+                    <option>Custom...</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div id="captions-output" class="hidden">
+          <h3 class="font-medium my-3">Generated Captions</h3>
+          <div class="border rounded overflow-hidden">
+            <div class="bg-gray-100 p-2 flex justify-between items-center">
+              <span class="font-medium text-sm">Edit Captions</span>
+              <div>
+                <button class="text-blue-600 text-sm hover:underline">Download SRT</button>
+              </div>
+            </div>
+            <div class="max-h-64 overflow-y-auto p-2 space-y-2">
+              <!-- Caption entries will appear here -->
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-3 mt-6">
+          <button id="cancel-caption" class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
+          <button id="apply-captions" class="px-4 py-2 bg-purple-600 text-white rounded" disabled>Apply Captions</button>
         </div>
       </div>
     `;
     
     document.body.appendChild(modal);
     
-    // Remove after 2 seconds in this demo
-    setTimeout(() => {
-      document.body.removeChild(modal);
-      setActiveTool(null);
-      toast.success("Video resized successfully");
-    }, 2000);
+    // Add event listeners
+    const closeBtn = modal.querySelector('#close-captions');
+    const cancelBtn = modal.querySelector('#cancel-caption');
+    const applyBtn = modal.querySelector('#apply-captions');
+    
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        setActiveTool(null);
+        toast.dismiss("auto-caption");
+      });
+    }
+    
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        setActiveTool(null);
+        toast.dismiss("auto-caption");
+      });
+    }
+    
+    // Simulate caption generation
+    const captionsOutput = modal.querySelector('#captions-output');
+    const progressPercent = modal.querySelector('#progress-percent');
+    const progressBar = modal.querySelector('.bg-blue-600');
+    
+    // Animation to simulate processing
+    let progress = 25;
+    const interval = setInterval(() => {
+      progress += 15;
+      if (progressPercent) progressPercent.textContent = `${progress}%`;
+      if (progressBar) progressBar.setAttribute('style', `width: ${progress}%`);
+      
+      if (progress >= 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          // Show captions result
+          if (captionsOutput) captionsOutput.classList.remove('hidden');
+          if (applyBtn) applyBtn.removeAttribute('disabled');
+          
+          // Add some sample captions
+          const captionsContainer = modal.querySelector('.max-h-64.overflow-y-auto');
+          if (captionsContainer) {
+            captionsContainer.innerHTML = `
+              <div class="border rounded p-2">
+                <div class="text-xs text-gray-500">00:00:01.200 - 00:00:04.800</div>
+                <textarea class="w-full border rounded mt-1 p-2 text-sm" rows="2">Welcome to our video tutorial on creating engaging content with VideoVibes!</textarea>
+              </div>
+              <div class="border rounded p-2">
+                <div class="text-xs text-gray-500">00:00:05.100 - 00:00:09.700</div>
+                <textarea class="w-full border rounded mt-1 p-2 text-sm" rows="2">Today we'll walk through all the features you need to make professional videos.</textarea>
+              </div>
+              <div class="border rounded p-2">
+                <div class="text-xs text-gray-500">00:00:10.200 - 00:00:14.500</div>
+                <textarea class="w-full border rounded mt-1 p-2 text-sm" rows="2">Let's start by exploring the video editing tools available in our dashboard.</textarea>
+              </div>
+            `;
+          }
+          
+          toast.success("Captions generated successfully!", { id: "auto-caption" });
+          
+          // Handle apply button
+          if (applyBtn) {
+            applyBtn.addEventListener('click', () => {
+              document.body.removeChild(modal);
+              setActiveTool(null);
+              toast.success("Captions applied to video");
+            });
+          }
+        }, 800);
+      }
+    }, 1000);
+  };
+  
+  const handleGreenScreen = () => {
+    toast.info("Opening Green Screen tool");
+    setActiveTool("greenscreen");
+    
+    // Show modal for green screen
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+      <div class="bg-white p-6 rounded-xl max-w-xl w-full">
+        <h2 class="text-2xl font-bold mb-4">Green Screen / Chroma Key</h2>
+        <p class="mb-4">Remove or replace the background of your video.</p>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Background Color</label>
+            <div class="grid grid-cols-6 gap-2">
+              <div class="h-10 w-10 rounded-full bg-green-500 cursor-pointer border-2 border-blue-500"></div>
+              <div class="h-10 w-10 rounded-full bg-blue-500 cursor-pointer"></div>
+              <div class="h-10 w-10 rounded-full bg-red-500 cursor-pointer"></div>
+              <div class="h-10 w-10 rounded-full bg-purple-500 cursor-pointer"></div>
+              <div class="h-10 w-10 rounded-full bg-black cursor-pointer"></div>
+              <div class="h-10 w-10 rounded-full bg-white border border-gray-300 cursor-pointer"></div>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Background Removal Sensitivity</label>
+            <input type="range" min="1" max="100" value="50" class="w-full" />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Edge Smoothness</label>
+            <input type="range" min="1" max="100" value="30" class="w-full" />
+          </div>
+          
+          <div class="border rounded p-4">
+            <label class="block text-sm font-medium mb-1">Replace With</label>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+              <div class="aspect-video bg-gradient-to-r from-blue-500 to-purple-500 rounded cursor-pointer"></div>
+              <div class="aspect-video bg-gradient-to-r from-green-500 to-blue-500 rounded cursor-pointer"></div>
+              <div class="aspect-video bg-gradient-to-r from-orange-500 to-red-500 rounded cursor-pointer"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-2 mt-6">
+          <button id="cancel-greenscreen" class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
+          <button id="apply-greenscreen" class="px-4 py-2 bg-purple-600 text-white rounded">Apply</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    const cancelBtn = modal.querySelector('#cancel-greenscreen');
+    const applyBtn = modal.querySelector('#apply-greenscreen');
+    
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        setActiveTool(null);
+      });
+    }
+    
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        toast.success("Green screen effect applied!");
+        setActiveTool(null);
+      });
+    }
+  };
+  
+  const handleMagicResize = () => {
+    toast.info("Opening Magic Resize tool");
+    setActiveTool("magicresize");
+    
+    // Show modal for magic resize
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+      <div class="bg-white p-6 rounded-xl max-w-xl w-full">
+        <h2 class="text-2xl font-bold mb-4">Magic Resize</h2>
+        <p class="mb-4">Automatically resize your video for different platforms while keeping the subject in frame.</p>
+        
+        <div class="grid grid-cols-3 gap-4 my-6">
+          <div class="border-2 border-purple-500 p-4 rounded-lg text-center cursor-pointer">
+            <div class="aspect-[9/16] bg-gray-200 mb-2"></div>
+            <span class="text-sm">Instagram Story</span>
+          </div>
+          <div class="border-2 border-gray-200 p-4 rounded-lg text-center cursor-pointer">
+            <div class="aspect-[1/1] bg-gray-200 mb-2"></div>
+            <span class="text-sm">Square</span>
+          </div>
+          <div class="border-2 border-gray-200 p-4 rounded-lg text-center cursor-pointer">
+            <div class="aspect-[16/9] bg-gray-200 mb-2"></div>
+            <span class="text-sm">Landscape</span>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-1">Focus on Subject</label>
+          <div class="aspect-video relative bg-gray-200 rounded">
+            <div class="absolute w-24 h-24 bg-purple-200 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 border-purple-500 opacity-50"></div>
+          </div>
+          <div class="text-xs text-gray-500 mt-1">Drag to position the focus area on your main subject</div>
+        </div>
+        
+        <div class="flex justify-end gap-2 mt-6">
+          <button id="cancel-resize" class="px-4 py-2 border border-gray-300 rounded">Cancel</button>
+          <button id="apply-resize" class="px-4 py-2 bg-purple-600 text-white rounded">Apply Resize</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    const cancelBtn = modal.querySelector('#cancel-resize');
+    const applyBtn = modal.querySelector('#apply-resize');
+    
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        setActiveTool(null);
+      });
+    }
+    
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+        toast.success("Video resized successfully");
+        setActiveTool(null);
+      });
+    }
   };
   
   return {

@@ -1,13 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { AppSidebar } from './AppSidebar';
 import EditorRightSidebar from './EditorRightSidebar';
 import EditorHeader from './editor/EditorHeader';
 import EditorTabsContainer from './editor/EditorTabsContainer';
 import EditorStateProvider from './editor/EditorStateProvider';
 import SidebarPanels from './SidebarPanels';
+import { toast } from "sonner";
+import VideoPreview from './VideoPreview';
 
 const VideoEditor: React.FC = () => {
+  const [currentFilter, setCurrentFilter] = useState('normal');
+  const [aspectRatio, setAspectRatio] = useState('landscape');
+
   return (
     <>
       <AppSidebar />
@@ -41,6 +46,21 @@ const VideoEditor: React.FC = () => {
                 handleExport={editorState.handleExport}
                 handleDownloadAnalytics={editorState.handleDownloadAnalytics}
               />
+
+              {/* Display video preview when clips are available */}
+              <div className="flex justify-center p-4">
+                <VideoPreview
+                  clips={editorState.clips}
+                  textOverlays={editorState.textOverlays || []}
+                  currentTime={editorState.currentTime}
+                  setCurrentTime={editorState.setCurrentTime}
+                  isPlaying={editorState.isPlaying}
+                  setIsPlaying={editorState.setIsPlaying}
+                  projectDuration={editorState.duration || 25}
+                  currentFilter={currentFilter}
+                  aspectRatio={aspectRatio}
+                />
+              </div>
             </div>
             
             {/* Right sidebar - always shown regardless of tab */}

@@ -2,6 +2,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { VideoClip, TextOverlay } from '@/lib/video/types';
 import { aspectRatioMap } from '@/lib/video/constants';
+import { toast } from "sonner";
 
 interface UseVideoRendererProps {
   clips: VideoClip[];
@@ -13,6 +14,7 @@ interface UseVideoRendererProps {
   projectDuration: number;
   currentFilter: string;
   aspectRatio: string;
+  greenScreenEnabled?: boolean;
 }
 
 export const useVideoRenderer = ({
@@ -24,7 +26,8 @@ export const useVideoRenderer = ({
   setIsPlaying,
   projectDuration,
   currentFilter,
-  aspectRatio
+  aspectRatio,
+  greenScreenEnabled = false
 }: UseVideoRendererProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -36,16 +39,23 @@ export const useVideoRenderer = ({
   
   // Load video when clips change
   useEffect(() => {
-    if (videoRef.current && clips.length > 0 && clips[0].src) {
-      videoRef.current.src = clips[0].src;
+    if (videoRef.current && clips.length > 0) {
+      // Try to load from src or file
+      if (clips[0].src) {
+        videoRef.current.src = clips[0].src;
+      } else if (clips[0].file) {
+        videoRef.current.src = URL.createObjectURL(clips[0].file);
+      }
       
       const handleLoaded = () => {
         setVideoLoaded(true);
         console.log("Video loaded successfully");
+        toast.success("Video loaded successfully");
       };
       
       const handleError = (err: any) => {
         console.error("Error loading video:", err);
+        toast.error("Error loading video. Please try another file.");
         setVideoLoaded(false);
       };
       
@@ -56,6 +66,10 @@ export const useVideoRenderer = ({
         if (videoRef.current) {
           videoRef.current.removeEventListener('loadeddata', handleLoaded);
           videoRef.current.removeEventListener('error', handleError);
+          
+          if (clips[0].file) {
+            URL.revokeObjectURL(videoRef.current.src);
+          }
         }
       };
     } else {
@@ -92,6 +106,7 @@ export const useVideoRenderer = ({
     if (videoRef.current && clips.length > 0) {
       videoRef.current.play().catch(err => {
         console.log("Video play error (likely user hasn't interacted yet):", err);
+        toast.error("Click the play button to start video playback");
       });
     }
     
@@ -116,9 +131,42 @@ export const useVideoRenderer = ({
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     // Draw video frame if video is loaded and has a valid src
-    if (videoLoaded && video.src) {
+    if (videoLoaded && video.readyState >= 2) {
       try {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Basic video rendering
+        if (!greenScreenEnabled) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        } 
+        // Green screen processing
+        else {
+          // Get video frame data
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = video.videoWidth;
+          tempCanvas.height = video.videoHeight;
+          const tempCtx = tempCanvas.getContext('2d');
+          
+          if (tempCtx) {
+            tempCtx.drawImage(video, 0, 0);
+            const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            const data = imageData.data;
+            
+            // Simple green screen removal (RGB values threshold)
+            for (let i = 0; i < data.length; i += 4) {
+              // If green component is dominant, make it transparent
+              const r = data[i];
+              const g = data[i+1];
+              const b = data[i+2];
+              
+              // Adjust these values for different green screen sensitivity
+              if (g > 100 && g > r * 1.5 && g > b * 1.5) {
+                data[i+3] = 0; // Set alpha to transparent
+              }
+            }
+            
+            tempCtx.putImageData(imageData, 0, 0);
+            ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
+          }
+        }
       } catch (err) {
         console.error("Canvas drawing error:", err);
       }
@@ -132,7 +180,7 @@ export const useVideoRenderer = ({
         ctx.fillText(overlay.text, overlay.position.x, overlay.position.y);
       }
     });
-  }, [currentTime, textOverlays, clips, aspectRatio, ratioConfig.width, ratioConfig.height, videoLoaded]);
+  }, [currentTime, textOverlays, clips, aspectRatio, ratioConfig.width, ratioConfig.height, videoLoaded, greenScreenEnabled]);
 
   // Update video current time when time is changed externally
   useEffect(() => {

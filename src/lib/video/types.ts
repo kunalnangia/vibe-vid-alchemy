@@ -2,10 +2,13 @@
 export interface VideoClip {
   id: string;
   src: string;
+  file?: File;
   start: number;
   end: number;
   position: number;
   duration: number;
+  name?: string;
+  type?: string;
 }
 
 export interface TextOverlay {
