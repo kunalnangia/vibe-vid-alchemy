@@ -253,6 +253,7 @@ export const useEditorActions = (): UseEditorActionsReturn => {
         document.body.removeChild(modal);
         toast.success("Token inserted successfully");
         setActiveTool(null);
+        setActiveTool(null);
       });
     }
   };
@@ -737,4 +738,4 @@ export const useEditorActions = (): UseEditorActionsReturn => {
           
           <div>
             <label class="block text-sm font-medium mb-1">Edge Smoothness</label>
-            <input type="range" min="1" max
+            <input type="

@@ -69,11 +69,17 @@ export const usePromptEnhancement = () => {
     
     return enhancedPrompt;
   };
-  
+
   return {
     enhancePrompt,
     isEnhancing
   };
+};
+
+// Export the enhancePrompt function directly for use in other files
+export const enhancePrompt = async (prompt: string, videoContext?: string): Promise<string> => {
+  const { enhancePrompt: enhance } = usePromptEnhancement();
+  return enhance(prompt, videoContext);
 };
 
 export default usePromptEnhancement;

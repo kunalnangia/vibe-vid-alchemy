@@ -34,4 +34,5 @@ export interface VideoPreviewProps {
   projectDuration: number;
   currentFilter: string;
   aspectRatio: string;
+  greenScreenEnabled?: boolean;
 }
