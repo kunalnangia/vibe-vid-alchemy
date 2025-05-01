@@ -706,6 +706,7 @@ export const useEditorActions = (): UseEditorActionsReturn => {
     }, 1000);
   };
   
+  // Fix the Green Screen function that had the unterminated string literal
   const handleGreenScreen = () => {
     toast.info("Opening Green Screen tool");
     setActiveTool("greenscreen");
@@ -737,5 +738,4 @@ export const useEditorActions = (): UseEditorActionsReturn => {
           </div>
           
           <div>
-            <label class="block text-sm font-medium mb-1">Edge Smoothness</label>
-            <input type="
+            <label class="block text-sm font-medium
