@@ -33,16 +33,17 @@ export const useEditorClips = (): UseEditorClipsReturn => {
         return;
       }
       
-      toast.success(`Uploaded file: ${file.name}`);
+      toast.success(`Uploading file: ${file.name}`);
       
       // Create a video element to get duration
       const video = document.createElement('video');
       video.preload = 'metadata';
       
+      // Create object URL for preview
+      const objectUrl = URL.createObjectURL(file);
+      video.src = objectUrl;
+      
       video.onloadedmetadata = () => {
-        // Create object URL for preview
-        const objectUrl = URL.createObjectURL(file);
-        
         // Add new clip to the timeline with actual duration
         const newClip = {
           id: `clip-${Date.now()}`,
@@ -56,6 +57,8 @@ export const useEditorClips = (): UseEditorClipsReturn => {
         setClips(prev => [...prev, newClip]);
         setSelectedClipId(newClip.id);
         
+        toast.success(`Video loaded: ${file.name} (${Math.round(video.duration)}s)`);
+        
         // Clean up
         video.onloadedmetadata = null;
         video.onerror = null;
@@ -64,8 +67,6 @@ export const useEditorClips = (): UseEditorClipsReturn => {
       video.onerror = () => {
         toast.error("Error loading video metadata");
         // Still add the clip but with estimated duration
-        const objectUrl = URL.createObjectURL(file);
-        
         const newClip = {
           id: `clip-${Date.now()}`,
           name: file.name,
@@ -78,9 +79,6 @@ export const useEditorClips = (): UseEditorClipsReturn => {
         setClips(prev => [...prev, newClip]);
         setSelectedClipId(newClip.id);
       };
-      
-      // Load the file
-      video.src = URL.createObjectURL(file);
       
       // Reset input value so same file can be selected again
       e.target.value = '';

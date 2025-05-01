@@ -1,7 +1,7 @@
 
 import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Upload, Record } from "@/components/ui/lucide-icons";
+import { Upload, Record } from "lucide-react";
 import { toast } from "sonner";
 
 interface UploadSectionProps {
@@ -49,7 +49,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   };
 
   return (
-    <div className="flex space-x-4">
+    <div className="flex flex-wrap gap-4 justify-center">
       <input
         type="file"
         ref={fileInputRef}

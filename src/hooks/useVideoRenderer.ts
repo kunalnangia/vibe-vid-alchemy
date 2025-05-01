@@ -40,11 +40,17 @@ export const useVideoRenderer = ({
   // Load video when clips change
   useEffect(() => {
     if (videoRef.current && clips.length > 0) {
+      // Reset video loaded state when clips change
+      setVideoLoaded(false);
+      
       // Try to load from src or file
       if (clips[0].src) {
         videoRef.current.src = clips[0].src;
+        console.log("Loading video from src:", clips[0].src);
       } else if (clips[0].file) {
-        videoRef.current.src = URL.createObjectURL(clips[0].file);
+        const objectUrl = URL.createObjectURL(clips[0].file);
+        videoRef.current.src = objectUrl;
+        console.log("Loading video from file:", clips[0].name);
       }
       
       const handleLoaded = () => {
@@ -67,7 +73,8 @@ export const useVideoRenderer = ({
           videoRef.current.removeEventListener('loadeddata', handleLoaded);
           videoRef.current.removeEventListener('error', handleError);
           
-          if (clips[0].file) {
+          // Clean up object URL if created from file
+          if (clips[0].file && videoRef.current.src.startsWith('blob:')) {
             URL.revokeObjectURL(videoRef.current.src);
           }
         }
@@ -76,6 +83,21 @@ export const useVideoRenderer = ({
       setVideoLoaded(false);
     }
   }, [clips]);
+  
+  // Update video playback state
+  useEffect(() => {
+    if (videoRef.current && videoLoaded) {
+      if (isPlaying) {
+        videoRef.current.play().catch(err => {
+          console.log("Video play error:", err);
+          toast.error("Click the play button to start video playback");
+          setIsPlaying(false);
+        });
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [isPlaying, videoLoaded, setIsPlaying]);
   
   // Animate playback for preview and canvas
   useEffect(() => {
@@ -88,7 +110,7 @@ export const useVideoRenderer = ({
     }
     
     const animate = () => {
-      if (videoRef.current) {
+      if (videoRef.current && videoLoaded) {
         setCurrentTime(videoRef.current.currentTime);
         
         if (videoRef.current.currentTime >= projectDuration) {
@@ -103,17 +125,10 @@ export const useVideoRenderer = ({
     
     rafRef.current = requestAnimationFrame(animate);
     
-    if (videoRef.current && clips.length > 0) {
-      videoRef.current.play().catch(err => {
-        console.log("Video play error (likely user hasn't interacted yet):", err);
-        toast.error("Click the play button to start video playback");
-      });
-    }
-    
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [isPlaying, projectDuration, setCurrentTime, setIsPlaying, clips]);
+  }, [isPlaying, projectDuration, setCurrentTime, setIsPlaying, videoLoaded]);
 
   // Draw current frame on canvas + overlays
   useEffect(() => {
@@ -176,7 +191,7 @@ export const useVideoRenderer = ({
     textOverlays.forEach(overlay => {
       if (currentTime >= overlay.startTime && currentTime <= overlay.endTime) {
         ctx.fillStyle = overlay.style.color;
-        ctx.font = `${overlay.style.fontSize} ${overlay.style.fontFamily}`;
+        ctx.font = `${overlay.style.fontSize}px ${overlay.style.fontFamily}`;
         ctx.fillText(overlay.text, overlay.position.x, overlay.position.y);
       }
     });
@@ -184,10 +199,10 @@ export const useVideoRenderer = ({
 
   // Update video current time when time is changed externally
   useEffect(() => {
-    if (videoRef.current) {
+    if (videoRef.current && videoLoaded) {
       videoRef.current.currentTime = currentTime;
     }
-  }, [currentTime]);
+  }, [currentTime, videoLoaded]);
 
   return {
     videoRef,

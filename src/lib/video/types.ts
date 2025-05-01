@@ -2,7 +2,7 @@
 export interface VideoClip {
   id: string;
   src: string;
-  file?: File;  // Making sure file property is properly defined
+  file?: File;
   start: number;
   end: number;
   position: number;
@@ -17,7 +17,7 @@ export interface TextOverlay {
   position: { x: number, y: number };
   style: {
     color: string;
-    fontSize: string;
+    fontSize: string | number;
     fontFamily: string;
   };
   startTime: number;

@@ -61,8 +61,13 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
     }
   };
 
+  // Handle play/pause
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+  };
+
   return (
-    <div className="video-canvas-container relative rounded-md overflow-hidden shadow-lg">
+    <div className="video-canvas-container relative rounded-md overflow-hidden shadow-lg mb-6">
       {/* Hidden video element for loading video data */}
       <video 
         ref={videoRef} 
@@ -90,7 +95,7 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
         <div className="flex items-center justify-between">
           <button 
             className="text-white bg-purple-600 rounded-full p-2 hover:bg-purple-700 transition"
-            onClick={() => setIsPlaying(!isPlaying)}
+            onClick={togglePlay}
             aria-label={isPlaying ? "Pause" : "Play"}
           >
             {isPlaying ? (

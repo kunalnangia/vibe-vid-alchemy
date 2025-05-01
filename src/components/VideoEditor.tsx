@@ -8,6 +8,7 @@ import EditorStateProvider from './editor/EditorStateProvider';
 import SidebarPanels from './SidebarPanels';
 import { toast } from "sonner";
 import VideoPreview from './VideoPreview';
+import VideoControls from './VideoControls';
 
 const VideoEditor: React.FC = () => {
   const [currentFilter, setCurrentFilter] = useState('normal');
@@ -40,7 +41,7 @@ const VideoEditor: React.FC = () => {
                 selectedClipId={editorState.selectedClipId}
                 handleUpload={editorState.handleUpload}
                 handleRecord={editorState.handleRecord}
-                handlePlay={editorState.handlePlay}
+                handlePlay={editorState.handleTogglePlay}
                 handleSliderChange={editorState.handleSliderChange}
                 handleSplitClip={editorState.handleSplitClip}
                 handleExport={editorState.handleExport}
@@ -61,6 +62,19 @@ const VideoEditor: React.FC = () => {
                   aspectRatio={aspectRatio}
                 />
               </div>
+              
+              {/* Video controls */}
+              {editorState.clips.length > 0 && (
+                <div className="max-w-3xl mx-auto">
+                  <VideoControls
+                    isPlaying={editorState.isPlaying}
+                    togglePlay={editorState.handleTogglePlay}
+                    seekTo={editorState.seekTo}
+                    currentTime={editorState.currentTime}
+                    duration={editorState.duration}
+                  />
+                </div>
+              )}
             </div>
             
             {/* Right sidebar - always shown regardless of tab */}

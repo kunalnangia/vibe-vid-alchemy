@@ -24,7 +24,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   };
 
   return (
-    <div className="video-preview-container flex flex-col items-center justify-center bg-black/5 p-6 rounded-lg shadow-inner">
+    <div className="video-preview-container flex flex-col items-center justify-start bg-black/5 p-6 rounded-lg shadow-inner mb-8 mt-4">
       <div className="mb-4 w-full flex justify-end space-x-2">
         <Button 
           variant="outline" 
