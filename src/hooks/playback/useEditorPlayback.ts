@@ -58,7 +58,6 @@ export const useEditorPlayback = (options: UseEditorPlaybackOptions = {}): UseEd
     try {
       setIsPlaying(true);
       lastUpdateTime.current = Date.now();
-      toast.success("Video playing");
       if (onPlayStateChange) onPlayStateChange(true);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to start playback');
@@ -71,7 +70,6 @@ export const useEditorPlayback = (options: UseEditorPlaybackOptions = {}): UseEd
   const handlePause = useCallback(() => {
     try {
       setIsPlaying(false);
-      toast.success("Video paused");
       if (onPlayStateChange) onPlayStateChange(false);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to pause playback');

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AppSidebar } from './AppSidebar';
 import EditorRightSidebar from './EditorRightSidebar';
@@ -13,7 +14,7 @@ const VideoEditor: React.FC = () => {
       
       <EditorStateProvider>
         {(editorState) => (
-          <div className="flex flex-1 p-6">
+          <div className="flex flex-1 p-6 bg-gradient-to-br from-purple-100 via-white to-fuchsia-100">
             <div className="flex-1 pr-4 space-y-6">
               {/* Top Navigation */}
               <EditorHeader />
@@ -52,6 +53,10 @@ const VideoEditor: React.FC = () => {
               handleConnectCRM={editorState.handleConnectCRM}
               handleConnectSalesforce={editorState.handleConnectSalesforce}
               handlePublishLanding={editorState.handlePublishLanding}
+              handleAIEnhance={editorState.handleAIEnhance || (() => {})}
+              handleAutoCaption={editorState.handleAutoCaption || (() => {})}
+              handleGreenScreen={editorState.handleGreenScreen || (() => {})}
+              handleMagicResize={editorState.handleMagicResize || (() => {})}
             />
           </div>
         )}

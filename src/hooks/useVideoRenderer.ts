@@ -1,5 +1,5 @@
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { VideoClip, TextOverlay } from '@/lib/video/types';
 import { aspectRatioMap } from '@/lib/video/constants';
 
@@ -29,9 +29,39 @@ export const useVideoRenderer = ({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
   
   // Get aspect ratio configuration
   const ratioConfig = aspectRatioMap[aspectRatio] || aspectRatioMap.landscape;
+  
+  // Load video when clips change
+  useEffect(() => {
+    if (videoRef.current && clips.length > 0 && clips[0].src) {
+      videoRef.current.src = clips[0].src;
+      
+      const handleLoaded = () => {
+        setVideoLoaded(true);
+        console.log("Video loaded successfully");
+      };
+      
+      const handleError = (err: any) => {
+        console.error("Error loading video:", err);
+        setVideoLoaded(false);
+      };
+      
+      videoRef.current.addEventListener('loadeddata', handleLoaded);
+      videoRef.current.addEventListener('error', handleError);
+      
+      return () => {
+        if (videoRef.current) {
+          videoRef.current.removeEventListener('loadeddata', handleLoaded);
+          videoRef.current.removeEventListener('error', handleError);
+        }
+      };
+    } else {
+      setVideoLoaded(false);
+    }
+  }, [clips]);
   
   // Animate playback for preview and canvas
   useEffect(() => {
@@ -74,22 +104,23 @@ export const useVideoRenderer = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
+    const video = videoRef.current;
     
-    if (!canvas || !ctx || !videoRef.current) return;
+    if (!canvas || !ctx || !video) return;
     
     // Apply current dimensions from aspect ratio
     canvas.width = ratioConfig.width;
     canvas.height = ratioConfig.height;
     
-    // Draw video frame
+    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Get the current clip (simplified)
-    if (clips.length > 0) {
+    // Draw video frame if video is loaded and has a valid src
+    if (videoLoaded && video.src) {
       try {
-        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       } catch (err) {
-        console.error("Canvas error:", err);
+        console.error("Canvas drawing error:", err);
       }
     }
     
@@ -101,7 +132,7 @@ export const useVideoRenderer = ({
         ctx.fillText(overlay.text, overlay.position.x, overlay.position.y);
       }
     });
-  }, [currentTime, textOverlays, clips, aspectRatio, ratioConfig.width, ratioConfig.height]);
+  }, [currentTime, textOverlays, clips, aspectRatio, ratioConfig.width, ratioConfig.height, videoLoaded]);
 
   // Update video current time when time is changed externally
   useEffect(() => {
@@ -113,6 +144,7 @@ export const useVideoRenderer = ({
   return {
     videoRef,
     canvasRef,
-    ratioConfig
+    ratioConfig,
+    videoLoaded
   };
 };

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Crop, Scissors, Video } from "lucide-react";
+import { Crop, Scissors, Video, Wand2, Captions, Music, Filter } from "lucide-react";
 import { ConnectCrm, ConnectSalesforce, InsertToken } from "@/components/ui/lucide-icons";
 
 interface EditorRightSidebarProps {
@@ -14,6 +14,10 @@ interface EditorRightSidebarProps {
   handleConnectCRM: () => void;
   handleConnectSalesforce: () => void;
   handlePublishLanding: () => void;
+  handleAIEnhance: () => void;
+  handleAutoCaption: () => void;
+  handleGreenScreen: () => void;
+  handleMagicResize: () => void;
 }
 
 const EditorRightSidebar: React.FC<EditorRightSidebarProps> = ({
@@ -24,81 +28,123 @@ const EditorRightSidebar: React.FC<EditorRightSidebarProps> = ({
   handleInsertToken,
   handleConnectCRM,
   handleConnectSalesforce,
-  handlePublishLanding
+  handlePublishLanding,
+  handleAIEnhance,
+  handleAutoCaption,
+  handleGreenScreen,
+  handleMagicResize
 }) => {
   return (
-    <div className="w-[400px]">
-      <h2 className="text-3xl font-bold mb-6">EDIT VIDEO</h2>
-      
-      <div className="space-y-4">
-        <Button 
-          variant="outline" 
-          className="w-full py-6 text-lg justify-start px-6 bg-gray-100 hover:bg-gray-200"
-          onClick={handleTrimVideo}
-        >
-          <Scissors className="mr-3 h-5 w-5" />
-          Trim Video
-        </Button>
+    <div className="w-[400px] bg-gradient-to-b from-purple-50 to-fuchsia-50 rounded-xl">
+      <div className="p-6">
+        <h2 className="text-3xl font-bold mb-6 text-purple-800">EDIT VIDEO</h2>
         
-        <Button 
-          variant="outline" 
-          className="w-full py-6 text-lg justify-start px-6 bg-gray-100 hover:bg-gray-200"
-          onClick={handleCropFrame}
-        >
-          <Crop className="mr-3 h-5 w-5" />
-          Crop Frame
-        </Button>
-      </div>
-      
-      <h2 className="text-3xl font-bold mt-10 mb-6">PERSONALIZATION</h2>
-      
-      <div className="space-y-4">
-        <Button 
-          variant="outline" 
-          className="w-full py-6 text-lg justify-start px-6 bg-gray-100 hover:bg-gray-200"
-          onClick={handleInsertToken}
-        >
-          <InsertToken className="mr-3 h-5 w-5" />
-          Insert Token
-        </Button>
+        <div className="space-y-4">
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg justify-start px-6 bg-white hover:bg-purple-100 border-purple-200"
+            onClick={handleTrimVideo}
+          >
+            <Scissors className="mr-3 h-5 w-5 text-purple-700" />
+            Trim Video
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg justify-start px-6 bg-white hover:bg-purple-100 border-purple-200"
+            onClick={handleCropFrame}
+          >
+            <Crop className="mr-3 h-5 w-5 text-purple-700" />
+            Crop Frame
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg justify-start px-6 bg-white hover:bg-purple-100 border-purple-200"
+            onClick={handleGreenScreen}
+          >
+            <Video className="mr-3 h-5 w-5 text-purple-700" />
+            Green Screen
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg justify-start px-6 bg-white hover:bg-purple-100 border-purple-200"
+            onClick={handleMagicResize}
+          >
+            <Filter className="mr-3 h-5 w-5 text-purple-700" />
+            Magic Resize
+          </Button>
+
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg justify-start px-6 bg-white hover:bg-purple-100 border-purple-200"
+            onClick={handleAutoCaption}
+          >
+            <Captions className="mr-3 h-5 w-5 text-purple-700" />
+            Auto Captions
+          </Button>
+
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg justify-start px-6 bg-white hover:bg-purple-100 border-purple-200"
+            onClick={handleAIEnhance}
+          >
+            <Wand2 className="mr-3 h-5 w-5 text-purple-700" />
+            Enhance with AI
+          </Button>
+        </div>
         
-        <Button 
-          variant="outline" 
-          className="w-full py-6 text-lg justify-start px-6 bg-gray-100 hover:bg-gray-200"
-          onClick={handleConnectCRM}
-        >
-          <ConnectCrm className="mr-3 h-5 w-5" />
-          Connect CRM
-        </Button>
+        <h2 className="text-3xl font-bold mt-10 mb-6 text-purple-800">PERSONALIZATION</h2>
         
-        <Button 
-          variant="outline" 
-          className="w-full py-6 text-lg justify-start px-6 bg-gray-100 hover:bg-gray-200"
-          onClick={handleConnectSalesforce}
-        >
-          <ConnectSalesforce className="mr-3 h-5 w-5" />
-          Connect Salesforce
-        </Button>
-      </div>
-      
-      <h2 className="text-3xl font-bold mt-10 mb-6">VIDEO ANALYTICS</h2>
-      
-      <div className="space-y-4">
-        <Input
-          className="py-6 text-lg bg-gray-100"
-          placeholder="Video Title"
-          value={videoTitle}
-          onChange={(e) => setVideoTitle(e.target.value)}
-        />
+        <div className="space-y-4">
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg justify-start px-6 bg-white hover:bg-purple-100 border-purple-200"
+            onClick={handleInsertToken}
+          >
+            <InsertToken className="mr-3 h-5 w-5 text-purple-700" />
+            Insert Token
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg justify-start px-6 bg-white hover:bg-purple-100 border-purple-200"
+            onClick={handleConnectCRM}
+          >
+            <ConnectCrm className="mr-3 h-5 w-5 text-purple-700" />
+            Connect CRM
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg justify-start px-6 bg-white hover:bg-purple-100 border-purple-200"
+            onClick={handleConnectSalesforce}
+          >
+            <ConnectSalesforce className="mr-3 h-5 w-5 text-purple-700" />
+            Connect Salesforce
+          </Button>
+        </div>
         
-        <Button 
-          variant="outline" 
-          className="w-full py-6 text-lg justify-center px-6 bg-gray-100 hover:bg-gray-200"
-          onClick={handlePublishLanding}
-        >
-          <Video className="mr-3 h-5 w-5" />
-          Publish & Generate Landing Page
-        </Button>
+        <h2 className="text-3xl font-bold mt-10 mb-6 text-purple-800">VIDEO ANALYTICS</h2>
+        
+        <div className="space-y-4">
+          <Input
+            className="py-6 text-lg bg-white border-purple-200"
+            placeholder="Video Title"
+            value={videoTitle}
+            onChange={(e) => setVideoTitle(e.target.value)}
+          />
+          
+          <Button 
+            variant="outline" 
+            className="w-full py-6 text-lg justify-center px-6 bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white hover:from-purple-700 hover:to-fuchsia-600 border-none"
+            onClick={handlePublishLanding}
+          >
+            <Video className="mr-3 h-5 w-5" />
+            Publish & Generate Landing Page
+          </Button>
+        </div>
       </div>
     </div>
   );

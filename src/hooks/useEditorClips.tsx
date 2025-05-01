@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { toast } from "sonner";
 
 interface Clip {
@@ -8,6 +8,7 @@ interface Clip {
   duration: number;
   type: string;
   file?: File;
+  src?: string;
 }
 
 interface UseEditorClipsReturn {
@@ -23,7 +24,7 @@ export const useEditorClips = (): UseEditorClipsReturn => {
   const [clips, setClips] = useState<Clip[]>([]);
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
   
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
@@ -39,38 +40,43 @@ export const useEditorClips = (): UseEditorClipsReturn => {
       video.preload = 'metadata';
       
       video.onloadedmetadata = () => {
+        // Create object URL for preview
+        const objectUrl = URL.createObjectURL(file);
+        
         // Add new clip to the timeline with actual duration
         const newClip = {
           id: `clip-${Date.now()}`,
           name: file.name,
           duration: video.duration || 10, // Default to 10s if duration can't be determined
           type: "video",
-          file: file // Store the actual file
+          file: file, // Store the actual file
+          src: objectUrl // Store the object URL for preview
         };
         
-        setClips([...clips, newClip]);
+        setClips(prev => [...prev, newClip]);
         setSelectedClipId(newClip.id);
         
         // Clean up
-        URL.revokeObjectURL(video.src);
+        video.onloadedmetadata = null;
+        video.onerror = null;
       };
       
       video.onerror = () => {
         toast.error("Error loading video metadata");
         // Still add the clip but with estimated duration
+        const objectUrl = URL.createObjectURL(file);
+        
         const newClip = {
           id: `clip-${Date.now()}`,
           name: file.name,
           duration: 10, // Default duration
           type: "video",
-          file: file
+          file: file,
+          src: objectUrl
         };
         
-        setClips([...clips, newClip]);
+        setClips(prev => [...prev, newClip]);
         setSelectedClipId(newClip.id);
-        
-        // Clean up
-        URL.revokeObjectURL(video.src);
       };
       
       // Load the file
@@ -79,9 +85,9 @@ export const useEditorClips = (): UseEditorClipsReturn => {
       // Reset input value so same file can be selected again
       e.target.value = '';
     }
-  };
+  }, []);
   
-  const handleSplitClip = () => {
+  const handleSplitClip = useCallback(() => {
     if (selectedClipId) {
       const selectedClipIndex = clips.findIndex(clip => clip.id === selectedClipId);
       
@@ -118,7 +124,7 @@ export const useEditorClips = (): UseEditorClipsReturn => {
     } else {
       toast.error("Please select a clip first");
     }
-  };
+  }, [clips, selectedClipId]);
   
   return {
     clips,

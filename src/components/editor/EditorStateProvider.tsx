@@ -43,6 +43,10 @@ interface EditorState {
   handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   addTextOverlay: () => void;
   updateTextOverlay: (id: string, updates: any) => void;
+  handleAIEnhance: () => void;
+  handleAutoCaption: () => void;
+  handleGreenScreen: () => void;
+  handleMagicResize: () => void;
 }
 
 interface EditorStateProviderProps {

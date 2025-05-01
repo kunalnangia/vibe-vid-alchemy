@@ -1,22 +1,74 @@
 
-// Map of filter IDs to CSS filter strings
-export const filterMap: Record<string, string> = {
-  normal: 'none',
-  warm: 'sepia(0.5) saturate(1.5)',
-  cool: 'hue-rotate(30deg) saturate(1.2)',
-  vivid: 'contrast(1.2) saturate(1.5)',
-  vintage: 'sepia(0.4) contrast(0.9) saturate(0.8)',
-  bw: 'grayscale(1)',
-  blur: 'blur(2px)',
-  sharp: 'contrast(1.3) brightness(0.9)',
-  dreamy: 'brightness(1.1) contrast(0.9) blur(0.5px)',
+// Define standard aspect ratios
+export const aspectRatioMap: Record<string, { width: number; height: number; className: string }> = {
+  landscape: {
+    width: 1280,
+    height: 720,
+    className: 'aspect-video'
+  },
+  portrait: {
+    width: 720,
+    height: 1280,
+    className: 'aspect-[9/16]'
+  },
+  square: {
+    width: 1080,
+    height: 1080,
+    className: 'aspect-square'
+  },
+  widescreen: {
+    width: 1920,
+    height: 800,
+    className: 'aspect-[2.4/1]'
+  },
+  ultrawide: {
+    width: 2560,
+    height: 1080,
+    className: 'aspect-[21/9]'
+  }
 };
 
-// Map of aspect ratios to dimensions
-export const aspectRatioMap: Record<string, { width: number, height: number, className: string }> = {
-  landscape: { width: 640, height: 360, className: "w-full max-w-3xl" },
-  portrait: { width: 360, height: 640, className: "h-[60vh] max-h-[640px]" },
-  square: { width: 480, height: 480, className: "w-full max-w-lg" },
-  vertical: { width: 432, height: 540, className: "h-[60vh] max-h-[540px]" },
-  cinema: { width: 640, height: 272, className: "w-full max-w-3xl" },
+// Define video filters
+export const filterMap: Record<string, string> = {
+  normal: 'none',
+  grayscale: 'grayscale(100%)',
+  sepia: 'sepia(100%)',
+  saturate: 'saturate(200%)',
+  hue: 'hue-rotate(90deg)',
+  invert: 'invert(80%)',
+  brightened: 'brightness(150%)',
+  vintage: 'sepia(50%) hue-rotate(-30deg) saturate(140%)',
+  cool: 'brightness(110%) hue-rotate(180deg) saturate(120%)',
+  warm: 'brightness(110%) hue-rotate(-30deg) saturate(130%)',
+  dramatic: 'contrast(150%) brightness(90%)',
+  noir: 'grayscale(100%) contrast(150%) brightness(80%)',
+  faded: 'contrast(80%) brightness(120%) saturate(80%)',
+  vibrant: 'contrast(120%) saturate(150%)',
+  muted: 'contrast(90%) saturate(80%) brightness(110%)',
 };
+
+// Video file types supported
+export const supportedVideoTypes = [
+  'video/mp4',
+  'video/webm',
+  'video/ogg',
+  'video/quicktime',
+  'video/x-msvideo',
+  'video/x-flv',
+  'video/x-matroska'
+];
+
+// Audio file types supported
+export const supportedAudioTypes = [
+  'audio/mpeg',
+  'audio/ogg',
+  'audio/wav',
+  'audio/webm',
+  'audio/aac',
+  'audio/flac'
+];
+
+// Default limits
+export const DEFAULT_PROJECT_DURATION = 300; // 5 minutes in seconds
+export const MAX_CLIPS = 50;
+export const MAX_TEXT_OVERLAYS = 20;
