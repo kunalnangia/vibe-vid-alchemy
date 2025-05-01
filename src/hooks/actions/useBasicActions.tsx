@@ -16,25 +16,104 @@ export const useBasicActions = () => {
       return;
     }
     
+    if (!file.type.startsWith('video/')) {
+      toast.error("Please select a valid video file");
+      return;
+    }
+    
     toast.success(`Uploading ${file.name}`);
-    // In a real app, you'd upload this to a server
     console.log("Uploading file:", file);
     
-    // Trigger file upload in the editor's clip handler
-    const event = new CustomEvent('video-upload', { detail: { file } });
-    document.dispatchEvent(event);
+    // Create a video element to verify we can play this file
+    const videoEl = document.createElement('video');
+    videoEl.preload = 'metadata';
+    
+    // Create object URL for video
+    const objectUrl = URL.createObjectURL(file);
+    videoEl.src = objectUrl;
+    
+    // Set up event handlers for video element
+    videoEl.onloadedmetadata = () => {
+      console.log("Video metadata loaded successfully:", file.name);
+      // Revoke the URL since we don't need it anymore here
+      URL.revokeObjectURL(objectUrl);
+      
+      // Trigger file upload in the editor's clip handler
+      const event = new CustomEvent('video-upload', { 
+        detail: { file, duration: videoEl.duration } 
+      });
+      document.dispatchEvent(event);
+      
+      // Simulate analytics
+      setTimeout(() => {
+        setViews(prev => prev + Math.floor(Math.random() * 100) + 10);
+        setClicks(prev => prev + Math.floor(Math.random() * 20) + 5);
+      }, 2000);
+    };
+    
+    videoEl.onerror = () => {
+      console.error("Error loading video:", file.name);
+      toast.error("Could not load video file. Please try another format.");
+      URL.revokeObjectURL(objectUrl);
+    };
+    
   }, []);
 
   // Handle video recording from webcam
   const handleRecord = useCallback(() => {
-    // Video recording handled in UploadSection component
-    const recordButton = document.querySelector('[data-record-button]');
-    if (recordButton instanceof HTMLButtonElement) {
-      recordButton.click();
-    } else {
-      toast.info("Recording feature initialized");
+    // First check if browser supports getUserMedia
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast.error("Your browser doesn't support camera access");
+      return;
     }
-  }, []);
+
+    toast.info("Initializing camera...");
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        // Create a video element for preview
+        const videoEl = document.createElement('video');
+        videoEl.srcObject = stream;
+        videoEl.autoplay = true;
+        
+        // Create a MediaRecorder instance
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks: BlobPart[] = [];
+        
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            chunks.push(e.data);
+          }
+        };
+        
+        mediaRecorder.onstop = () => {
+          // Create a blob from the recorded chunks
+          const blob = new Blob(chunks, { type: 'video/webm' });
+          const file = new File([blob], "webcam-recording.webm", { type: 'video/webm' });
+          
+          // Stop all tracks in the stream
+          stream.getTracks().forEach(track => track.stop());
+          
+          // Handle the recorded file
+          handleUpload(file);
+        };
+        
+        // Start recording
+        mediaRecorder.start();
+        toast.success("Recording started (5 seconds)");
+        
+        // Stop recording after 5 seconds
+        setTimeout(() => {
+          if (mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            toast.info("Recording complete");
+          }
+        }, 5000);
+      })
+      .catch(err => {
+        toast.error("Could not access camera: " + err.message);
+      });
+  }, [handleUpload]);
 
   // Handle exporting the final video
   const handleExport = useCallback(() => {

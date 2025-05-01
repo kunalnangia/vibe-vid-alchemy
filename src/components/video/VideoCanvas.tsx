@@ -65,6 +65,13 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
   };
+  
+  // Log clip status for debugging
+  useEffect(() => {
+    if (clips.length > 0) {
+      console.log('Clip loaded in VideoCanvas:', clips[0].name || 'Unnamed clip');
+    }
+  }, [clips]);
 
   return (
     <div className="video-canvas-container relative rounded-md overflow-hidden shadow-lg mb-6">

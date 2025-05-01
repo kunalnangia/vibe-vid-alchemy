@@ -28,29 +28,6 @@ const VideoEditor: React.FC = () => {
               {/* Top Navigation */}
               <EditorHeader />
               
-              {/* Editor Content */}
-              <EditorTabsContainer 
-                videoTitle={editorState.videoTitle}
-                setVideoTitle={editorState.setVideoTitle}
-                scriptIdea={editorState.scriptIdea}
-                setScriptIdea={editorState.setScriptIdea}
-                isPlaying={editorState.isPlaying}
-                setIsPlaying={editorState.setIsPlaying}
-                currentTime={editorState.currentTime}
-                setCurrentTime={editorState.setCurrentTime}
-                duration={editorState.duration}
-                views={editorState.views}
-                clicks={editorState.clicks}
-                selectedClipId={editorState.selectedClipId}
-                handleUpload={editorState.handleUpload}
-                handleRecord={editorState.handleRecord}
-                handlePlay={() => editorState.setIsPlaying(!editorState.isPlaying)}
-                handleSliderChange={editorState.handleSliderChange}
-                handleSplitClip={editorState.handleSplitClip}
-                handleExport={editorState.handleExport}
-                handleDownloadAnalytics={editorState.handleDownloadAnalytics}
-              />
-              
               {/* Script Idea section */}
               <ScriptIdeaSection
                 scriptIdea={editorState.scriptIdea}
@@ -91,7 +68,30 @@ const VideoEditor: React.FC = () => {
                 </div>
               )}
               
-              {/* Analytics section */}
+              {/* Editor Content */}
+              <EditorTabsContainer 
+                videoTitle={editorState.videoTitle}
+                setVideoTitle={editorState.setVideoTitle}
+                scriptIdea={editorState.scriptIdea}
+                setScriptIdea={editorState.setScriptIdea}
+                isPlaying={editorState.isPlaying}
+                setIsPlaying={editorState.setIsPlaying}
+                currentTime={editorState.currentTime}
+                setCurrentTime={editorState.setCurrentTime}
+                duration={editorState.duration}
+                views={editorState.views}
+                clicks={editorState.clicks}
+                selectedClipId={editorState.selectedClipId}
+                handleUpload={editorState.handleUpload}
+                handleRecord={editorState.handleRecord}
+                handlePlay={() => editorState.setIsPlaying(!editorState.isPlaying)}
+                handleSliderChange={editorState.handleSliderChange}
+                handleSplitClip={editorState.handleSplitClip}
+                handleExport={editorState.handleExport}
+                handleDownloadAnalytics={editorState.handleDownloadAnalytics}
+              />
+              
+              {/* Analytics section - moved to the end of the page */}
               <AnalyticsSection
                 views={editorState.views}
                 clicks={editorState.clicks}

@@ -73,12 +73,15 @@ export const useVideoRenderer = ({
         setVideoLoaded(false);
       };
       
+      // Use both loadeddata and canplaythrough events to ensure video is ready
       videoRef.current.addEventListener('loadeddata', handleLoaded);
+      videoRef.current.addEventListener('canplaythrough', handleLoaded);
       videoRef.current.addEventListener('error', handleError);
       
       return () => {
         if (videoRef.current) {
           videoRef.current.removeEventListener('loadeddata', handleLoaded);
+          videoRef.current.removeEventListener('canplaythrough', handleLoaded);
           videoRef.current.removeEventListener('error', handleError);
           
           // Clean up object URL if created from file
@@ -90,12 +93,14 @@ export const useVideoRenderer = ({
     } else {
       setVideoLoaded(false);
     }
-  }, [clips, currentTime]);
+  }, [clips]);
   
   // Update video playback state
   useEffect(() => {
     if (videoRef.current && videoLoaded) {
       if (isPlaying) {
+        // Force seek to current time to synchronize playback
+        videoRef.current.currentTime = currentTime;
         videoRef.current.play().catch(err => {
           console.log("Video play error:", err);
           toast.error("Click the play button to start video playback");
@@ -105,7 +110,7 @@ export const useVideoRenderer = ({
         videoRef.current.pause();
       }
     }
-  }, [isPlaying, videoLoaded, setIsPlaying]);
+  }, [isPlaying, videoLoaded, setIsPlaying, currentTime]);
   
   // Animate playback for preview and canvas
   useEffect(() => {
@@ -207,7 +212,7 @@ export const useVideoRenderer = ({
 
   // Update video current time when time is changed externally
   useEffect(() => {
-    if (videoRef.current && videoLoaded) {
+    if (videoRef.current && videoLoaded && Math.abs(videoRef.current.currentTime - currentTime) > 0.5) {
       videoRef.current.currentTime = currentTime;
     }
   }, [currentTime, videoLoaded]);

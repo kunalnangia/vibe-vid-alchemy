@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from "sonner";
 
 interface Clip {
@@ -23,6 +23,39 @@ interface UseEditorClipsReturn {
 export const useEditorClips = (): UseEditorClipsReturn => {
   const [clips, setClips] = useState<Clip[]>([]);
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
+  
+  // Listen for video-upload events from other components
+  useEffect(() => {
+    const handleVideoUpload = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.file) {
+        const file = customEvent.detail.file as File;
+        const duration = customEvent.detail.duration || 10;
+        
+        // Create object URL for preview
+        const objectUrl = URL.createObjectURL(file);
+        
+        const newClip = {
+          id: `clip-${Date.now()}`,
+          name: file.name,
+          duration: duration, 
+          type: "video",
+          file: file,
+          src: objectUrl
+        };
+        
+        setClips(prev => [...prev, newClip]);
+        setSelectedClipId(newClip.id);
+        toast.success(`Video added: ${file.name}`);
+      }
+    };
+    
+    document.addEventListener('video-upload', handleVideoUpload);
+    
+    return () => {
+      document.removeEventListener('video-upload', handleVideoUpload);
+    };
+  }, []);
   
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
