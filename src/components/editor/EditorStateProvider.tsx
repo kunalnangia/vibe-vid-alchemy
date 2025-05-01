@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useEditorPlayback } from '@/hooks/useEditorPlayback';
+import { useEditorPlayback } from '@/hooks/playback';
 import { useEditorOverlays } from '@/hooks/useEditorOverlays';
 import { useEditorClips } from '@/hooks/useEditorClips';
 import { useEditorActions } from '@/hooks/useEditorActions';
