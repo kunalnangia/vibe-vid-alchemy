@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutGrid, Users, Share2 } from "lucide-react";
@@ -21,7 +20,7 @@ interface EditorTabsContainerProps {
   views: number;
   clicks: number;
   selectedClipId: string | null;
-  handleUpload: () => void;
+  handleUpload: (file: File) => void;
   handleRecord: () => void;
   handlePlay: () => void;
   handleSliderChange: (value: number[]) => void;
@@ -107,6 +106,7 @@ const EditorTabsContainer: React.FC<EditorTabsContainerProps> = ({
             handleDownloadAnalytics={handleDownloadAnalytics}
           />
         </TabsContent>
+        
         <TabsContent value="marketplace">
           <TemplateMarketplacePanel />
         </TabsContent>

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from "sonner";
 
@@ -11,7 +10,7 @@ interface UseEditorActionsReturn {
   clicks: number;
   activeTool: string | null;
   setActiveTool: (tool: string | null) => void;
-  handleUpload: () => void;
+  handleUpload: (file?: File) => void;
   handleRecord: () => void;
   handleTrimVideo: () => void;
   handleCropFrame: () => void;
@@ -30,12 +29,45 @@ export const useEditorActions = (): UseEditorActionsReturn => {
   const [clicks] = useState(0);
   const [activeTool, setActiveTool] = useState<string | null>(null);
   
-  const handleUpload = () => {
-    toast.info("Upload Video feature clicked");
+  const handleUpload = (file?: File) => {
+    if (file) {
+      // If a file was passed, we're dealing with an actual upload
+      const fileSizeMB = file.size / (1024 * 1024);
+      const maxSize = 100; // 100MB max size
+      
+      if (fileSizeMB > maxSize) {
+        toast.error(`File is too large. Maximum size is ${maxSize}MB.`);
+        return;
+      }
+      
+      toast.success(`Uploaded video: ${file.name}`);
+      
+      // In a real implementation, we would:
+      // 1. Upload to storage or process the file
+      // 2. Create a video clip object
+      console.log('Video file selected:', file.name, file.size, 'bytes');
+    } else {
+      // This is just the button click without a file
+      toast.info("Please select a video file");
+    }
   };
   
   const handleRecord = () => {
-    toast.info("Record Video feature clicked");
+    // Request camera and microphone permissions
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        toast.success("Camera and microphone access granted. Recording would start here.");
+        // In a real implementation:
+        // 1. Create a MediaRecorder instance
+        // 2. Start recording and save the video
+        
+        // Stop all tracks to release the camera and microphone
+        stream.getTracks().forEach(track => track.stop());
+      })
+      .catch(err => {
+        console.error("Error accessing camera/microphone:", err);
+        toast.error("Could not access camera or microphone. Please check permissions.");
+      });
   };
   
   const handleTrimVideo = () => {

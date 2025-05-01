@@ -27,7 +27,7 @@ interface EditorState {
   setClips: (clips: any[]) => void;
   activeTool: string | null;
   setActiveTool: (tool: string | null) => void;
-  handleUpload: () => void;
+  handleUpload: (file: File) => void;
   handleRecord: () => void;
   handlePlay: () => void;
   handleSliderChange: (value: number[]) => void;

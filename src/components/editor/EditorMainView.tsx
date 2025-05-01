@@ -16,7 +16,7 @@ interface EditorMainViewProps {
   views: number;
   clicks: number;
   selectedClipId: string | null;
-  handleUpload: () => void;
+  handleUpload: (file: File) => void;
   handleRecord: () => void;
   handlePlay: () => void;
   handleSliderChange: (value: number[]) => void;
