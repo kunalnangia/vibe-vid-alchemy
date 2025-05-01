@@ -42,13 +42,6 @@ export const useEditorActions = (): UseEditorActionsReturn => {
     setScriptIdea: basicActions.setScriptIdea || setScriptIdea
   });
   
-  // Add default implementation for handlePublishLanding if it doesn't exist
-  if (!personalizationActions.handlePublishLanding) {
-    personalizationActions.handlePublishLanding = () => {
-      console.log("Publishing landing page");
-    };
-  }
-  
   // Combine all actions and return them
   return {
     ...basicActions,
