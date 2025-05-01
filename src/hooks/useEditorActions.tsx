@@ -39,8 +39,15 @@ export const useEditorActions = (): UseEditorActionsReturn => {
   const personalizationActions = usePersonalizationActions();
   const enhancementActions = useEnhancementActions({ 
     scriptIdea: basicActions.scriptIdea || scriptIdea, 
-    setScriptIdea: basicActions.setScriptIdea
+    setScriptIdea: basicActions.setScriptIdea || setScriptIdea
   });
+  
+  // Add default implementation for handlePublishLanding if it doesn't exist
+  if (!personalizationActions.handlePublishLanding) {
+    personalizationActions.handlePublishLanding = () => {
+      console.log("Publishing landing page");
+    };
+  }
   
   // Combine all actions and return them
   return {

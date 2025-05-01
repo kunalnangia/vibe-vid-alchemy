@@ -1,7 +1,8 @@
 
 import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Upload, Record } from "lucide-react";
+import { Upload } from "lucide-react";
+import { Record } from "@/components/ui/lucide-icons";
 import { toast } from "sonner";
 
 interface UploadSectionProps {

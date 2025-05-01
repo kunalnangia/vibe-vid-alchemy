@@ -41,7 +41,7 @@ const VideoEditor: React.FC = () => {
                 selectedClipId={editorState.selectedClipId}
                 handleUpload={editorState.handleUpload}
                 handleRecord={editorState.handleRecord}
-                handlePlay={editorState.handleTogglePlay}
+                handlePlay={() => editorState.setIsPlaying(!editorState.isPlaying)}
                 handleSliderChange={editorState.handleSliderChange}
                 handleSplitClip={editorState.handleSplitClip}
                 handleExport={editorState.handleExport}
@@ -68,8 +68,8 @@ const VideoEditor: React.FC = () => {
                 <div className="max-w-3xl mx-auto">
                   <VideoControls
                     isPlaying={editorState.isPlaying}
-                    togglePlay={editorState.handleTogglePlay}
-                    seekTo={editorState.seekTo}
+                    togglePlay={() => editorState.setIsPlaying(!editorState.isPlaying)}
+                    seekTo={(time) => editorState.setCurrentTime(time)}
                     currentTime={editorState.currentTime}
                     duration={editorState.duration}
                   />
