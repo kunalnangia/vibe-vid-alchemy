@@ -36,7 +36,7 @@ export const useBasicActions = () => {
     }, 1500);
   };
 
-  // Add the missing handleUpload function
+  // Handle upload
   const handleUpload = (file?: File) => {
     if (file) {
       toast.success(`Uploading ${file.name}`);
@@ -53,7 +53,7 @@ export const useBasicActions = () => {
     }
   };
 
-  // Add the missing handleRecord function
+  // Handle record
   const handleRecord = () => {
     toast.info('Opening camera for recording...');
     
