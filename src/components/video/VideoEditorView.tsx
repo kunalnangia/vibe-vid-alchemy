@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Play, Pause } from 'lucide-react';
 
 interface VideoEditorViewProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -36,9 +37,9 @@ const VideoEditorView: React.FC<VideoEditorViewProps> = ({
         >
           <div className="bg-black bg-opacity-50 rounded-full p-4">
             {isPlaying ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              <Pause className="text-white" />
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <Play className="text-white" />
             )}
           </div>
         </div>

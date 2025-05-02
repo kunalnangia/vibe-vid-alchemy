@@ -2,6 +2,10 @@
 import React, { useEffect } from 'react';
 import { VideoClip, TextOverlay } from '@/lib/video/types';
 import { useVideoRenderer } from '@/hooks/useVideoRenderer';
+import VideoEmptyState from './VideoEmptyState';
+import VideoLoadingIndicator from './VideoLoadingIndicator';
+import VideoStatusIndicators from './VideoStatusIndicators';
+import VideoPlayPauseOverlay from './VideoPlayPauseOverlay';
 
 interface VideoCanvasProps {
   clips: VideoClip[];
@@ -95,64 +99,32 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
           aspectRatio: `${ratioConfig.width}/${ratioConfig.height}`,
           backgroundColor: '#000'
         }}
+        onClick={togglePlay}
       />
       
-      {/* Video controls overlay */}
-      <div className="video-controls absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 hover:opacity-100 transition-opacity">
-        <div className="flex items-center justify-between">
-          <button 
-            className="text-white bg-purple-600 rounded-full p-2 hover:bg-purple-700 transition"
-            onClick={togglePlay}
-            aria-label={isPlaying ? "Pause" : "Play"}
-          >
-            {isPlaying ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            )}
-          </button>
-          
-          <div className="text-white text-sm">
-            {formatTime(currentTime)} / {formatTime(projectDuration)}
-          </div>
-        </div>
-      </div>
+      {/* Video play/pause overlay */}
+      {clips.length > 0 && videoLoaded && (
+        <VideoPlayPauseOverlay
+          isPlaying={isPlaying}
+          currentTime={currentTime}
+          projectDuration={projectDuration}
+          togglePlay={togglePlay}
+        />
+      )}
       
       {/* Empty state when no video is loaded */}
-      {clips.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-800/20 backdrop-blur-sm">
-          <div className="text-center p-6">
-            <div className="text-purple-600 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-            </div>
-            <h3 className="text-xl font-semibold text-purple-900">Add Your First Clip</h3>
-            <p className="text-sm text-purple-700 mt-1">Upload a video or record with your camera</p>
-          </div>
-        </div>
-      )}
+      {clips.length === 0 && <VideoEmptyState />}
       
       {/* Loading indicator */}
-      {clips.length > 0 && !videoLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-800/30">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-        </div>
-      )}
+      {clips.length > 0 && !videoLoaded && <VideoLoadingIndicator />}
       
-      {/* Green screen indicator */}
-      {greenScreenEnabled && (
-        <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
-          Green Screen Active
-        </div>
-      )}
+      {/* Status indicators (format, green screen) */}
+      <VideoStatusIndicators 
+        aspectRatio={aspectRatio}
+        greenScreenEnabled={greenScreenEnabled}
+      />
     </div>
   );
-};
-
-// Helper function to format time in MM:SS format
-const formatTime = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
 export default VideoCanvas;
