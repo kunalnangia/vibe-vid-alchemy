@@ -2,7 +2,8 @@
 import React from 'react';
 import VideoToolbar from '../VideoToolbar';
 import { Button } from '../ui/button';
-import { Wand2, FileText, Video, ArrowRight, Music } from 'lucide-react';
+import { Wand2, FileText, Video, ArrowRight, Music, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface EditorMainViewProps {
   scriptIdea: string;
@@ -29,6 +30,28 @@ const EditorMainView: React.FC<EditorMainViewProps> = ({
   handleSplitClip,
   handleExport,
 }) => {
+  // Function to generate storyboard
+  const handleGenerateStoryboard = () => {
+    toast('Generating storyboard...', {
+      description: 'Creating visual layout for your scenes',
+      duration: 3000,
+    });
+    
+    setTimeout(() => {
+      toast.success('Storyboard generated!', {
+        description: 'Successfully created visual representation of your script'
+      });
+    }, 3000);
+  };
+  
+  // Function to view all suggestions
+  const handleViewAllSuggestions = () => {
+    toast('Showing all AI-generated suggestions', {
+      description: 'Opening detailed suggestions panel',
+      duration: 3000,
+    });
+  };
+  
   return (
     <>
       {/* Video Toolbar */}
@@ -52,27 +75,50 @@ const EditorMainView: React.FC<EditorMainViewProps> = ({
                 title="Scene Breakdown" 
                 description="Based on your script, we recommend 4 main scenes with transitions." 
                 icon={<Video className="h-5 w-5 text-purple-500" />}
+                onClick={() => {
+                  toast.info('Opening scene breakdown editor', {
+                    description: 'You can edit individual scenes in the AI Workspace tab'
+                  });
+                }}
               />
               
               <SuggestionCard 
                 title="Stock Footage" 
                 description="We found 12 relevant stock clips matching your script topic." 
                 icon={<Video className="h-5 w-5 text-blue-500" />}
+                onClick={() => {
+                  toast.success('Generating stock footage suggestions', {
+                    description: 'Finding relevant footage for your video'
+                  });
+                }}
               />
               
               <SuggestionCard 
                 title="Music Recommendations" 
                 description="Upbeat corporate tracks would match your script's tone." 
                 icon={<Music className="h-5 w-5 text-green-500" />}
+                onClick={() => {
+                  toast.success('Finding matching music tracks', {
+                    description: 'Analyzing your script to find matching audio'
+                  });
+                }}
               />
             </div>
             
             <div className="mt-5">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium">
+              <Button 
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium"
+                onClick={handleGenerateStoryboard}
+              >
                 <Wand2 className="mr-2 h-4 w-4" />
                 Generate Storyboard
               </Button>
-              <Button variant="outline" className="ml-2 border-blue-300 text-blue-700">
+              <Button 
+                variant="outline" 
+                className="ml-2 border-blue-300 text-blue-700"
+                onClick={handleViewAllSuggestions}
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
                 View All Suggestions
               </Button>
             </div>
@@ -109,14 +155,18 @@ const EditorMainView: React.FC<EditorMainViewProps> = ({
   );
 };
 
-// Helper component for suggestion cards
+// Helper component for suggestion cards with click functionality
 const SuggestionCard: React.FC<{
   title: string;
   description: string;
   icon: React.ReactNode;
-}> = ({ title, description, icon }) => {
+  onClick?: () => void;
+}> = ({ title, description, icon, onClick }) => {
   return (
-    <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg">
+    <div 
+      className="p-4 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors duration-200"
+      onClick={onClick}
+    >
       <div className="flex items-center mb-2">
         {icon}
         <h4 className="font-medium text-blue-800 ml-2">{title}</h4>

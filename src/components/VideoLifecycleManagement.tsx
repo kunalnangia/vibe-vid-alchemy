@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -17,7 +18,10 @@ import {
   ChevronRight,
   Lightbulb,
   BarChart3,
-  Clock
+  Clock,
+  ArrowUp,
+  Settings,
+  Sparkles
 } from "lucide-react";
 
 interface LifecycleStage {
@@ -29,9 +33,9 @@ interface LifecycleStage {
 
 const VideoLifecycleManagement: React.FC = () => {
   const [showDetails, setShowDetails] = useState<string | null>(null);
-  
-  // Mock lifecycle data
-  const lifecycleStages: LifecycleStage[] = [
+  const [isOptimizing, setIsOptimizing] = useState<string | null>(null);
+  const [isFixing, setIsFixing] = useState<string | null>(null);
+  const [stages, setStages] = useState<LifecycleStage[]>([
     {
       name: "Planning & Scripting",
       status: "completed",
@@ -72,12 +76,12 @@ const VideoLifecycleManagement: React.FC = () => {
         "Schedule publishing at peak audience times"
       ]
     }
-  ];
+  ]);
   
   // Overall lifecycle score
-  const overallScore = lifecycleStages.reduce((total, stage) => 
+  const overallScore = stages.reduce((total, stage) => 
     total + (stage.status !== 'pending' ? stage.score : 0), 0) / 
-    lifecycleStages.filter(stage => stage.status !== 'pending').length;
+    stages.filter(stage => stage.status !== 'pending').length;
   
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -101,13 +105,111 @@ const VideoLifecycleManagement: React.FC = () => {
   };
   
   const handleOptimize = (stageName: string) => {
+    setIsOptimizing(stageName);
     toast.success(`Optimizing ${stageName}...`);
-    // In a real app, this would trigger optimization processes
+    
+    // Simulate optimization process
+    setTimeout(() => {
+      const updatedStages = stages.map(stage => {
+        if (stage.name === stageName) {
+          const newScore = Math.min(100, stage.score + Math.floor(Math.random() * 15) + 5);
+          return {
+            ...stage,
+            score: newScore,
+            status: newScore >= 80 ? 'completed' : stage.status
+          };
+        }
+        return stage;
+      });
+      
+      setStages(updatedStages);
+      setIsOptimizing(null);
+      toast.success(`${stageName} optimized successfully!`);
+    }, 2500);
   };
   
   const handleFixIssues = (stageName: string) => {
+    setIsFixing(stageName);
     toast.success(`Applying automatic fixes for ${stageName}...`);
-    // In a real app, this would apply fixes to identified issues
+    
+    // Simulate issue fixing process
+    setTimeout(() => {
+      toast("Analyzing issues...", {
+        description: "Identifying problematic areas"
+      });
+    }, 1000);
+    
+    setTimeout(() => {
+      toast("Applying fixes...", {
+        description: "Implementing technical improvements"
+      });
+    }, 2500);
+    
+    setTimeout(() => {
+      const updatedStages = stages.map(stage => {
+        if (stage.name === stageName) {
+          const newScore = Math.min(100, stage.score + Math.floor(Math.random() * 20) + 10);
+          return {
+            ...stage,
+            score: newScore,
+            status: newScore >= 75 ? 'in-progress' : 'issue'
+          };
+        }
+        return stage;
+      });
+      
+      setStages(updatedStages);
+      setIsFixing(null);
+      toast.success(`Fixed major issues in ${stageName}`);
+    }, 4000);
+  };
+  
+  const handleViewAnalytics = () => {
+    toast("Opening analytics dashboard...");
+    
+    setTimeout(() => {
+      toast.success("Analytics dashboard ready", {
+        description: "Showing detailed performance metrics"
+      });
+    }, 1500);
+  };
+  
+  const handleAIOptimization = () => {
+    toast("Starting AI optimization process...");
+    
+    setTimeout(() => {
+      toast("AI analyzing video content...", {
+        description: "Identifying areas for improvement"
+      });
+    }, 1000);
+    
+    setTimeout(() => {
+      toast("Applying AI enhancements...", {
+        description: "Optimizing audio, visuals, and pacing"
+      });
+    }, 3000);
+    
+    setTimeout(() => {
+      // Update all stages with improved scores
+      const updatedStages = stages.map(stage => {
+        if (stage.status !== 'pending') {
+          const improvement = Math.floor(Math.random() * 15) + 5;
+          const newScore = Math.min(100, stage.score + improvement);
+          return {
+            ...stage,
+            score: newScore,
+            status: newScore >= 80 ? 'completed' : 
+                   newScore >= 70 ? 'in-progress' : 'issue'
+          };
+        }
+        return stage;
+      });
+      
+      setStages(updatedStages);
+      toast.success("AI optimization complete!", {
+        description: "Multiple aspects of your video have been improved"
+      });
+    }, 5000);
   };
   
   return (
@@ -134,7 +236,7 @@ const VideoLifecycleManagement: React.FC = () => {
       </div>
       
       <div className="space-y-4 mb-6">
-        {lifecycleStages.map((stage) => (
+        {stages.map((stage) => (
           <div key={stage.name}>
             <div 
               className="flex justify-between items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
@@ -192,15 +294,29 @@ const VideoLifecycleManagement: React.FC = () => {
                           variant="destructive"
                           size="sm" 
                           onClick={() => handleFixIssues(stage.name)}
+                          disabled={isFixing === stage.name}
                         >
-                          Fix Issues
+                          {isFixing === stage.name ? (
+                            <>
+                              <span className="animate-spin mr-2">⚙️</span> Fixing...
+                            </>
+                          ) : (
+                            'Fix Issues'
+                          )}
                         </Button>
                       )}
                       <Button 
                         size="sm" 
                         onClick={() => handleOptimize(stage.name)}
+                        disabled={isOptimizing === stage.name}
                       >
-                        Optimize
+                        {isOptimizing === stage.name ? (
+                          <>
+                            <span className="animate-spin mr-2">⚙️</span> Optimizing...
+                          </>
+                        ) : (
+                          'Optimize'
+                        )}
                       </Button>
                     </div>
                   )}
@@ -236,7 +352,7 @@ const VideoLifecycleManagement: React.FC = () => {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={handleViewAnalytics}>
               <BarChart3 className="h-4 w-4 mr-2" />
               View Detailed Analytics
             </Button>
@@ -276,7 +392,8 @@ const VideoLifecycleManagement: React.FC = () => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full">
+            <Button className="w-full" onClick={handleAIOptimization}>
+              <Sparkles className="h-4 w-4 mr-2" />
               Apply AI Optimization
             </Button>
           </CardFooter>
