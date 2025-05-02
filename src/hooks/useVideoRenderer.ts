@@ -33,6 +33,7 @@ export const useVideoRenderer = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [loadAttempts, setLoadAttempts] = useState(0);
   
   // Get aspect ratio configuration
   const ratioConfig = aspectRatioMap[aspectRatio] || aspectRatioMap.landscape;
@@ -43,18 +44,26 @@ export const useVideoRenderer = ({
       // Reset video loaded state when clips change
       setVideoLoaded(false);
       
-      // Try to load from src or file
-      if (clips[0].src) {
-        videoRef.current.src = clips[0].src;
-        console.log("Loading video from src:", clips[0].src);
-      } else if (clips[0].file) {
-        const objectUrl = URL.createObjectURL(clips[0].file);
-        videoRef.current.src = objectUrl;
-        console.log("Loading video from file:", clips[0].name);
+      const loadVideo = () => {
+        // Try to load from src or file
+        if (clips[0].src) {
+          videoRef.current.src = clips[0].src;
+          console.log("Loading video from src:", clips[0].src);
+        } else if (clips[0].file) {
+          const objectUrl = URL.createObjectURL(clips[0].file);
+          videoRef.current.src = objectUrl;
+          console.log("Loading video from file:", clips[0].name);
+        } else {
+          console.error("No valid source for video clip");
+          toast.error("No valid source for video clip");
+          return;
+        }
         
         // Add preload attribute to ensure content is loaded
         videoRef.current.preload = "auto";
-      }
+        // Force video to load
+        videoRef.current.load();
+      };
       
       const handleLoaded = () => {
         setVideoLoaded(true);
@@ -69,31 +78,46 @@ export const useVideoRenderer = ({
       
       const handleError = (err: any) => {
         console.error("Error loading video:", err);
-        toast.error("Error loading video. Please try another file.");
-        setVideoLoaded(false);
+        
+        // Retry loading if we haven't reached max attempts
+        if (loadAttempts < 3) {
+          setLoadAttempts(prev => prev + 1);
+          setTimeout(loadVideo, 500); // Wait and retry
+          toast.error(`Error loading video. Retrying... (${loadAttempts + 1}/3)`);
+        } else {
+          toast.error("Failed to load video after multiple attempts. Please try another file.");
+          setVideoLoaded(false);
+        }
       };
       
-      // Use both loadeddata and canplaythrough events to ensure video is ready
-      videoRef.current.addEventListener('loadeddata', handleLoaded);
-      videoRef.current.addEventListener('canplaythrough', handleLoaded);
-      videoRef.current.addEventListener('error', handleError);
+      // Use multiple events to ensure video is ready
+      const video = videoRef.current;
+      video.addEventListener('loadeddata', handleLoaded);
+      video.addEventListener('canplaythrough', handleLoaded);
+      video.addEventListener('error', handleError);
+      
+      // Load the video
+      loadVideo();
       
       return () => {
-        if (videoRef.current) {
-          videoRef.current.removeEventListener('loadeddata', handleLoaded);
-          videoRef.current.removeEventListener('canplaythrough', handleLoaded);
-          videoRef.current.removeEventListener('error', handleError);
+        if (video) {
+          video.removeEventListener('loadeddata', handleLoaded);
+          video.removeEventListener('canplaythrough', handleLoaded);
+          video.removeEventListener('error', handleError);
           
           // Clean up object URL if created from file
-          if (clips[0].file && videoRef.current.src.startsWith('blob:')) {
-            URL.revokeObjectURL(videoRef.current.src);
+          if (clips[0].file && video.src.startsWith('blob:')) {
+            URL.revokeObjectURL(video.src);
           }
         }
+        
+        // Reset attempts counter
+        setLoadAttempts(0);
       };
     } else {
       setVideoLoaded(false);
     }
-  }, [clips]);
+  }, [clips, loadAttempts]);
   
   // Update video playback state
   useEffect(() => {
@@ -216,6 +240,19 @@ export const useVideoRenderer = ({
       videoRef.current.currentTime = currentTime;
     }
   }, [currentTime, videoLoaded]);
+
+  // Debug logs for video loading issues
+  useEffect(() => {
+    if (clips.length > 0) {
+      console.log("Current clips:", clips);
+      console.log("Video loaded status:", videoLoaded);
+      
+      if (!videoLoaded && videoRef.current) {
+        console.log("Video element readyState:", videoRef.current.readyState);
+        console.log("Video element error:", videoRef.current.error);
+      }
+    }
+  }, [clips, videoLoaded]);
 
   return {
     videoRef,

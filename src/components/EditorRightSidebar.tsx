@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Crop, Scissors, Video, Wand2, Captions, Music, Filter } from "lucide-react";
+import { Crop, Scissors, Video, Wand2, Captions, Music, Filter, Share2, Layout } from "lucide-react";
 import { ConnectCrm, ConnectSalesforce, InsertToken } from "@/components/ui/lucide-icons";
+import MultiChannelRepurposePanel from './MultiChannelRepurposePanel';
 
 interface EditorRightSidebarProps {
   videoTitle: string;
@@ -34,6 +35,8 @@ const EditorRightSidebar: React.FC<EditorRightSidebarProps> = ({
   handleGreenScreen,
   handleMagicResize
 }) => {
+  const [showRepurposePanel, setShowRepurposePanel] = useState(false);
+  
   return (
     <div className="w-[400px] bg-gradient-to-b from-purple-50 to-fuchsia-50 rounded-xl">
       <div className="p-6">
@@ -93,6 +96,24 @@ const EditorRightSidebar: React.FC<EditorRightSidebarProps> = ({
             <Wand2 className="mr-3 h-5 w-5 text-purple-700" />
             Enhance with AI
           </Button>
+
+          <Button 
+            variant="outline" 
+            className={`w-full py-6 text-lg justify-start px-6 hover:bg-purple-100 border-purple-200 ${
+              showRepurposePanel ? "bg-purple-100" : "bg-white"
+            }`}
+            onClick={() => setShowRepurposePanel(!showRepurposePanel)}
+          >
+            <Layout className="mr-3 h-5 w-5 text-purple-700" />
+            Multi-Channel Repurpose
+          </Button>
+
+          {/* Multi-Channel Repurpose Panel */}
+          {showRepurposePanel && (
+            <div className="bg-white border border-purple-100 rounded-lg p-4 mb-4">
+              <MultiChannelRepurposePanel />
+            </div>
+          )}
         </div>
         
         <h2 className="text-3xl font-bold mt-10 mb-6 text-purple-800">PERSONALIZATION</h2>
@@ -141,7 +162,7 @@ const EditorRightSidebar: React.FC<EditorRightSidebarProps> = ({
             className="w-full py-6 text-lg justify-center px-6 bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white hover:from-purple-700 hover:to-fuchsia-600 border-none"
             onClick={handlePublishLanding}
           >
-            <Video className="mr-3 h-5 w-5" />
+            <Share2 className="mr-3 h-5 w-5" />
             Publish & Generate Landing Page
           </Button>
         </div>

@@ -28,19 +28,7 @@ const VideoEditor: React.FC = () => {
               {/* Top Navigation */}
               <EditorHeader />
               
-              {/* Script Idea section */}
-              <ScriptIdeaSection
-                scriptIdea={editorState.scriptIdea}
-                setScriptIdea={editorState.setScriptIdea}
-              />
-              
-              {/* Upload Section */}
-              <UploadSection
-                handleUpload={editorState.handleUpload}
-                handleRecord={editorState.handleRecord}
-              />
-
-              {/* Display video preview when clips are available or show instruction to add first clip */}
+              {/* Video Preview Area - Moved to top */}
               <div className="flex justify-center p-4">
                 <VideoPreview
                   clips={editorState.clips}
@@ -55,7 +43,7 @@ const VideoEditor: React.FC = () => {
                 />
               </div>
               
-              {/* Video controls */}
+              {/* Video Controls - Only shown when clips are available */}
               {editorState.clips.length > 0 && (
                 <div className="max-w-3xl mx-auto">
                   <VideoControls
@@ -68,7 +56,21 @@ const VideoEditor: React.FC = () => {
                 </div>
               )}
               
-              {/* Editor Content */}
+              {/* Script Idea Section */}
+              <ScriptIdeaSection
+                scriptIdea={editorState.scriptIdea}
+                setScriptIdea={editorState.setScriptIdea}
+              />
+              
+              {/* Upload Section - Only shown when no clips */}
+              {editorState.clips.length === 0 && (
+                <UploadSection
+                  handleUpload={editorState.handleUpload}
+                  handleRecord={editorState.handleRecord}
+                />
+              )}
+              
+              {/* Editor Tabs Container */}
               <EditorTabsContainer 
                 videoTitle={editorState.videoTitle}
                 setVideoTitle={editorState.setVideoTitle}

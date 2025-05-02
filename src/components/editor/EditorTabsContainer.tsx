@@ -1,11 +1,13 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutGrid, Users, Share2 } from "lucide-react";
+import { LayoutGrid, Users, Share2, Wand2 } from "lucide-react";
 
 import TemplateMarketplacePanel from '../TemplateMarketplacePanel';
 import CollaborationPanel from '../CollaborationPanel';
 import SocialExportPanel from '../SocialExportPanel';
 import EditorMainView from './EditorMainView';
+import ScriptToVideoPanel from '../ScriptToVideoPanel';
 
 interface EditorTabsContainerProps {
   videoTitle: string;
@@ -61,6 +63,8 @@ const EditorTabsContainer: React.FC<EditorTabsContainerProps> = ({
       setActiveTool("collaborate");
     } else if (value === "export") {
       setActiveTool("export");
+    } else if (value === "ai-workspace") {
+      setActiveTool("ai-workspace");
     } else {
       setActiveTool(null);
     }
@@ -72,6 +76,10 @@ const EditorTabsContainer: React.FC<EditorTabsContainerProps> = ({
         <TabsList className="bg-blue-50 border border-blue-200">
           <TabsTrigger value="editor" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
             Editor
+          </TabsTrigger>
+          <TabsTrigger value="ai-workspace" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+            <Wand2 className="w-4 h-4 mr-1" />
+            AI Workspace
           </TabsTrigger>
           <TabsTrigger value="marketplace" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
             <LayoutGrid className="w-4 h-4 mr-1" />
@@ -106,13 +114,22 @@ const EditorTabsContainer: React.FC<EditorTabsContainerProps> = ({
             handleDownloadAnalytics={handleDownloadAnalytics}
           />
         </TabsContent>
+
+        <TabsContent value="ai-workspace">
+          <ScriptToVideoPanel
+            scriptIdea={scriptIdea}
+            setScriptIdea={setScriptIdea}
+          />
+        </TabsContent>
         
         <TabsContent value="marketplace">
           <TemplateMarketplacePanel />
         </TabsContent>
+
         <TabsContent value="collaborate">
           <CollaborationPanel />
         </TabsContent>
+        
         <TabsContent value="export">
           <SocialExportPanel />
         </TabsContent>
