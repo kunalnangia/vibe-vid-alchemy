@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { Scissors, Video, Captions, Music, Share, Export } from "lucide-react";
+import { Scissors, Video, Captions, Music, Share, ExternalLink } from "lucide-react";
 
 interface VideoEditorProps {
   videoSrc?: string;
@@ -310,7 +310,7 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
             disabled={!hasVideo}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
-            <Export className="mr-2 h-4 w-4" />
+            <ExternalLink className="mr-2 h-4 w-4" />
             Export
           </Button>
         </div>

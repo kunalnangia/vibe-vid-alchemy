@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -130,8 +129,7 @@ const VideoLifecycleManagement: React.FC = () => {
       <div className="mb-6">
         <Progress 
           value={overallScore} 
-          className="h-2 bg-gray-200" 
-          indicatorClassName={getStatusColor(overallScore)} 
+          className={`h-2 bg-gray-200 ${getStatusColor(overallScore)}`}
         />
       </div>
       
