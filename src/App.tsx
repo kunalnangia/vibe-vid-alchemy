@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,89 +18,93 @@ import Settings from "./pages/Settings";
 import Collaborate from "./pages/Collaborate";
 import PLMDashboard from "./pages/PLMDashboard";
 
-// Create a new QueryClient instance
-const queryClient = new QueryClient();
+// Create a new QueryClient instance - MUST be inside the component
+const App = () => {
+  // Create QueryClient inside the component to ensure React context is available
+  const queryClient = new QueryClient();
 
-const App = () => (
-  // Ensure React is available in the scope by properly nesting providers
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner position="top-right" closeButton={true} theme="light" />
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/projects" 
-              element={
-                <ProtectedRoute>
-                  <Projects />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/templates" 
-              element={
-                <ProtectedRoute>
-                  <Templates />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/ai-creator" 
-              element={
-                <ProtectedRoute>
-                  <AICreator />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/publishing" 
-              element={
-                <ProtectedRoute>
-                  <Publishing />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/settings" 
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/collaborate" 
-              element={
-                <ProtectedRoute>
-                  <Collaborate />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/plm" 
-              element={
-                <ProtectedRoute>
-                  <PLMDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </TooltipProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+  return (
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner position="top-right" closeButton={true} theme="light" />
+              <Routes>
+                <Route 
+                  path="/" 
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/projects" 
+                  element={
+                    <ProtectedRoute>
+                      <Projects />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/templates" 
+                  element={
+                    <ProtectedRoute>
+                      <Templates />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/ai-creator" 
+                  element={
+                    <ProtectedRoute>
+                      <AICreator />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/publishing" 
+                  element={
+                    <ProtectedRoute>
+                      <Publishing />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings" 
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/collaborate" 
+                  element={
+                    <ProtectedRoute>
+                      <Collaborate />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/plm" 
+                  element={
+                    <ProtectedRoute>
+                      <PLMDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </TooltipProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+};
 
 export default App;

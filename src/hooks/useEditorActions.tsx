@@ -47,6 +47,7 @@ export const useEditorActions = ({
   setScriptIdea: () => {}
 }): UseEditorActionsReturn => {
   const [localScriptIdea, setLocalScriptIdea] = useState(initialScriptIdea);
+  const [activeTool, setActiveTool] = useState<string | null>(null);
   
   // Import all actions from separate hook files
   const basicActions = useBasicActions();
@@ -75,16 +76,29 @@ export const useEditorActions = ({
   
   // Combine all actions and return them
   return {
-    ...basicActions,
-    ...editingActions,
-    ...personalizationActions,
-    ...enhancementActions,
+    videoTitle: basicActions.videoTitle || '',
+    setVideoTitle: basicActions.setVideoTitle || (() => {}),
     scriptIdea: basicActions.scriptIdea || localScriptIdea,
     setScriptIdea: basicActions.setScriptIdea || initialSetScriptIdea || setLocalScriptIdea,
-    handleSliderChange,
-    // Ensure these required properties are always present
+    views: basicActions.views || 0,
+    clicks: basicActions.clicks || 0,
+    activeTool: activeTool,
+    setActiveTool: setActiveTool,
     handleUpload,
     handleRecord,
+    handleTrimVideo: editingActions.handleTrimVideo || (() => {}),
+    handleCropFrame: editingActions.handleCropFrame || (() => {}),
+    handleInsertToken: personalizationActions.handleInsertToken || (() => {}),
+    handleConnectCRM: personalizationActions.handleConnectCRM || (() => {}),
+    handleConnectSalesforce: personalizationActions.handleConnectSalesforce || (() => {}),
+    handleExport: basicActions.handleExport || (() => {}),
+    handlePublishLanding: personalizationActions.handlePublishLanding || (() => {}),
+    handleDownloadAnalytics: basicActions.handleDownloadAnalytics || (() => {}),
+    handleAIEnhance: enhancementActions.handleAIEnhance || (() => {}),
+    handleAutoCaption: enhancementActions.handleAutoCaption || (() => {}),
+    handleGreenScreen: enhancementActions.handleGreenScreen || (() => {}),
+    handleMagicResize: enhancementActions.handleMagicResize || (() => {}),
+    handleSliderChange
   };
 };
 
