@@ -76,7 +76,10 @@ export const useEditorClips = (): UseEditorClipsReturn => {
       const objectUrl = URL.createObjectURL(file);
       video.src = objectUrl;
       
+      // Listen for metadata to load
       video.onloadedmetadata = () => {
+        console.log("Video metadata loaded:", video.duration);
+        
         // Add new clip to the timeline with actual duration
         const newClip = {
           id: `clip-${Date.now()}`,
@@ -92,13 +95,16 @@ export const useEditorClips = (): UseEditorClipsReturn => {
         
         toast.success(`Video loaded: ${file.name} (${Math.round(video.duration)}s)`);
         
-        // Clean up
+        // Clean up event listeners
         video.onloadedmetadata = null;
         video.onerror = null;
       };
       
-      video.onerror = () => {
+      // Error handling
+      video.onerror = (err) => {
+        console.error("Error loading video metadata:", err);
         toast.error("Error loading video metadata");
+        
         // Still add the clip but with estimated duration
         const newClip = {
           id: `clip-${Date.now()}`,
@@ -150,7 +156,7 @@ export const useEditorClips = (): UseEditorClipsReturn => {
         
         setClips(newClips);
         setSelectedClipId(firstHalfClip.id);
-        toast.success("Clip split at current position");
+        toast.success("Clip split successfully");
       }
     } else {
       toast.error("Please select a clip first");
@@ -166,3 +172,5 @@ export const useEditorClips = (): UseEditorClipsReturn => {
     handleSplitClip
   };
 };
+
+export default useEditorClips;

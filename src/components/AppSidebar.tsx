@@ -1,111 +1,80 @@
 
-import React from "react";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { 
-  Sidebar, 
-  SidebarContent,
-  SidebarGroup,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton
-} from "@/components/ui/sidebar";
-import { Video, Folder, Grid2x2, Settings, Users, Lightbulb, Share2 } from "lucide-react";
-import UserProfile from "./UserProfile";
-import { useNavigate, useLocation } from "react-router-dom";
+  Home, 
+  Video, 
+  Layout, 
+  Wand2, 
+  Share2, 
+  Settings,
+  Users,
+  TrendingUp
+} from 'lucide-react';
 
 export function AppSidebar() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Handle menu item clicks
-  const handleNavigate = (path: string) => {
-    navigate(path);
-  };
-  
+  const navigation = [
+    { name: 'Home', href: '/', icon: Home },
+    { name: 'Projects', href: '/projects', icon: Video },
+    { name: 'Templates', href: '/templates', icon: Layout },
+    { name: 'AI Workspace', href: '/ai-creator', icon: Wand2 },
+    { name: 'PLM', href: '/plm', icon: TrendingUp },
+    { name: 'Collaborate', href: '/collaborate', icon: Users },
+    { name: 'Publishing', href: '/publishing', icon: Share2 },
+    { name: 'Settings', href: '/settings', icon: Settings },
+  ];
+
   return (
-    <Sidebar variant="sidebar" className="bg-gradient-to-b from-purple-700 to-fuchsia-600 text-white border-none w-[280px]">
-      <SidebarContent>
-        <div className="mt-4 mb-8 px-4">
-          <div className="bg-white/10 backdrop-blur-xl text-white px-6 py-4 rounded-md mb-10">
-            <h1 className="text-2xl font-bold">VideoVibes</h1>
-          </div>
-          
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                className={`hover:bg-white/10 text-white py-3 mb-2 ${location.pathname === '/projects' ? 'bg-white/20' : ''}`}
-                onClick={() => handleNavigate('/projects')}
+    <Sidebar>
+      <div className="flex flex-col h-full py-4 bg-purple-800 text-white">
+        <div className="px-4 mb-6">
+          <h2 className="text-xl font-bold">VideoVibes</h2>
+          <p className="text-sm text-purple-200">Video Editor Pro</p>
+        </div>
+        
+        <SidebarContent className="flex-1">
+          <nav className="space-y-1 px-2">
+            {navigation.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                className={({ isActive }) => 
+                  isActive
+                    ? 'flex items-center px-2 py-2 text-base font-medium rounded-md bg-purple-700 text-white'
+                    : 'flex items-center px-2 py-2 text-base font-medium rounded-md text-purple-100 hover:bg-purple-700 hover:text-white'
+                }
               >
-                <Folder className="w-6 h-6" />
-                <span className="text-lg ml-2">My Projects</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                className={`hover:bg-white/10 text-white py-3 mb-2 ${location.pathname === '/' ? 'bg-white/20' : ''}`}
-                onClick={() => handleNavigate('/')}
-              >
-                <Video className="w-6 h-6" />
-                <span className="text-lg ml-2">Video Editor</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                className="hover:bg-white/10 text-white py-3 mb-2"
-                onClick={() => handleNavigate('/templates')}
-              >
-                <Grid2x2 className="w-6 h-6" />
-                <span className="text-lg ml-2">Templates</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                className="hover:bg-white/10 text-white py-3 mb-2"
-                onClick={() => handleNavigate('/collaboration')}
-              >
-                <Users className="w-6 h-6" />
-                <span className="text-lg ml-2">Collaboration</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                className="hover:bg-white/10 text-white py-3 mb-2"
-                onClick={() => handleNavigate('/ai-creator')}
-              >
-                <Lightbulb className="w-6 h-6" />
-                <span className="text-lg ml-2">AI Creator</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                className="hover:bg-white/10 text-white py-3 mb-2"
-                onClick={() => handleNavigate('/publishing')}
-              >
-                <Share2 className="w-6 h-6" />
-                <span className="text-lg ml-2">Publishing</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                className="hover:bg-white/10 text-white py-3 mb-2"
-                onClick={() => handleNavigate('/settings')}
-              >
-                <Settings className="w-6 h-6" />
-                <span className="text-lg ml-2">Settings</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-          
-          <div className="mt-auto pt-8 border-t border-white/20">
-            <UserProfile />
+                {({isActive}) => (
+                  <>
+                    <item.icon 
+                      className={`mr-3 h-6 w-6 ${isActive ? 'text-white' : 'text-purple-300'}`} 
+                      aria-hidden="true" 
+                    />
+                    {item.name}
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+        </SidebarContent>
+        
+        <div className="px-4 py-4 border-t border-purple-700">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <img
+                className="h-8 w-8 rounded-full"
+                src="https://i.pravatar.cc/100?img=12"
+                alt="User avatar"
+              />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-white">John Smith</p>
+              <p className="text-xs text-purple-300">Pro Account</p>
+            </div>
           </div>
         </div>
-      </SidebarContent>
+      </div>
     </Sidebar>
   );
 }

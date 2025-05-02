@@ -14,6 +14,8 @@ import Templates from "./pages/Templates";
 import AICreator from "./pages/AICreator";
 import Publishing from "./pages/Publishing";
 import Settings from "./pages/Settings";
+import Collaborate from "./pages/Collaborate";
+import PLMDashboard from "./pages/PLMDashboard";
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient();
@@ -72,6 +74,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/collaborate" 
+              element={
+                <ProtectedRoute>
+                  <Collaborate />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/plm" 
+              element={
+                <ProtectedRoute>
+                  <PLMDashboard />
                 </ProtectedRoute>
               } 
             />

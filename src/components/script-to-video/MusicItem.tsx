@@ -1,42 +1,47 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Play, Check } from "lucide-react";
+import { Play, Pause, Check } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from "@/components/ui/tooltip";
 
-interface VoiceoverItemProps {
+interface MusicItemProps {
   id: string;
-  name: string;
-  gender: string;
-  style: string;
-  language: string;
+  title: string;
+  artist: string;
+  duration: string;
+  mood: string;
   isSelected: boolean;
   onSelect: (id: string) => void;
 }
 
-const VoiceoverItem: React.FC<VoiceoverItemProps> = ({
+const MusicItem: React.FC<MusicItemProps> = ({
   id,
-  name,
-  gender,
-  style,
-  language,
+  title,
+  artist,
+  duration,
+  mood,
   isSelected,
   onSelect
 }) => {
   const [isPlaying, setIsPlaying] = React.useState(false);
   
-  const handlePlay = (e: React.MouseEvent) => {
+  const handlePlayToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsPlaying(true);
     
-    // Simulate audio playing for 3 seconds
-    setTimeout(() => {
+    if (!isPlaying) {
+      setIsPlaying(true);
+      
+      // Simulate audio playing for 5 seconds
+      setTimeout(() => {
+        setIsPlaying(false);
+      }, 5000);
+    } else {
       setIsPlaying(false);
-    }, 3000);
+    }
   };
   
   return (
@@ -45,34 +50,27 @@ const VoiceoverItem: React.FC<VoiceoverItemProps> = ({
       onClick={() => onSelect(id)}
     >
       <div className="flex-shrink-0 mr-3">
-        {isSelected ? (
-          <div className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center">
-            <Check className="h-4 w-4" />
-          </div>
-        ) : (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-8 w-8 rounded-full p-0" 
-            onClick={handlePlay}
-            disabled={isPlaying}
-          >
-            {isPlaying ? (
-              <div className="h-4 w-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
-            ) : (
-              <Play className="h-3 w-3" />
-            )}
-          </Button>
-        )}
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-8 w-8 rounded-full p-0" 
+          onClick={handlePlayToggle}
+        >
+          {isPlaying ? (
+            <Pause className="h-3 w-3" />
+          ) : (
+            <Play className="h-3 w-3" />
+          )}
+        </Button>
       </div>
       <div className="flex-grow">
-        <h5 className="font-medium text-gray-900">{name}</h5>
+        <h5 className="font-medium text-gray-900">{title}</h5>
         <div className="flex text-xs text-gray-500">
-          <span className="mr-2">{gender}</span>
+          <span className="mr-2">{artist}</span>
           <span className="mr-2">•</span>
-          <span className="mr-2">{style}</span>
+          <span className="mr-2">{mood}</span>
           <span className="mr-2">•</span>
-          <span>{language}</span>
+          <span>{duration}</span>
         </div>
       </div>
       <Tooltip>
@@ -86,16 +84,16 @@ const VoiceoverItem: React.FC<VoiceoverItemProps> = ({
               onSelect(id);
             }}
           >
-            <span className="sr-only">Select voice</span>
+            <span className="sr-only">Select track</span>
             <div className={`w-4 h-4 rounded-full border ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-gray-400'}`}>
               {isSelected && <Check className="h-3 w-3 text-white" />}
             </div>
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Select voice</TooltipContent>
+        <TooltipContent>Select track</TooltipContent>
       </Tooltip>
     </div>
   );
 };
 
-export default VoiceoverItem;
+export default MusicItem;

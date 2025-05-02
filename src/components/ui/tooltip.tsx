@@ -26,10 +26,4 @@ const TooltipContent = React.forwardRef<
 ))
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
-// Ensure the Provider is wrapped around the export
-export { 
-  Tooltip, 
-  TooltipTrigger, 
-  TooltipContent, 
-  TooltipProvider 
-}
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
