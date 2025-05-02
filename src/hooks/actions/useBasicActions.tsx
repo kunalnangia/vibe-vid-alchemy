@@ -36,6 +36,39 @@ export const useBasicActions = () => {
     }, 1500);
   };
 
+  // Handle upload
+  const handleUpload = (file?: File) => {
+    if (file) {
+      toast.success(`Uploading ${file.name}`);
+      console.log("Uploading file:", file);
+    } else {
+      // Try to trigger file input click if no file is provided
+      const fileInput = document.getElementById('upload-video') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.click();
+        return;
+      }
+      
+      toast.error("No file selected");
+    }
+  };
+
+  // Handle record
+  const handleRecord = () => {
+    toast.info('Opening camera for recording...');
+    
+    setTimeout(() => {
+      toast('Recording started', {
+        description: 'Recording for 5 seconds...'
+      });
+      
+      // Simulate recording completion
+      setTimeout(() => {
+        toast.success('Recording complete');
+      }, 5000);
+    }, 1000);
+  };
+
   return {
     videoTitle,
     setVideoTitle,
@@ -44,7 +77,9 @@ export const useBasicActions = () => {
     views,
     clicks,
     handleExport,
-    handleDownloadAnalytics
+    handleDownloadAnalytics,
+    handleUpload,
+    handleRecord
   };
 };
 
