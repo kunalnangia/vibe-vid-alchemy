@@ -2,6 +2,11 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Edit, Trash } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 
 interface SceneItemProps {
   number: number;
@@ -41,24 +46,34 @@ const SceneItem: React.FC<SceneItemProps> = ({
         {isHovered && (
           <>
             {onEdit && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-8 w-8 p-0" 
-                onClick={() => onEdit(number)}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0" 
+                    onClick={() => onEdit(number)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Edit Scene</TooltipContent>
+              </Tooltip>
             )}
             {onDelete && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50" 
-                onClick={() => onDelete(number)}
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50" 
+                    onClick={() => onDelete(number)}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete Scene</TooltipContent>
+              </Tooltip>
             )}
           </>
         )}

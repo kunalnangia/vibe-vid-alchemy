@@ -2,6 +2,11 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Check, Plus } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 
 interface VoiceoverItemProps {
   name: string;
@@ -49,19 +54,26 @@ const VoiceoverItem: React.FC<VoiceoverItemProps> = ({
       selected ? 'border-blue-400 bg-blue-50' : 'border-blue-100 hover:bg-blue-50'
     }`}>
       <div className="flex items-center">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-8 w-8 p-0 mr-2"
-          onClick={handlePlayPause}
-          disabled={!sampleAudio}
-        >
-          {isPlaying ? (
-            <Pause className="h-4 w-4" />
-          ) : (
-            <Play className="h-4 w-4" />
-          )}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0 mr-2"
+              onClick={handlePlayPause}
+              disabled={!sampleAudio}
+            >
+              {isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {isPlaying ? "Pause Audio" : "Play Sample"}
+          </TooltipContent>
+        </Tooltip>
         <div>
           <div className="font-medium text-blue-800">{name}</div>
           <div className="text-xs text-blue-500">{gender}</div>
@@ -70,14 +82,21 @@ const VoiceoverItem: React.FC<VoiceoverItemProps> = ({
       <div className="flex items-center">
         <div className="text-sm text-blue-600 mr-3">{style}</div>
         {onSelect && (
-          <Button
-            variant={selected ? "default" : "outline"}
-            size="sm"
-            className={selected ? "bg-blue-600" : ""}
-            onClick={onSelect}
-          >
-            {selected ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={selected ? "default" : "outline"}
+                size="sm"
+                className={selected ? "bg-blue-600" : ""}
+                onClick={onSelect}
+              >
+                {selected ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {selected ? "Selected Voice" : "Select Voice"}
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
     </div>
