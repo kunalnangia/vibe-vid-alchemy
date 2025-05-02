@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AppSidebar } from '../AppSidebar';
 import EditorRightSidebar from '../EditorRightSidebar';
@@ -6,8 +7,54 @@ import SidebarPanels from '../SidebarPanels';
 import EditorContent from './EditorContent';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import EditorStateProvider from './EditorStateProvider';
+import { toast } from 'sonner';
 
-const VideoEditorLayout: React.FC = () => {
+interface VideoEditorLayoutProps {
+  videoState?: {
+    currentFilter: string;
+    setCurrentFilter: (filter: string) => void;
+    aspectRatio: string;
+    setAspectRatio: (ratio: string) => void;
+    greenScreenEnabled: boolean;
+    setGreenScreenEnabled: (enabled: boolean) => void;
+    toggleGreenScreen: () => void;
+    autoCaptionsEnabled: boolean;
+    setAutoCaptionsEnabled: (enabled: boolean) => void;
+    toggleAutoCaptions: () => void;
+  }
+}
+
+const VideoEditorLayout: React.FC<VideoEditorLayoutProps> = ({ 
+  videoState = {
+    currentFilter: 'normal',
+    setCurrentFilter: () => {},
+    aspectRatio: 'landscape',
+    setAspectRatio: () => {},
+    greenScreenEnabled: false,
+    setGreenScreenEnabled: () => {},
+    toggleGreenScreen: () => {},
+    autoCaptionsEnabled: false,
+    setAutoCaptionsEnabled: () => {},
+    toggleAutoCaptions: () => {}
+  }
+}) => {
+  // Handle unexpected errors during rendering
+  React.useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error('Runtime error detected:', event.error);
+      toast.error('Something went wrong', {
+        description: 'The editor encountered an error. Please refresh the page.',
+        duration: 5000
+      });
+      
+      // Prevent default browser error handling
+      event.preventDefault();
+    };
+    
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+  
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-purple-50 via-white to-fuchsia-50">
@@ -20,7 +67,14 @@ const VideoEditorLayout: React.FC = () => {
               <EditorHeader />
               
               {/* Main content area */}
-              <EditorContent editorState={editorState} />
+              <EditorContent 
+                editorState={{
+                  ...editorState,
+                  currentFilter: videoState.currentFilter,
+                  aspectRatio: videoState.aspectRatio,
+                  greenScreenEnabled: videoState.greenScreenEnabled
+                }} 
+              />
               
               {/* Right sidebar */}
               <EditorRightSidebar
@@ -33,8 +87,14 @@ const VideoEditorLayout: React.FC = () => {
                 handleConnectSalesforce={editorState.handleConnectSalesforce}
                 handlePublishLanding={editorState.handlePublishLanding}
                 handleAIEnhance={editorState.handleAIEnhance}
-                handleAutoCaption={editorState.handleAutoCaption}
-                handleGreenScreen={editorState.handleGreenScreen}
+                handleAutoCaption={() => {
+                  editorState.handleAutoCaption();
+                  videoState.toggleAutoCaptions();
+                }}
+                handleGreenScreen={() => {
+                  editorState.handleGreenScreen();
+                  videoState.toggleGreenScreen();
+                }}
                 handleMagicResize={editorState.handleMagicResize}
               />
             </div>

@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { VideoPreviewProps } from '@/lib/video/types';
 import VideoCanvas from './video/VideoCanvas';
 import VideoFormatIndicator from './video/VideoFormatIndicator';
@@ -15,12 +14,28 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   projectDuration = 25,
   currentFilter = 'normal',
   aspectRatio = 'landscape',
-  greenScreenEnabled = false
+  greenScreenEnabled = false,
+  autoCaptionsEnabled = false
 }) => {
   const [localGreenScreenEnabled, setLocalGreenScreenEnabled] = useState(greenScreenEnabled);
+  
+  // Keep local state in sync with props
+  useEffect(() => {
+    setLocalGreenScreenEnabled(greenScreenEnabled);
+  }, [greenScreenEnabled]);
 
   const toggleGreenScreen = () => {
     setLocalGreenScreenEnabled(!localGreenScreenEnabled);
+  };
+
+  // Error handling for video loading issues
+  const [hasError, setHasError] = useState(false);
+  const handleVideoError = () => {
+    setHasError(true);
+  };
+  
+  const resetVideoError = () => {
+    setHasError(false);
   };
 
   return (
@@ -36,18 +51,32 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
         </Button>
       </div>
       
-      <VideoCanvas
-        clips={clips}
-        textOverlays={textOverlays}
-        currentTime={currentTime}
-        setCurrentTime={setCurrentTime}
-        isPlaying={isPlaying}
-        setIsPlaying={setIsPlaying}
-        projectDuration={projectDuration}
-        currentFilter={currentFilter}
-        aspectRatio={aspectRatio}
-        greenScreenEnabled={localGreenScreenEnabled}
-      />
+      {hasError ? (
+        <div className="flex flex-col items-center justify-center p-8 bg-red-50 rounded-lg w-full">
+          <p className="text-red-600 font-medium mb-3">Video loading error</p>
+          <Button 
+            variant="destructive"
+            onClick={resetVideoError}
+          >
+            Try Again
+          </Button>
+        </div>
+      ) : (
+        <VideoCanvas
+          clips={clips}
+          textOverlays={textOverlays}
+          currentTime={currentTime}
+          setCurrentTime={setCurrentTime}
+          isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
+          projectDuration={projectDuration}
+          currentFilter={currentFilter}
+          aspectRatio={aspectRatio}
+          greenScreenEnabled={localGreenScreenEnabled}
+          autoCaptionsEnabled={autoCaptionsEnabled}
+          onError={handleVideoError}
+        />
+      )}
       
       <VideoFormatIndicator 
         aspectRatio={aspectRatio}

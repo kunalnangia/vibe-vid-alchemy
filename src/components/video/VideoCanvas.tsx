@@ -18,6 +18,8 @@ interface VideoCanvasProps {
   currentFilter: string;
   aspectRatio: string;
   greenScreenEnabled?: boolean;
+  autoCaptionsEnabled?: boolean;
+  onError?: () => void;
 }
 
 const VideoCanvas: React.FC<VideoCanvasProps> = ({
@@ -30,7 +32,9 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
   projectDuration,
   currentFilter,
   aspectRatio,
-  greenScreenEnabled = false
+  greenScreenEnabled = false,
+  autoCaptionsEnabled = false,
+  onError
 }) => {
   const { videoRef, canvasRef, ratioConfig, videoLoaded } = useVideoRenderer({
     clips,
@@ -76,6 +80,24 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
       console.log('Clip loaded in VideoCanvas:', clips[0].name || 'Unnamed clip');
     }
   }, [clips]);
+  
+  // Handle video errors
+  useEffect(() => {
+    const video = videoRef.current;
+    
+    if (!video) return;
+    
+    const handleError = () => {
+      console.error('Video error occurred:', video.error);
+      if (onError) onError();
+    };
+    
+    video.addEventListener('error', handleError);
+    
+    return () => {
+      video.removeEventListener('error', handleError);
+    };
+  }, [videoRef, onError]);
 
   return (
     <div className="video-canvas-container relative rounded-md overflow-hidden shadow-lg mb-6">
@@ -122,6 +144,8 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
       <VideoStatusIndicators 
         aspectRatio={aspectRatio}
         greenScreenEnabled={greenScreenEnabled}
+        autoCaptionsEnabled={autoCaptionsEnabled}
+        isLoading={clips.length > 0 && !videoLoaded}
       />
     </div>
   );

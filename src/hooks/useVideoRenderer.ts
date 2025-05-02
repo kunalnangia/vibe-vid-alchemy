@@ -5,6 +5,7 @@ import { aspectRatioMap } from '@/lib/video/constants';
 import useVideoLoading from './useVideoLoading';
 import useVideoPlayback from './useVideoPlayback';
 import useVideoEffects from './useVideoEffects';
+import { toast } from 'sonner';
 
 interface UseVideoRendererProps {
   clips: VideoClip[];
@@ -32,6 +33,11 @@ export const useVideoRenderer = ({
 }: UseVideoRendererProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  
+  // Track rendering performance 
+  const [lastRenderTime, setLastRenderTime] = useState(0);
+  const [renderCount, setRenderCount] = useState(0);
+  const [performanceWarning, setPerformanceWarning] = useState(false);
   
   // Get aspect ratio configuration
   const ratioConfig = aspectRatioMap[aspectRatio] || aspectRatioMap.landscape;
@@ -63,6 +69,30 @@ export const useVideoRenderer = ({
     greenScreenEnabled
   });
 
+  // Monitor rendering performance
+  useEffect(() => {
+    if (videoLoaded && renderCount > 0) {
+      const now = performance.now();
+      const timeSinceLastRender = now - lastRenderTime;
+      
+      if (timeSinceLastRender < 16 && renderCount % 30 === 0) {  // 16ms = ~60fps
+        setPerformanceWarning(true);
+        // Only show warning every 30 renders to avoid spamming
+        if (renderCount % 90 === 0) {
+          toast.warning('Performance issue detected', { 
+            description: 'Video rendering is causing high CPU usage',
+            duration: 3000
+          });
+        }
+      } else {
+        setPerformanceWarning(false);
+      }
+      
+      setLastRenderTime(now);
+      setRenderCount(prev => prev + 1);
+    }
+  }, [currentTime, videoLoaded, lastRenderTime, renderCount]);
+
   // Debug logs for video loading issues
   useEffect(() => {
     if (clips.length > 0) {
@@ -80,7 +110,8 @@ export const useVideoRenderer = ({
     videoRef,
     canvasRef,
     ratioConfig,
-    videoLoaded
+    videoLoaded,
+    performanceWarning
   };
 };
 
