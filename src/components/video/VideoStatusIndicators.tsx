@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Shield, Video } from 'lucide-react';
+import { Shield, Video, Subtitles } from 'lucide-react';
 
 interface VideoStatusIndicatorsProps {
   aspectRatio: string;
@@ -40,7 +40,7 @@ const VideoStatusIndicators: React.FC<VideoStatusIndicatorsProps> = ({
           className="left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1"
           data-testid="captions-indicator"
         >
-          <span>CC</span>
+          <Subtitles className="h-3.5 w-3.5" />
           <span>Auto Captions</span>
         </div>
       )}

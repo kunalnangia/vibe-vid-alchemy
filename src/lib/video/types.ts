@@ -35,4 +35,5 @@ export interface VideoPreviewProps {
   currentFilter: string;
   aspectRatio: string;
   greenScreenEnabled?: boolean;
+  autoCaptionsEnabled?: boolean;
 }

@@ -27,6 +27,7 @@ const EditorContent: React.FC<EditorContentProps> = ({ editorState }) => {
           currentFilter={editorState.currentFilter || 'normal'}
           aspectRatio={editorState.aspectRatio || 'landscape'}
           greenScreenEnabled={editorState.greenScreenEnabled || false}
+          autoCaptionsEnabled={editorState.autoCaptionsEnabled || false}
         />
       </div>
       
