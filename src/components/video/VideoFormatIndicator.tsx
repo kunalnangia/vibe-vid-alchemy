@@ -6,25 +6,20 @@ interface VideoFormatIndicatorProps {
   currentFilter: string;
 }
 
-const VideoFormatIndicator: React.FC<VideoFormatIndicatorProps> = ({ 
-  aspectRatio, 
-  currentFilter 
+const VideoFormatIndicator: React.FC<VideoFormatIndicatorProps> = ({
+  aspectRatio,
+  currentFilter
 }) => {
-  const getAspectRatioLabel = () => {
-    switch (aspectRatio) {
-      case 'landscape': return '16:9 Landscape';
-      case 'portrait': return '9:16 Portrait';
-      case 'square': return '1:1 Square';
-      case 'vertical': return '4:5 Vertical';
-      case 'cinema': return '21:9 Cinema';
-      default: return 'Custom';
-    }
-  };
-
   return (
-    <div className="mt-2 text-xs text-blue-500 font-medium">
-      {getAspectRatioLabel()}
-      {currentFilter !== 'normal' && ` • Filter: ${currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)}`}
+    <div className="video-format-indicator mt-3 flex space-x-4 justify-center">
+      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+        {aspectRatio.charAt(0).toUpperCase() + aspectRatio.slice(1)}
+      </span>
+      {currentFilter !== 'normal' && (
+        <span className="inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10">
+          {currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)} Filter
+        </span>
+      )}
     </div>
   );
 };
