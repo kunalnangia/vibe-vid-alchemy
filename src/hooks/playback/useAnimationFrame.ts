@@ -2,39 +2,38 @@
 import { useRef, useEffect } from 'react';
 
 /**
- * Hook to manage animation frame for smooth playback
- * 
- * @param isActive Whether animation should be active
- * @param callback Function to call on each animation frame
+ * Hook for using requestAnimationFrame with a callback
  */
-export const useAnimationFrame = (
-  isActive: boolean, 
-  callback: () => void
-): void => {
-  const rafId = useRef<number | null>(null);
+export const useAnimationFrame = (callback: (time: number) => void, shouldAnimate: boolean) => {
+  const requestRef = useRef<number>();
+  const previousTimeRef = useRef<number>();
   
   useEffect(() => {
-    if (!isActive) {
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-        rafId.current = null;
+    if (!shouldAnimate) {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
       }
       return;
     }
     
-    const animate = () => {
-      callback();
-      rafId.current = requestAnimationFrame(animate);
+    const animate = (time: number) => {
+      if (previousTimeRef.current !== undefined) {
+        callback(time);
+      }
+      previousTimeRef.current = time;
+      requestRef.current = requestAnimationFrame(animate);
     };
     
-    rafId.current = requestAnimationFrame(animate);
+    requestRef.current = requestAnimationFrame(animate);
     
-    // Cleanup function
     return () => {
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-        rafId.current = null;
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
       }
     };
-  }, [isActive, callback]);
+  }, [shouldAnimate, callback]);
+  
+  return null;
 };
+
+export default useAnimationFrame;

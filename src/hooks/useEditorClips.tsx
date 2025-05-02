@@ -1,174 +1,157 @@
 
-import { useState, useCallback, useEffect } from 'react';
-import { toast } from "sonner";
+import { useState } from 'react';
+import { VideoClip } from '@/lib/video/types';
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'sonner';
 
-interface Clip {
-  id: string;
-  name: string;
-  duration: number;
-  type: string;
-  file?: File;
-  src?: string;
-}
-
-interface UseEditorClipsReturn {
-  clips: Clip[];
-  setClips: (clips: Clip[]) => void;
-  selectedClipId: string | null;
-  setSelectedClipId: (id: string | null) => void;
-  handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSplitClip: () => void;
-}
-
-export const useEditorClips = (): UseEditorClipsReturn => {
-  const [clips, setClips] = useState<Clip[]>([]);
+export const useEditorClips = () => {
+  const [clips, setClips] = useState<VideoClip[]>([]);
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
-  
-  // Listen for video-upload events from other components
-  useEffect(() => {
-    const handleVideoUpload = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail && customEvent.detail.file) {
-        const file = customEvent.detail.file as File;
-        const duration = customEvent.detail.duration || 10;
-        
-        // Create object URL for preview
-        const objectUrl = URL.createObjectURL(file);
-        
-        const newClip = {
-          id: `clip-${Date.now()}`,
-          name: file.name,
-          duration: duration, 
-          type: "video",
-          file: file,
-          src: objectUrl
-        };
-        
-        setClips(prev => [...prev, newClip]);
-        setSelectedClipId(newClip.id);
-        toast.success(`Video added: ${file.name}`);
-      }
+
+  // Function to handle file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Check if file is a video
+    if (!file.type.startsWith('video/')) {
+      toast.error('Please upload a video file');
+      return;
+    }
+    
+    // Create object URL for the file
+    const objectUrl = URL.createObjectURL(file);
+    
+    // Create a video element to get duration
+    const video = document.createElement('video');
+    video.src = objectUrl;
+    
+    video.onloadedmetadata = () => {
+      const newClip: VideoClip = {
+        id: uuidv4(),
+        src: objectUrl,
+        file: file,
+        start: 0,
+        end: video.duration,
+        position: 0,
+        duration: video.duration,
+        name: file.name,
+        type: file.type
+      };
+      
+      setClips([newClip]);
+      setSelectedClipId(newClip.id);
+      toast.success(`Video "${file.name}" uploaded successfully`);
     };
     
-    document.addEventListener('video-upload', handleVideoUpload);
-    
-    return () => {
-      document.removeEventListener('video-upload', handleVideoUpload);
+    video.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      toast.error('Error loading video. The file may be corrupted or in an unsupported format.');
     };
-  }, []);
+    
+    // Load the video to trigger onloadedmetadata
+    video.load();
+  };
   
-  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      
-      if (!file.type.startsWith('video/')) {
-        toast.error('Please select a video file');
-        return;
-      }
-      
-      toast.success(`Uploading file: ${file.name}`);
-      
-      // Create a video element to get duration
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-      
-      // Create object URL for preview
+  // Function to handle upload from button click
+  const handleUpload = (file?: File) => {
+    if (file) {
+      // If file is provided directly
       const objectUrl = URL.createObjectURL(file);
+      
+      const video = document.createElement('video');
       video.src = objectUrl;
       
-      // Listen for metadata to load
       video.onloadedmetadata = () => {
-        console.log("Video metadata loaded:", video.duration);
-        
-        // Add new clip to the timeline with actual duration
-        const newClip = {
-          id: `clip-${Date.now()}`,
-          name: file.name,
-          duration: video.duration || 10, // Default to 10s if duration can't be determined
-          type: "video",
-          file: file, // Store the actual file
-          src: objectUrl // Store the object URL for preview
-        };
-        
-        setClips(prev => [...prev, newClip]);
-        setSelectedClipId(newClip.id);
-        
-        toast.success(`Video loaded: ${file.name} (${Math.round(video.duration)}s)`);
-        
-        // Clean up event listeners
-        video.onloadedmetadata = null;
-        video.onerror = null;
-      };
-      
-      // Error handling
-      video.onerror = (err) => {
-        console.error("Error loading video metadata:", err);
-        toast.error("Error loading video metadata");
-        
-        // Still add the clip but with estimated duration
-        const newClip = {
-          id: `clip-${Date.now()}`,
-          name: file.name,
-          duration: 10, // Default duration
-          type: "video",
+        const newClip: VideoClip = {
+          id: uuidv4(),
+          src: objectUrl,
           file: file,
-          src: objectUrl
+          start: 0,
+          end: video.duration,
+          position: 0,
+          duration: video.duration,
+          name: file.name,
+          type: file.type
         };
         
-        setClips(prev => [...prev, newClip]);
+        setClips([newClip]);
         setSelectedClipId(newClip.id);
+        toast.success(`Video "${file.name}" uploaded successfully`);
       };
       
-      // Reset input value so same file can be selected again
-      e.target.value = '';
-    }
-  }, []);
-  
-  const handleSplitClip = useCallback(() => {
-    if (selectedClipId) {
-      const selectedClipIndex = clips.findIndex(clip => clip.id === selectedClipId);
+      video.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        toast.error('Error loading video');
+      };
       
-      if (selectedClipIndex >= 0) {
-        const selectedClip = clips[selectedClipIndex];
-        
-        // Create two clips from the original
-        const firstHalfClip = {
-          ...selectedClip,
-          id: `clip-${Date.now()}-1`,
-          name: `${selectedClip.name} (Part 1)`,
-          duration: selectedClip.duration / 2
-        };
-        
-        const secondHalfClip = {
-          ...selectedClip,
-          id: `clip-${Date.now()}-2`,
-          name: `${selectedClip.name} (Part 2)`,
-          duration: selectedClip.duration / 2
-        };
-        
-        // Replace the original clip with the two new clips
-        const newClips = [
-          ...clips.slice(0, selectedClipIndex),
-          firstHalfClip,
-          secondHalfClip,
-          ...clips.slice(selectedClipIndex + 1)
-        ];
-        
-        setClips(newClips);
-        setSelectedClipId(firstHalfClip.id);
-        toast.success("Clip split successfully");
-      }
+      video.load();
     } else {
-      toast.error("Please select a clip first");
+      // Create a file input and trigger it
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+      input.onchange = (e) => handleFileUpload(e as React.ChangeEvent<HTMLInputElement>);
+      input.click();
     }
-  }, [clips, selectedClipId]);
+  };
   
+  // Function to handle recording
+  const handleRecord = () => {
+    toast.info('Opening camera for recording...');
+    // This would normally open a camera recording interface
+    // For now, just show a notification
+    setTimeout(() => {
+      toast('Camera recording is not yet implemented', {
+        description: 'This feature will be available in a future update.'
+      });
+    }, 1000);
+  };
+
+  // Function to split a clip at the current time
+  const handleSplitClip = (currentTime: number) => {
+    if (clips.length === 0 || !selectedClipId) {
+      toast.error('No clip selected');
+      return;
+    }
+    
+    const selectedClip = clips.find(clip => clip.id === selectedClipId);
+    if (!selectedClip) return;
+    
+    // Don't split if we're too close to the start or end
+    if (currentTime < 0.5 || currentTime > selectedClip.duration - 0.5) {
+      toast.error('Cannot split too close to the start or end of the video');
+      return;
+    }
+    
+    const firstClip: VideoClip = {
+      ...selectedClip,
+      id: uuidv4(),
+      end: currentTime,
+      duration: currentTime
+    };
+    
+    const secondClip: VideoClip = {
+      ...selectedClip,
+      id: uuidv4(),
+      start: currentTime,
+      position: firstClip.position + firstClip.duration,
+      duration: selectedClip.duration - currentTime
+    };
+    
+    setClips([firstClip, secondClip]);
+    setSelectedClipId(firstClip.id);
+    toast.success('Clip split successfully');
+  };
+
   return {
     clips,
     setClips,
     selectedClipId,
     setSelectedClipId,
     handleFileUpload,
+    handleUpload,
+    handleRecord,
     handleSplitClip
   };
 };

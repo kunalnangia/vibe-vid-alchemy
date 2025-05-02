@@ -27,7 +27,7 @@ interface EditorState {
   setClips: (clips: any[]) => void;
   activeTool: string | null;
   setActiveTool: (tool: string | null) => void;
-  handleUpload: (file: File) => void;
+  handleUpload: (file?: File) => void;
   handleRecord: () => void;
   handlePlay: () => void;
   handleSliderChange: (value: number[]) => void;
@@ -47,6 +47,10 @@ interface EditorState {
   handleAutoCaption: () => void;
   handleGreenScreen: () => void;
   handleMagicResize: () => void;
+  currentFilter?: string;
+  aspectRatio?: string;
+  greenScreenEnabled?: boolean;
+  autoCaptionsEnabled?: boolean;
 }
 
 interface EditorStateProviderProps {
@@ -58,14 +62,21 @@ const EditorStateProvider: React.FC<EditorStateProviderProps> = ({ children }) =
   const playback = useEditorPlayback();
   const overlays = useEditorOverlays();
   const clips = useEditorClips();
-  const actions = useEditorActions();
+  const actions = useEditorActions({
+    // Pass necessary dependencies to handleSplitClip
+    currentTime: playback.currentTime, 
+    scriptIdea: '', 
+    setScriptIdea: () => {}
+  });
   
   // Combine all states and actions from the hooks
   const state: EditorState = {
     ...playback,
     ...overlays,
     ...clips,
-    ...actions
+    ...actions,
+    // Add handleSplitClip that uses the current time
+    handleSplitClip: () => clips.handleSplitClip(playback.currentTime)
   };
   
   return <>{children(state)}</>;

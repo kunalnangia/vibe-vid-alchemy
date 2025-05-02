@@ -5,6 +5,12 @@ import { useEditingActions } from './actions/useEditingActions';
 import { usePersonalizationActions } from './actions/usePersonalizationActions';
 import { useEnhancementActions } from './actions/useEnhancementActions';
 
+interface UseEditorActionsProps {
+  currentTime?: number;
+  scriptIdea: string;
+  setScriptIdea: (idea: string) => void;
+}
+
 interface UseEditorActionsReturn {
   videoTitle: string;
   setVideoTitle: (title: string) => void;
@@ -30,16 +36,24 @@ interface UseEditorActionsReturn {
   handleMagicResize: () => void;
 }
 
-export const useEditorActions = (): UseEditorActionsReturn => {
-  const [scriptIdea, setScriptIdea] = useState("");
+export const useEditorActions = ({
+  currentTime = 0,
+  scriptIdea: initialScriptIdea = '',
+  setScriptIdea: initialSetScriptIdea = () => {}
+}: UseEditorActionsProps = {
+  currentTime: 0,
+  scriptIdea: '',
+  setScriptIdea: () => {}
+}): UseEditorActionsReturn => {
+  const [localScriptIdea, setLocalScriptIdea] = useState(initialScriptIdea);
   
   // Import all actions from separate hook files
   const basicActions = useBasicActions();
   const editingActions = useEditingActions();
   const personalizationActions = usePersonalizationActions();
   const enhancementActions = useEnhancementActions({ 
-    scriptIdea: basicActions.scriptIdea || scriptIdea, 
-    setScriptIdea: basicActions.setScriptIdea || setScriptIdea
+    scriptIdea: basicActions.scriptIdea || localScriptIdea, 
+    setScriptIdea: basicActions.setScriptIdea || initialSetScriptIdea || setLocalScriptIdea
   });
   
   // Combine all actions and return them
@@ -48,8 +62,8 @@ export const useEditorActions = (): UseEditorActionsReturn => {
     ...editingActions,
     ...personalizationActions,
     ...enhancementActions,
-    scriptIdea: basicActions.scriptIdea || scriptIdea,
-    setScriptIdea: basicActions.setScriptIdea || setScriptIdea
+    scriptIdea: basicActions.scriptIdea || localScriptIdea,
+    setScriptIdea: basicActions.setScriptIdea || initialSetScriptIdea || setLocalScriptIdea
   };
 };
 

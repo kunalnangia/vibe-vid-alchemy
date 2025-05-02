@@ -13,9 +13,6 @@ export const useEnhancementActions = ({
 }: EnhancementActionsProps) => {
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [greenScreenEnabled, setGreenScreenEnabled] = useState(false);
-  const [autoCaption, setAutoCaption] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState('landscape');
   
   // Enhance with AI - Improve script and generate suggestions
   const handleAIEnhance = useCallback(async () => {
@@ -59,78 +56,50 @@ export const useEnhancementActions = ({
   
   // Green screen functionality 
   const handleGreenScreen = useCallback(() => {
-    setGreenScreenEnabled(prevState => !prevState);
+    toast.success("Green screen panel opened");
     
-    if (!greenScreenEnabled) {
-      toast.success("Green screen mode activated. Select the color you want to make transparent.");
-      
-      setTimeout(() => {
-        toast.info("Tip: For best results, use a solid, evenly lit background color", {
-          duration: 5000,
-        });
-      }, 1500);
-    } else {
-      toast.info("Green screen mode deactivated.");
-    }
-    
-    return !greenScreenEnabled;
-  }, [greenScreenEnabled]);
-  
-  // Auto generate captions
-  const handleAutoCaption = useCallback(() => {
-    setIsProcessing(true);
-    setAutoCaption(true);
-    toast("Generating captions from video audio...");
-    
-    // Simulate caption generation with a timeout
     setTimeout(() => {
-      toast.success("Captions generated successfully!");
-      setIsProcessing(false);
-      
-      // Show caption stats
-      toast("96% accuracy achieved. You can edit captions in the captions panel.", {
+      toast.info("Tip: For best results, use a solid, evenly lit background color", {
         duration: 5000,
       });
-    }, 3000);
+    }, 1500);
     
     return true;
   }, []);
   
-  // Magic resize for different platforms
-  const handleMagicResize = useCallback(() => {
+  // Auto generate captions
+  const handleAutoCaption = useCallback(() => {
     setIsProcessing(true);
-    toast("Preparing to resize your video for multiple platforms...");
+    toast("Generating captions from video audio...");
     
-    // Simulate platform optimization process
+    // Simulate caption generation with a timeout
     setTimeout(() => {
-      setAspectRatio(prevRatio => {
-        const newRatio = prevRatio === 'landscape' ? 'portrait' : 'landscape';
-        toast.success(`Video optimized for ${newRatio} format`);
-        return newRatio;
-      });
-      
+      toast.success("Captions panel opened");
       setIsProcessing(false);
       
-      // Show platforms where the video has been optimized for
-      toast("Content optimized for multiple platforms. Check the export tab to publish.", {
+      // Show caption stats
+      toast("Select 'Generate' in the panel to create captions", {
         duration: 5000,
       });
-    }, 2500);
+    }, 1000);
+  }, []);
+  
+  // Magic resize
+  const handleMagicResize = useCallback(() => {
+    toast("Opening Magic Resize panel...");
     
-    return aspectRatio;
-  }, [aspectRatio]);
-
-  // Return all actions
+    setTimeout(() => {
+      toast.success("Magic Resize ready", {
+        description: "Choose your target aspect ratios"
+      });
+    }, 1000);
+  }, []);
+  
   return {
     handleAIEnhance,
     handleAutoCaption,
     handleGreenScreen,
-    handleMagicResize,
-    isEnhancing,
-    isProcessing,
-    greenScreenEnabled,
-    autoCaption,
-    aspectRatio
+    handleMagicResize
   };
 };
 

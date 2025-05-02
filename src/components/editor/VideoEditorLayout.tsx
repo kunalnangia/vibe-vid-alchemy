@@ -10,7 +10,7 @@ import EditorStateProvider from './EditorStateProvider';
 import { toast } from 'sonner';
 
 interface VideoEditorLayoutProps {
-  videoState?: {
+  videoState: {
     currentFilter: string;
     setCurrentFilter: (filter: string) => void;
     aspectRatio: string;
@@ -47,7 +47,6 @@ const VideoEditorLayout: React.FC<VideoEditorLayoutProps> = ({
         duration: 5000
       });
       
-      // Prevent default browser error handling
       event.preventDefault();
     };
     
@@ -62,46 +61,49 @@ const VideoEditorLayout: React.FC<VideoEditorLayoutProps> = ({
         
         <EditorStateProvider>
           {(editorState) => (
-            <div className="flex flex-1 p-6 bg-gradient-to-br from-purple-100 via-white to-fuchsia-100">
+            <div className="flex-1 flex flex-col p-6 bg-gradient-to-br from-purple-100 via-white to-fuchsia-100">
               {/* Top Navigation */}
               <EditorHeader />
               
               {/* Main content area */}
-              <EditorContent 
-                editorState={{
-                  ...editorState,
-                  currentFilter: videoState.currentFilter,
-                  aspectRatio: videoState.aspectRatio,
-                  greenScreenEnabled: videoState.greenScreenEnabled
-                }} 
-              />
+              <div className="flex-1 flex">
+                <EditorContent 
+                  editorState={{
+                    ...editorState,
+                    currentFilter: videoState.currentFilter,
+                    aspectRatio: videoState.aspectRatio,
+                    greenScreenEnabled: videoState.greenScreenEnabled,
+                    autoCaptionsEnabled: videoState.autoCaptionsEnabled
+                  }} 
+                />
               
-              {/* Right sidebar */}
-              <EditorRightSidebar
-                videoTitle={editorState.videoTitle}
-                setVideoTitle={editorState.setVideoTitle}
-                handleTrimVideo={editorState.handleTrimVideo}
-                handleCropFrame={editorState.handleCropFrame}
-                handleInsertToken={editorState.handleInsertToken}
-                handleConnectCRM={editorState.handleConnectCRM}
-                handleConnectSalesforce={editorState.handleConnectSalesforce}
-                handlePublishLanding={editorState.handlePublishLanding}
-                handleAIEnhance={editorState.handleAIEnhance}
-                handleAutoCaption={() => {
-                  editorState.handleAutoCaption();
-                  videoState.toggleAutoCaptions();
-                }}
-                handleGreenScreen={() => {
-                  editorState.handleGreenScreen();
-                  videoState.toggleGreenScreen();
-                }}
-                handleMagicResize={editorState.handleMagicResize}
-              />
+                {/* Right sidebar */}
+                <EditorRightSidebar
+                  videoTitle={editorState.videoTitle}
+                  setVideoTitle={editorState.setVideoTitle}
+                  handleTrimVideo={editorState.handleTrimVideo}
+                  handleCropFrame={editorState.handleCropFrame}
+                  handleInsertToken={editorState.handleInsertToken}
+                  handleConnectCRM={editorState.handleConnectCRM}
+                  handleConnectSalesforce={editorState.handleConnectSalesforce}
+                  handlePublishLanding={editorState.handlePublishLanding}
+                  handleAIEnhance={editorState.handleAIEnhance}
+                  handleAutoCaption={() => {
+                    editorState.handleAutoCaption();
+                    videoState.toggleAutoCaptions();
+                  }}
+                  handleGreenScreen={() => {
+                    editorState.handleGreenScreen();
+                    videoState.toggleGreenScreen();
+                  }}
+                  handleMagicResize={editorState.handleMagicResize}
+                />
+              </div>
             </div>
           )}
         </EditorStateProvider>
 
-        {/* SidebarPanels component needs to be included to keep functionality */}
+        {/* SidebarPanels component for supporting functionality */}
         <EditorStateProvider>
           {(editorState) => (
             <div className="hidden">
@@ -109,11 +111,11 @@ const VideoEditorLayout: React.FC<VideoEditorLayoutProps> = ({
                 handleFileUpload={editorState.handleFileUpload}
                 addTextOverlay={editorState.addTextOverlay}
                 selectedOverlayId={editorState.selectedOverlayId}
-                textOverlays={editorState.textOverlays}
+                textOverlays={editorState.textOverlays || []}
                 onUpdateOverlay={editorState.updateTextOverlay}
                 selectedClipId={editorState.selectedClipId}
                 setSelectedClipId={editorState.setSelectedClipId}
-                clips={editorState.clips}
+                clips={editorState.clips || []}
               />
             </div>
           )}

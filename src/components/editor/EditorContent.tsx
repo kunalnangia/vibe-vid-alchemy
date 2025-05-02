@@ -17,12 +17,12 @@ const EditorContent: React.FC<EditorContentProps> = ({ editorState }) => {
       {/* Video Preview Area - Moved to top */}
       <div className="flex justify-center p-4">
         <VideoPreview
-          clips={editorState.clips}
+          clips={editorState.clips || []}
           textOverlays={editorState.textOverlays || []}
-          currentTime={editorState.currentTime}
-          setCurrentTime={editorState.setCurrentTime}
-          isPlaying={editorState.isPlaying}
-          setIsPlaying={editorState.setIsPlaying}
+          currentTime={editorState.currentTime || 0}
+          setCurrentTime={editorState.setCurrentTime || (() => {})}
+          isPlaying={editorState.isPlaying || false}
+          setIsPlaying={editorState.setIsPlaying || (() => {})}
           projectDuration={editorState.duration || 25}
           currentFilter={editorState.currentFilter || 'normal'}
           aspectRatio={editorState.aspectRatio || 'landscape'}
@@ -32,60 +32,60 @@ const EditorContent: React.FC<EditorContentProps> = ({ editorState }) => {
       </div>
       
       {/* Video Controls - Only shown when clips are available */}
-      {editorState.clips.length > 0 && (
+      {(editorState.clips || []).length > 0 && (
         <div className="max-w-3xl mx-auto">
           <VideoControls
-            isPlaying={editorState.isPlaying}
+            isPlaying={editorState.isPlaying || false}
             togglePlay={() => editorState.setIsPlaying(!editorState.isPlaying)}
             seekTo={(time) => editorState.setCurrentTime(time)}
-            currentTime={editorState.currentTime}
-            duration={editorState.duration}
+            currentTime={editorState.currentTime || 0}
+            duration={editorState.duration || 0}
           />
         </div>
       )}
       
       {/* Script Idea Section */}
       <ScriptIdeaSection
-        scriptIdea={editorState.scriptIdea}
-        setScriptIdea={editorState.setScriptIdea}
+        scriptIdea={editorState.scriptIdea || ''}
+        setScriptIdea={editorState.setScriptIdea || (() => {})}
       />
       
       {/* Upload Section - Only shown when no clips */}
-      {editorState.clips.length === 0 && (
+      {(editorState.clips || []).length === 0 && (
         <UploadSection
-          handleUpload={editorState.handleUpload}
-          handleRecord={editorState.handleRecord}
+          handleUpload={editorState.handleUpload || (() => {})}
+          handleRecord={editorState.handleRecord || (() => {})}
         />
       )}
       
       {/* Editor Tabs Container */}
       <EditorTabsContainer 
-        videoTitle={editorState.videoTitle}
-        setVideoTitle={editorState.setVideoTitle}
-        scriptIdea={editorState.scriptIdea}
-        setScriptIdea={editorState.setScriptIdea}
-        isPlaying={editorState.isPlaying}
-        setIsPlaying={editorState.setIsPlaying}
-        currentTime={editorState.currentTime}
-        setCurrentTime={editorState.setCurrentTime}
-        duration={editorState.duration}
-        views={editorState.views}
-        clicks={editorState.clicks}
-        selectedClipId={editorState.selectedClipId}
-        handleUpload={editorState.handleUpload}
-        handleRecord={editorState.handleRecord}
+        videoTitle={editorState.videoTitle || ''}
+        setVideoTitle={editorState.setVideoTitle || (() => {})}
+        scriptIdea={editorState.scriptIdea || ''}
+        setScriptIdea={editorState.setScriptIdea || (() => {})}
+        isPlaying={editorState.isPlaying || false}
+        setIsPlaying={editorState.setIsPlaying || (() => {})}
+        currentTime={editorState.currentTime || 0}
+        setCurrentTime={editorState.setCurrentTime || (() => {})}
+        duration={editorState.duration || 0}
+        views={editorState.views || 0}
+        clicks={editorState.clicks || 0}
+        selectedClipId={editorState.selectedClipId || null}
+        handleUpload={editorState.handleUpload || (() => {})}
+        handleRecord={editorState.handleRecord || (() => {})}
         handlePlay={() => editorState.setIsPlaying(!editorState.isPlaying)}
-        handleSliderChange={editorState.handleSliderChange}
-        handleSplitClip={editorState.handleSplitClip}
-        handleExport={editorState.handleExport}
-        handleDownloadAnalytics={editorState.handleDownloadAnalytics}
+        handleSliderChange={editorState.handleSliderChange || (() => {})}
+        handleSplitClip={editorState.handleSplitClip || (() => {})}
+        handleExport={editorState.handleExport || (() => {})}
+        handleDownloadAnalytics={editorState.handleDownloadAnalytics || (() => {})}
       />
       
       {/* Analytics section - moved to the end of the page */}
       <AnalyticsSection
-        views={editorState.views}
-        clicks={editorState.clicks}
-        handleDownloadAnalytics={editorState.handleDownloadAnalytics}
+        views={editorState.views || 0}
+        clicks={editorState.clicks || 0}
+        handleDownloadAnalytics={editorState.handleDownloadAnalytics || (() => {})}
       />
     </div>
   );

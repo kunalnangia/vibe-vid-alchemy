@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { VideoPreviewProps } from '@/lib/video/types';
 import VideoCanvas from './video/VideoCanvas';
-import VideoFormatIndicator from './video/VideoFormatIndicator';
+import VideoStatusIndicators from './video/VideoStatusIndicators';
 import { Button } from './ui/button';
 
 const VideoPreview: React.FC<VideoPreviewProps> = ({
@@ -18,18 +18,20 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   autoCaptionsEnabled = false
 }) => {
   const [localGreenScreenEnabled, setLocalGreenScreenEnabled] = useState(greenScreenEnabled);
+  const [localCaptionsEnabled, setLocalCaptionsEnabled] = useState(autoCaptionsEnabled);
   
   // Keep local state in sync with props
   useEffect(() => {
     setLocalGreenScreenEnabled(greenScreenEnabled);
   }, [greenScreenEnabled]);
-
-  const toggleGreenScreen = () => {
-    setLocalGreenScreenEnabled(!localGreenScreenEnabled);
-  };
+  
+  useEffect(() => {
+    setLocalCaptionsEnabled(autoCaptionsEnabled);
+  }, [autoCaptionsEnabled]);
 
   // Error handling for video loading issues
   const [hasError, setHasError] = useState(false);
+  
   const handleVideoError = () => {
     setHasError(true);
   };
@@ -44,7 +46,16 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
         <Button 
           variant="outline" 
           size="sm"
-          onClick={toggleGreenScreen}
+          onClick={() => setLocalCaptionsEnabled(!localCaptionsEnabled)}
+          className={localCaptionsEnabled ? "bg-blue-100 text-blue-800 border-blue-300" : ""}
+        >
+          {localCaptionsEnabled ? "Disable Captions" : "Enable Captions"}
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => setLocalGreenScreenEnabled(!localGreenScreenEnabled)}
           className={localGreenScreenEnabled ? "bg-green-100 text-green-800 border-green-300" : ""}
         >
           {localGreenScreenEnabled ? "Disable Green Screen" : "Enable Green Screen"}
@@ -73,14 +84,16 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
           currentFilter={currentFilter}
           aspectRatio={aspectRatio}
           greenScreenEnabled={localGreenScreenEnabled}
-          autoCaptionsEnabled={autoCaptionsEnabled}
+          autoCaptionsEnabled={localCaptionsEnabled}
           onError={handleVideoError}
         />
       )}
       
-      <VideoFormatIndicator 
+      <VideoStatusIndicators 
         aspectRatio={aspectRatio}
-        currentFilter={currentFilter}
+        greenScreenEnabled={localGreenScreenEnabled}
+        autoCaptionsEnabled={localCaptionsEnabled}
+        isLoading={clips.length > 0 && !hasError}
       />
     </div>
   );

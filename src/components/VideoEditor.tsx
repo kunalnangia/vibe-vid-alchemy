@@ -13,6 +13,18 @@ const VideoEditor: React.FC = () => {
       description: 'All features loaded successfully',
       duration: 3000
     });
+    
+    // Handle any unhandled errors
+    const handleError = (event: ErrorEvent) => {
+      console.error('Unhandled error:', event.error);
+      toast.error('An unexpected error occurred', {
+        description: 'Please try again or refresh the page',
+        duration: 5000
+      });
+    };
+    
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
   }, []);
   
   return <VideoEditorLayout videoState={videoState} />;
