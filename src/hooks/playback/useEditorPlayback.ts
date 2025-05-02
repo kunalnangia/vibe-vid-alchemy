@@ -1,84 +1,63 @@
 
-import { useState, useRef, useCallback } from 'react';
-import { toast } from "sonner";
+import { useState, useCallback, useRef } from 'react';
 import { useAnimationFrame } from './useAnimationFrame';
-import { validateTimeValue, calculateProgress } from './utils';
+import { validateTimeValue, calculateProgress, clamp } from './utils';
 import { UseEditorPlaybackOptions, UseEditorPlaybackReturn } from './types';
 
-/**
- * Custom hook for managing video playback state in the editor
- * @param options Configuration options for the playback behavior
- * @returns Playback state and control functions
- */
-export const useEditorPlayback = (options: UseEditorPlaybackOptions = {}): UseEditorPlaybackReturn => {
-  // Destructure options with defaults
-  const { 
-    initialTime = 0,
-    maxDuration = 25, // Default maximum duration
-    onTimeUpdate,
-    onPlayStateChange,
-    onError
-  } = options;
-
-  // State management
-  const [isPlaying, setIsPlaying] = useState(false);
+export function useEditorPlayback({
+  initialPlaying = false,
+  initialTime = 0,
+  initialDuration = 0,
+  maxDuration = 300, // 5 minutes default max duration
+  onTimeUpdate,
+  onPlayStateChange,
+  onError
+}: UseEditorPlaybackOptions = {}): UseEditorPlaybackReturn {
+  // State for playback
+  const [isPlaying, setIsPlaying] = useState(initialPlaying);
   const [currentTime, setCurrentTime] = useState(initialTime);
-  const [duration, setDuration] = useState(maxDuration);
+  const [duration, setDuration] = useState(initialDuration);
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Last update time reference for calculating playback progress
+  const [progress, setProgress] = useState(0);
+
+  // Refs for tracking last update time and playback rate
   const lastUpdateTime = useRef<number>(Date.now());
-  
-  // Calculate progress as a percentage
-  const progress = calculateProgress(currentTime, duration);
+  const playbackRate = useRef<number>(1.0);
 
-  // Validate and set current time with boundary checks
+  // Validate and set time within bounds
   const validateAndSetTime = useCallback((time: number) => {
-    try {
-      const validTime = validateTimeValue(time, duration);
-      setCurrentTime(validTime);
-      
-      // Call the onTimeUpdate callback if provided
-      if (onTimeUpdate) {
-        onTimeUpdate(validTime);
-      }
-      
-      return validTime;
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error setting time');
-      setError(error);
-      if (onError) onError(error);
-      return currentTime; // Return current value on error
+    const validTime = validateTimeValue(time, duration);
+    setCurrentTime(validTime);
+    setProgress(calculateProgress(validTime, duration));
+    
+    if (onTimeUpdate) {
+      onTimeUpdate(validTime);
     }
-  }, [currentTime, duration, onTimeUpdate, onError]);
+    
+    return validTime;
+  }, [duration, onTimeUpdate]);
 
-  // Handle play button click
+  // Handle playing
   const handlePlay = useCallback(() => {
-    try {
-      setIsPlaying(true);
-      lastUpdateTime.current = Date.now();
-      if (onPlayStateChange) onPlayStateChange(true);
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to start playback');
-      setError(error);
-      if (onError) onError(error);
+    lastUpdateTime.current = Date.now();
+    setIsPlaying(true);
+    
+    if (onPlayStateChange) {
+      onPlayStateChange(true);
     }
-  }, [onPlayStateChange, onError]);
+  }, [onPlayStateChange]);
 
-  // Handle pause button click
+  // Handle pausing
   const handlePause = useCallback(() => {
-    try {
-      setIsPlaying(false);
-      if (onPlayStateChange) onPlayStateChange(false);
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to pause playback');
-      setError(error);
-      if (onError) onError(error);
+    setIsPlaying(false);
+    
+    if (onPlayStateChange) {
+      onPlayStateChange(false);
     }
-  }, [onPlayStateChange, onError]);
+  }, [onPlayStateChange]);
 
-  // Toggle play/pause state
+  // Toggle play/pause
   const handleTogglePlay = useCallback(() => {
     if (isPlaying) {
       handlePause();
@@ -86,32 +65,23 @@ export const useEditorPlayback = (options: UseEditorPlaybackOptions = {}): UseEd
       handlePlay();
     }
   }, [isPlaying, handlePlay, handlePause]);
-  
-  // Handle time slider change
+
+  // Handle slider changes (e.g., from a UI component)
   const handleSliderChange = useCallback((value: number[]) => {
-    try {
-      if (!value || !Array.isArray(value) || value.length === 0) {
-        throw new Error("Invalid slider value");
-      }
+    if (value && value.length > 0) {
       validateAndSetTime(value[0]);
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Slider change error');
-      setError(error);
-      if (onError) onError(error);
     }
-  }, [validateAndSetTime, onError]);
-  
-  // Direct seek to a specific time
+  }, [validateAndSetTime]);
+
+  // Direct method to seek to a specific time
   const seekTo = useCallback((timeInSeconds: number) => {
     try {
-      setIsLoading(true);
-      setTimeout(() => setIsLoading(false), 100); // Simulate loading state
       validateAndSetTime(timeInSeconds);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Seek error');
-      setError(error);
-      if (onError) onError(error);
-      setIsLoading(false);
+      if (onError) {
+        onError(err instanceof Error ? err : new Error(String(err)));
+      }
+      setError(err instanceof Error ? err : new Error(String(err)));
     }
   }, [validateAndSetTime, onError]);
 
@@ -134,24 +104,29 @@ export const useEditorPlayback = (options: UseEditorPlaybackOptions = {}): UseEd
       const deltaSeconds = (now - lastUpdateTime.current) / 1000;
       lastUpdateTime.current = now;
       
-      let newTime = currentTime + deltaSeconds;
-      
-      // Handle reaching the end of the video
-      if (newTime >= duration) {
-        setIsPlaying(false);
-        newTime = 0; // Reset to beginning
-        toast.info("Video playback complete");
-        if (onPlayStateChange) onPlayStateChange(false);
+      if (deltaSeconds > 0) {
+        const newTime = currentTime + (deltaSeconds * playbackRate.current);
+        
+        // Check if we've reached the end
+        if (newTime >= duration) {
+          validateAndSetTime(duration);
+          setIsPlaying(false);
+          
+          if (onPlayStateChange) {
+            onPlayStateChange(false);
+          }
+        } else {
+          validateAndSetTime(newTime);
+        }
       }
-      
-      validateAndSetTime(newTime);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Playback animation error');
-      setError(error);
-      if (onError) onError(error);
-      setIsPlaying(false);
+      handlePause();
+      if (onError) {
+        onError(err instanceof Error ? err : new Error(String(err)));
+      }
+      setError(err instanceof Error ? err : new Error(String(err)));
     }
-  }, [currentTime, duration, validateAndSetTime, onPlayStateChange, onError]);
+  }, [currentTime, duration, validateAndSetTime, onPlayStateChange, onError, handlePause]);
 
   // Use our animation frame hook for smooth playback
   useAnimationFrame(animationCallback, isPlaying);
@@ -160,7 +135,7 @@ export const useEditorPlayback = (options: UseEditorPlaybackOptions = {}): UseEd
     isPlaying,
     setIsPlaying,
     currentTime,
-    setCurrentTime: validateAndSetTime,
+    setCurrentTime,
     duration,
     setDuration,
     handlePlay,
@@ -174,4 +149,6 @@ export const useEditorPlayback = (options: UseEditorPlaybackOptions = {}): UseEd
     isLoading,
     progress
   };
-};
+}
+
+export default useEditorPlayback;

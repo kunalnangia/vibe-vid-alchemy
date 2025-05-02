@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
-import { VideoClip } from '@/lib/video/types';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
+import { VideoClip } from '@/lib/video/types';
 
 export const useEditorClips = () => {
   const [clips, setClips] = useState<VideoClip[]>([]);
@@ -91,9 +91,16 @@ export const useEditorClips = () => {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'video/*';
-      input.onchange = (e) => {
-        const event = e as React.ChangeEvent<HTMLInputElement>;
-        handleFileUpload(event);
+      input.onchange = (e: Event) => {
+        // Safely cast the event to the correct type
+        if (e.target instanceof HTMLInputElement && e.target.files) {
+          const event = {
+            target: {
+              files: e.target.files
+            }
+          } as React.ChangeEvent<HTMLInputElement>;
+          handleFileUpload(event);
+        }
       };
       input.click();
     }

@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
-import { TextOverlay } from '@/lib/video/types';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
+import { TextOverlay } from '@/lib/video/types';
 
 export const useEditorOverlays = () => {
   const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);

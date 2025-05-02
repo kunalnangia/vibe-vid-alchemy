@@ -57,6 +57,15 @@ export const useEditorActions = ({
     setScriptIdea: basicActions.setScriptIdea || initialSetScriptIdea || setLocalScriptIdea
   });
   
+  // Create placeholder implementations for any missing required methods
+  const handleUpload = basicActions.handleUpload || ((file?: File) => {
+    console.log("Upload not implemented");
+  });
+  
+  const handleRecord = basicActions.handleRecord || (() => {
+    console.log("Record not implemented");
+  });
+  
   // Handle slider changes
   const handleSliderChange = (value: number[]) => {
     if (editingActions.handleSliderChange) {
@@ -72,7 +81,10 @@ export const useEditorActions = ({
     ...enhancementActions,
     scriptIdea: basicActions.scriptIdea || localScriptIdea,
     setScriptIdea: basicActions.setScriptIdea || initialSetScriptIdea || setLocalScriptIdea,
-    handleSliderChange
+    handleSliderChange,
+    // Ensure these required properties are always present
+    handleUpload,
+    handleRecord,
   };
 };
 
