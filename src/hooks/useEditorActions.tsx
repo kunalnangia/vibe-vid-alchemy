@@ -34,6 +34,7 @@ interface UseEditorActionsReturn {
   handleAutoCaption: () => void;
   handleGreenScreen: () => void;
   handleMagicResize: () => void;
+  handleSliderChange?: (value: number[]) => void;
 }
 
 export const useEditorActions = ({
@@ -56,6 +57,13 @@ export const useEditorActions = ({
     setScriptIdea: basicActions.setScriptIdea || initialSetScriptIdea || setLocalScriptIdea
   });
   
+  // Handle slider changes
+  const handleSliderChange = (value: number[]) => {
+    if (editingActions.handleSliderChange) {
+      editingActions.handleSliderChange(value);
+    }
+  };
+  
   // Combine all actions and return them
   return {
     ...basicActions,
@@ -63,7 +71,8 @@ export const useEditorActions = ({
     ...personalizationActions,
     ...enhancementActions,
     scriptIdea: basicActions.scriptIdea || localScriptIdea,
-    setScriptIdea: basicActions.setScriptIdea || initialSetScriptIdea || setLocalScriptIdea
+    setScriptIdea: basicActions.setScriptIdea || initialSetScriptIdea || setLocalScriptIdea,
+    handleSliderChange
   };
 };
 

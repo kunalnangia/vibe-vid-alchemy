@@ -75,6 +75,10 @@ const EditorStateProvider: React.FC<EditorStateProviderProps> = ({ children }) =
     ...overlays,
     ...clips,
     ...actions,
+    // Add handlePlay for toggling play state
+    handlePlay: playback.handleTogglePlay,
+    // Make sure handleSliderChange exists
+    handleSliderChange: playback.handleSliderChange || actions.handleSliderChange || ((value: number[]) => {}),
     // Add handleSplitClip that uses the current time
     handleSplitClip: () => clips.handleSplitClip(playback.currentTime)
   };

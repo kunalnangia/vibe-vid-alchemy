@@ -91,7 +91,10 @@ export const useEditorClips = () => {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'video/*';
-      input.onchange = (e) => handleFileUpload(e as React.ChangeEvent<HTMLInputElement>);
+      input.onchange = (e) => {
+        const event = e as React.ChangeEvent<HTMLInputElement>;
+        handleFileUpload(event);
+      };
       input.click();
     }
   };

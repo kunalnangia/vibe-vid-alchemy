@@ -19,3 +19,21 @@ export const formatTime = (seconds: number): string => {
 export const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
 };
+
+/**
+ * Validates that a time value is within bounds
+ */
+export const validateTimeValue = (time: number, duration: number): number => {
+  if (isNaN(time)) {
+    return 0;
+  }
+  return clamp(time, 0, duration);
+};
+
+/**
+ * Calculates progress percentage
+ */
+export const calculateProgress = (currentTime: number, duration: number): number => {
+  if (!duration) return 0;
+  return (currentTime / duration) * 100;
+};

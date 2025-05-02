@@ -115,8 +115,20 @@ export const useEditorPlayback = (options: UseEditorPlaybackOptions = {}): UseEd
     }
   }, [validateAndSetTime, onError]);
 
+  // Handle seeking to a specific time
+  const handleSeek = useCallback((time: number) => {
+    validateAndSetTime(time);
+  }, [validateAndSetTime]);
+
+  // Handle end of playback
+  const handleEnd = useCallback(() => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    if (onPlayStateChange) onPlayStateChange(false);
+  }, [onPlayStateChange]);
+
   // Animation callback for playback
-  const animationCallback = useCallback(() => {
+  const animationCallback = useCallback((time: number) => {
     try {
       const now = Date.now();
       const deltaSeconds = (now - lastUpdateTime.current) / 1000;
@@ -142,7 +154,7 @@ export const useEditorPlayback = (options: UseEditorPlaybackOptions = {}): UseEd
   }, [currentTime, duration, validateAndSetTime, onPlayStateChange, onError]);
 
   // Use our animation frame hook for smooth playback
-  useAnimationFrame(isPlaying, animationCallback);
+  useAnimationFrame(animationCallback, isPlaying);
 
   return {
     isPlaying,
@@ -154,6 +166,8 @@ export const useEditorPlayback = (options: UseEditorPlaybackOptions = {}): UseEd
     handlePlay,
     handlePause,
     handleTogglePlay,
+    handleSeek,
+    handleEnd,
     handleSliderChange,
     seekTo,
     error,
