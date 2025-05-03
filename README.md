@@ -1,73 +1,116 @@
-# Welcome to your Lovable project videovibes
+# Video Vibes Craft
 
-## Project info
+A modern video creation and management platform built with React, TypeScript, and Vite.
 
-**URL**: https://lovable.dev/projects/afb1aed1-8bef-4839-ba10-966c39bfbee5
+## Features
 
-## How can I edit this code?
+- 🔐 **Authentication**: Secure user authentication and authorization
+- 🎥 **Video Creation**: AI-powered video creation tools
+- 📋 **Project Management**: Organize and manage video projects
+- 🎨 **Templates**: Pre-built templates for quick video creation
+- 🤝 **Collaboration**: Team collaboration features
+- 📊 **PLM Dashboard**: Product Lifecycle Management
+- ⚙️ **Settings**: Customizable user preferences
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn/ui
+- **State Management**: TanStack Query
+- **Routing**: React Router v6
+- **Backend**: Supabase
+- **Testing**: Vitest, React Testing Library
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/afb1aed1-8bef-4839-ba10-966c39bfbee5) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js (v18 or higher)
+- npm or yarn
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd video-vibes-craft
+   ```
 
-Follow these steps:
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. Run tests:
+   ```bash
+   npm test
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Project Structure
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/     # Reusable UI components
+├── contexts/       # React contexts (Auth, etc.)
+├── hooks/          # Custom React hooks
+├── integrations/   # Third-party integrations
+├── lib/           # Utility functions
+├── pages/         # Main application pages
+├── services/      # API and business logic
+└── test/          # Test files
 ```
 
-**Edit a file directly in GitHub**
+## Testing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The project uses Vitest and React Testing Library for testing. To run tests:
 
-**Use GitHub Codespaces**
+```bash
+# Run tests in watch mode
+npm test
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Run tests with coverage
+npm run test:coverage
 
-## What technologies are used for this project?
+# Run tests with UI
+npm run test:ui
+```
 
-This project is built with:
+## Error Handling
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The application implements comprehensive error handling through:
 
-## How can I deploy this project?
+- Global error boundaries
+- API error handling
+- Form validation
+- User feedback through toast notifications
 
-Simply open [Lovable](https://lovable.dev/projects/afb1aed1-8bef-4839-ba10-966c39bfbee5) and click on Share -> Publish.
+## Performance Optimization
 
-## Can I connect a custom domain to my Lovable project?
+The application includes several performance optimizations:
 
-Yes, you can!
+- Code splitting
+- Lazy loading of routes
+- Memoization of components
+- Optimized image loading
+- Caching with React Query
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Contributing
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+For support, email support@videovibes.com or join our [Discord community](https://discord.gg/videovibes).
