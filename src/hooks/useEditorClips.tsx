@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
@@ -8,24 +7,28 @@ export const useEditorClips = () => {
   const [clips, setClips] = useState<VideoClip[]>([]);
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
 
-  // Function to handle file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
+  // Handle direct file upload
+  const handleUpload = (file: File) => {
+    if (!file) {
+      toast.error('No file provided');
+      return;
+    }
+
     // Check if file is a video
     if (!file.type.startsWith('video/')) {
       toast.error('Please upload a video file');
       return;
     }
     
-    // Create object URL for the file
-    const objectUrl = URL.createObjectURL(file);
-    
-    // Create a video element to get duration
+    // Create a temporary video element to extract duration and other metadata
     const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    // Create a URL for the file
+    const objectUrl = URL.createObjectURL(file);
     video.src = objectUrl;
     
+    // When metadata is loaded, create the clip
     video.onloadedmetadata = () => {
       const newClip: VideoClip = {
         id: uuidv4(),
@@ -42,6 +45,10 @@ export const useEditorClips = () => {
       setClips([newClip]);
       setSelectedClipId(newClip.id);
       toast.success(`Video "${file.name}" uploaded successfully`);
+      
+      // Clean up the object URL
+      video.onloadedmetadata = null;
+      video.onerror = null;
     };
     
     video.onerror = () => {
@@ -52,68 +59,22 @@ export const useEditorClips = () => {
     // Load the video to trigger onloadedmetadata
     video.load();
   };
-  
-  // Function to handle upload from button click
-  const handleUpload = (file?: File) => {
-    if (file) {
-      // If file is provided directly
-      const objectUrl = URL.createObjectURL(file);
-      
-      const video = document.createElement('video');
-      video.src = objectUrl;
-      
-      video.onloadedmetadata = () => {
-        const newClip: VideoClip = {
-          id: uuidv4(),
-          src: objectUrl,
-          file: file,
-          start: 0,
-          end: video.duration,
-          position: 0,
-          duration: video.duration,
-          name: file.name,
-          type: file.type
-        };
-        
-        setClips([newClip]);
-        setSelectedClipId(newClip.id);
-        toast.success(`Video "${file.name}" uploaded successfully`);
-      };
-      
-      video.onerror = () => {
-        URL.revokeObjectURL(objectUrl);
-        toast.error('Error loading video');
-      };
-      
-      video.load();
-    } else {
-      // Create a file input and trigger it
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'video/*';
-      input.onchange = (e: Event) => {
-        // Safely cast the event to the correct type
-        if (e.target instanceof HTMLInputElement && e.target.files) {
-          const event = {
-            target: {
-              files: e.target.files
-            }
-          } as React.ChangeEvent<HTMLInputElement>;
-          handleFileUpload(event);
-        }
-      };
-      input.click();
-    }
+
+  // Handle file input change from any component
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    handleUpload(file);
   };
   
-  // Function to handle recording
+  // Function to handle recording - will be implemented in a separate component
   const handleRecord = () => {
     toast.info('Opening camera for recording...');
     // This would normally open a camera recording interface
-    // For now, just show a notification
     setTimeout(() => {
-      toast('Camera recording is not yet implemented', {
-        description: 'This feature will be available in a future update.'
+      toast('Recording functionality is being improved', {
+        description: 'This feature will be available soon.'
       });
     }, 1000);
   };

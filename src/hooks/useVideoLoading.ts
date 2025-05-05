@@ -24,14 +24,20 @@ export const useVideoLoading = ({
       setVideoLoaded(false);
       
       const loadVideo = () => {
-        // Try to load from src or file
-        if (clips[0].src) {
-          videoRef.current.src = clips[0].src;
-          console.log("Loading video from src:", clips[0].src);
-        } else if (clips[0].file) {
+        const video = videoRef.current;
+        if (!video) return;
+        
+        // For security and reliability, let's always create a fresh object URL
+        // even if one is provided in the clip
+        if (clips[0].file) {
+          // If we have a file object, create a new object URL
           const objectUrl = URL.createObjectURL(clips[0].file);
-          videoRef.current.src = objectUrl;
+          video.src = objectUrl;
           console.log("Loading video from file:", clips[0].name);
+        } else if (clips[0].src) {
+          // Fall back to src if available
+          video.src = clips[0].src;
+          console.log("Loading video from src:", clips[0].src);
         } else {
           console.error("No valid source for video clip");
           toast.error("No valid source for video clip");
@@ -39,9 +45,9 @@ export const useVideoLoading = ({
         }
         
         // Add preload attribute to ensure content is loaded
-        videoRef.current.preload = "auto";
+        video.preload = "auto";
         // Force video to load
-        videoRef.current.load();
+        video.load();
       };
       
       const handleLoaded = () => {
@@ -85,7 +91,7 @@ export const useVideoLoading = ({
           video.removeEventListener('error', handleError);
           
           // Clean up object URL if created from file
-          if (clips[0].file && video.src.startsWith('blob:')) {
+          if (video.src.startsWith('blob:')) {
             URL.revokeObjectURL(video.src);
           }
         }
