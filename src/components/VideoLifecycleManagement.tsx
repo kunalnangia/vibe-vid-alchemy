@@ -113,10 +113,11 @@ const VideoLifecycleManagement: React.FC = () => {
       const updatedStages = stages.map(stage => {
         if (stage.name === stageName) {
           const newScore = Math.min(100, stage.score + Math.floor(Math.random() * 15) + 5);
+          const newStatus: LifecycleStage['status'] = newScore >= 80 ? 'completed' : stage.status;
           return {
             ...stage,
             score: newScore,
-            status: newScore >= 80 ? 'completed' as const : stage.status
+            status: newStatus
           };
         }
         return stage;
@@ -196,11 +197,21 @@ const VideoLifecycleManagement: React.FC = () => {
         if (stage.status !== 'pending') {
           const improvement = Math.floor(Math.random() * 15) + 5;
           const newScore = Math.min(100, stage.score + improvement);
+          
+          // Explicitly cast to the correct type
+          let newStatus: LifecycleStage['status'];
+          if (newScore >= 80) {
+            newStatus = 'completed';
+          } else if (newScore >= 70) {
+            newStatus = 'in-progress';
+          } else {
+            newStatus = 'issue';
+          }
+          
           return {
             ...stage,
             score: newScore,
-            status: newScore >= 80 ? 'completed' : 
-                   newScore >= 70 ? 'in-progress' : 'issue'
+            status: newStatus
           };
         }
         return stage;
