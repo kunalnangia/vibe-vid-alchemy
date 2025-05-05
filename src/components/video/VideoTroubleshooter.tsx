@@ -38,9 +38,9 @@ const VideoTroubleshooter: React.FC<VideoTroubleshooterProps> = ({
     // Collect diagnostic information
     try {
       const video = videoRef.current;
-      const clip = clips[0];
+      const currentClip = clips[0];
       
-      videoInfo = `${clip.name} (${clip.type}, ${Math.round(clip.duration)}s)`;
+      videoInfo = `${currentClip.name} (${currentClip.type}, ${Math.round(currentClip.duration)}s)`;
       
       if (!video) {
         errors.push("Video element not found");
@@ -69,8 +69,7 @@ const VideoTroubleshooter: React.FC<VideoTroubleshooterProps> = ({
       }
       
       // Check source validity
-      const clip = clips[0];
-      if (!clip.file && (!clip.src || !clip.src.startsWith('blob:'))) {
+      if (!currentClip.file && (!currentClip.src || !currentClip.src.startsWith('blob:'))) {
         errors.push("Video source may be invalid");
         suggestions.push("Try re-uploading the video");
       }
