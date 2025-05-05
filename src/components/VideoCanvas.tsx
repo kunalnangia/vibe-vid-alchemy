@@ -1,7 +1,13 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { VideoClip, TextOverlay } from '@/lib/video/types';
 import { useVideoRenderer } from '@/hooks/useVideoRenderer';
+import VideoEmptyState from './video/VideoEmptyState';
+import VideoLoadingIndicator from './video/VideoLoadingIndicator';
+import VideoStatusIndicators from './video/VideoStatusIndicators';
+import VideoPlayPauseOverlay from './video/VideoPlayPauseOverlay';
+import VideoTroubleshooter from './video/VideoTroubleshooter';
+import { toast } from 'sonner';
 
 interface VideoCanvasProps {
   clips: VideoClip[];
@@ -14,6 +20,8 @@ interface VideoCanvasProps {
   currentFilter: string;
   aspectRatio: string;
   greenScreenEnabled?: boolean;
+  autoCaptionsEnabled?: boolean;
+  onError?: () => void;
 }
 
 const VideoCanvas: React.FC<VideoCanvasProps> = ({
@@ -26,7 +34,9 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
   projectDuration,
   currentFilter,
   aspectRatio,
-  greenScreenEnabled = false
+  greenScreenEnabled = false,
+  autoCaptionsEnabled = false,
+  onError
 }) => {
   const { videoRef, canvasRef, ratioConfig, videoLoaded } = useVideoRenderer({
     clips,
@@ -40,6 +50,10 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
     aspectRatio,
     greenScreenEnabled
   });
+  
+  const [hasError, setHasError] = useState(false);
+  const [showTroubleshooter, setShowTroubleshooter] = useState(false);
+  const [loadingTime, setLoadingTime] = useState(0);
 
   // Apply filter styling
   const getFilterStyle = () => {
@@ -63,15 +77,106 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
 
   // Handle play/pause
   const togglePlay = () => {
-    setIsPlaying(!isPlaying);
+    if (videoLoaded) {
+      setIsPlaying(!isPlaying);
+    } else if (clips.length > 0) {
+      // If we have clips but video isn't loaded, show troubleshooter
+      setShowTroubleshooter(true);
+    }
   };
+  
+  // Track loading time to show troubleshooter if it takes too long
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    
+    if (clips.length > 0 && !videoLoaded) {
+      // Start counting loading time
+      const startTime = Date.now();
+      
+      timer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        setLoadingTime(elapsed);
+        
+        // If loading takes more than 10 seconds, show troubleshooter
+        if (elapsed > 10 && !showTroubleshooter) {
+          setShowTroubleshooter(true);
+          toast.error("Video loading is taking longer than expected");
+          clearInterval(timer);
+        }
+      }, 1000);
+    } else {
+      setLoadingTime(0);
+    }
+    
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [clips, videoLoaded, showTroubleshooter]);
   
   // Log clip status for debugging
   useEffect(() => {
     if (clips.length > 0) {
       console.log('Clip loaded in VideoCanvas:', clips[0].name || 'Unnamed clip');
+      
+      // If the video loaded successfully after troubleshooting was shown, hide it
+      if (videoLoaded && showTroubleshooter) {
+        setShowTroubleshooter(false);
+      }
     }
-  }, [clips]);
+  }, [clips, videoLoaded, showTroubleshooter]);
+  
+  // Handle video errors
+  useEffect(() => {
+    const video = videoRef.current;
+    
+    if (!video) return;
+    
+    const handleError = () => {
+      console.error('Video error occurred:', video.error);
+      setHasError(true);
+      setShowTroubleshooter(true);
+      if (onError) onError();
+    };
+    
+    video.addEventListener('error', handleError);
+    
+    return () => {
+      video.removeEventListener('error', handleError);
+    };
+  }, [videoRef, onError]);
+
+  // Handle retry
+  const handleRetry = () => {
+    setHasError(false);
+    setShowTroubleshooter(false);
+    
+    // Force video to reload
+    if (videoRef.current && clips.length > 0) {
+      const video = videoRef.current;
+      
+      // If we have a file, create a new object URL
+      if (clips[0].file) {
+        try {
+          // Revoke any existing object URL
+          if (video.src && video.src.startsWith('blob:')) {
+            URL.revokeObjectURL(video.src);
+          }
+          
+          // Create new object URL
+          const objectUrl = URL.createObjectURL(clips[0].file);
+          video.src = objectUrl;
+          console.log("Retrying video load from file:", clips[0].name);
+          
+          // Force load
+          video.load();
+          toast.info("Retrying video playback...");
+        } catch (e) {
+          console.error("Error retrying video load:", e);
+          toast.error("Could not reload video");
+        }
+      }
+    }
+  };
 
   return (
     <div className="video-canvas-container relative rounded-md overflow-hidden shadow-lg mb-6">
@@ -81,6 +186,7 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
         className="hidden" 
         playsInline 
         muted
+        crossOrigin="anonymous"
       />
       
       {/* Canvas for rendering video frames and effects */}
@@ -98,67 +204,58 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
         onClick={togglePlay}
       />
       
-      {/* Video controls overlay */}
-      <div className="video-controls absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 hover:opacity-100 transition-opacity">
-        <div className="flex items-center justify-between">
-          <button 
-            className="text-white bg-purple-600 rounded-full p-2 hover:bg-purple-700 transition"
-            onClick={togglePlay}
-            aria-label={isPlaying ? "Pause" : "Play"}
-          >
-            {isPlaying ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            )}
-          </button>
-          
-          <div className="text-white text-sm">
-            {formatTime(currentTime)} / {formatTime(projectDuration)}
-          </div>
-        </div>
-      </div>
+      {/* Video play/pause overlay */}
+      {clips.length > 0 && videoLoaded && (
+        <VideoPlayPauseOverlay
+          isPlaying={isPlaying}
+          currentTime={currentTime}
+          projectDuration={projectDuration}
+          togglePlay={togglePlay}
+        />
+      )}
       
       {/* Empty state when no video is loaded */}
-      {clips.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-800/20 backdrop-blur-sm">
-          <div className="text-center p-6">
-            <div className="text-purple-600 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-            </div>
-            <h3 className="text-xl font-semibold text-purple-900">Add Your First Clip</h3>
-            <p className="text-sm text-purple-700 mt-1">Upload a video or record with your camera</p>
+      {clips.length === 0 && <VideoEmptyState message="Upload a video to get started" />}
+      
+      {/* Loading indicator with timer */}
+      {clips.length > 0 && !videoLoaded && !hasError && (
+        <>
+          <VideoLoadingIndicator />
+          <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+            Loading... {loadingTime}s
           </div>
+        </>
+      )}
+      
+      {/* Troubleshooter for playback issues */}
+      {showTroubleshooter && clips.length > 0 && (
+        <div className="absolute bottom-0 left-0 right-0 z-10">
+          <VideoTroubleshooter
+            videoRef={videoRef}
+            videoLoaded={videoLoaded}
+            clips={clips}
+            onRetry={handleRetry}
+          />
         </div>
       )}
       
-      {/* Loading indicator */}
-      {clips.length > 0 && !videoLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-800/30">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-        </div>
-      )}
+      {/* Status indicators (format, green screen) */}
+      <VideoStatusIndicators 
+        aspectRatio={aspectRatio}
+        greenScreenEnabled={greenScreenEnabled}
+        autoCaptionsEnabled={autoCaptionsEnabled}
+        isLoading={clips.length > 0 && !videoLoaded}
+      />
       
-      {/* Green screen indicator */}
-      {greenScreenEnabled && (
-        <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
-          Green Screen Active
-        </div>
-      )}
-      
-      {/* Format identifier */}
-      <div className="absolute top-2 left-2 bg-black/40 text-white text-xs px-2 py-1 rounded">
-        {aspectRatio.charAt(0).toUpperCase() + aspectRatio.slice(1)}
-      </div>
+      {/* Debug button for users experiencing issues */}
+      <button
+        className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded opacity-30 hover:opacity-100"
+        onClick={() => setShowTroubleshooter(!showTroubleshooter)}
+      >
+        {showTroubleshooter ? "Hide Debug" : "Debug"}
+      </button>
     </div>
   );
-};
-
-// Helper function to format time in MM:SS format
-const formatTime = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
 export default VideoCanvas;

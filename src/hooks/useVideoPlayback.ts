@@ -21,26 +21,67 @@ export const useVideoPlayback = ({
   projectDuration
 }: UseVideoPlaybackProps) => {
   const rafRef = useRef<number | null>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
   
   // Update video playback state
   useEffect(() => {
-    if (videoRef.current && videoLoaded) {
-      if (isPlaying) {
+    if (!videoRef.current || !videoLoaded) return;
+    
+    const video = videoRef.current;
+    
+    const handlePlay = async () => {
+      try {
         // Force seek to current time to synchronize playback
-        videoRef.current.currentTime = currentTime;
-        videoRef.current.play().catch(err => {
-          console.log("Video play error:", err);
-          setIsPlaying(false);
-        });
-      } else {
-        videoRef.current.pause();
+        video.currentTime = currentTime;
+        console.log("Playing video from time:", currentTime);
+        
+        // Try to play with error catching
+        await video.play();
+        console.log("Video playback started successfully");
+      } catch (err) {
+        console.error("Video play error:", err);
+        setIsPlaying(false);
+        // Try to handle autoplay restrictions with user interaction prompt
+        if (err instanceof DOMException && err.name === "NotAllowedError") {
+          // This is likely an autoplay policy restriction
+          console.warn("Autoplay prevented by browser policy");
+        }
       }
+    };
+    
+    const handlePause = () => {
+      video.pause();
+      console.log("Video playback paused");
+    };
+    
+    if (isPlaying) {
+      handlePlay();
+    } else {
+      handlePause();
     }
-  }, [isPlaying, videoLoaded, setIsPlaying, currentTime]);
+    
+    // Synchronize video events with app state
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+    };
+    
+    video.addEventListener("play", onPlay);
+    video.addEventListener("pause", onPause);
+    video.addEventListener("ended", onEnded);
+    
+    return () => {
+      video.removeEventListener("play", onPlay);
+      video.removeEventListener("pause", onPause);
+      video.removeEventListener("ended", onEnded);
+    };
+  }, [isPlaying, videoLoaded, setIsPlaying, currentTime, setCurrentTime]);
   
-  // Animate playback
+  // Animate playback and track time
   useEffect(() => {
-    if (!isPlaying) {
+    if (!isPlaying || !videoLoaded) {
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
@@ -49,13 +90,22 @@ export const useVideoPlayback = ({
     }
     
     const animate = () => {
-      if (videoRef.current && videoLoaded) {
-        setCurrentTime(videoRef.current.currentTime);
-        
-        if (videoRef.current.currentTime >= projectDuration) {
-          setIsPlaying(false);
-          setCurrentTime(0);
-          videoRef.current.currentTime = 0;
+      const now = performance.now();
+      // Throttle updates to improve performance
+      if (now - lastUpdateTimeRef.current > 100) { // Update every 100ms
+        if (videoRef.current) {
+          setCurrentTime(videoRef.current.currentTime);
+          lastUpdateTimeRef.current = now;
+          
+          // Check for end of playback
+          if (videoRef.current.currentTime >= projectDuration || videoRef.current.ended) {
+            setIsPlaying(false);
+            setCurrentTime(0);
+            if (videoRef.current) {
+              videoRef.current.currentTime = 0;
+            }
+            return; // Stop animation loop
+          }
         }
       }
       
@@ -71,10 +121,11 @@ export const useVideoPlayback = ({
   
   // Update video current time when time is changed externally
   useEffect(() => {
-    if (videoRef.current && videoLoaded && Math.abs(videoRef.current.currentTime - currentTime) > 0.5) {
+    if (videoRef.current && videoLoaded && Math.abs(videoRef.current.currentTime - currentTime) > 0.5 && !isPlaying) {
+      console.log("Seeking video to:", currentTime);
       videoRef.current.currentTime = currentTime;
     }
-  }, [currentTime, videoLoaded]);
+  }, [currentTime, videoLoaded, isPlaying]);
   
   return null;
 };

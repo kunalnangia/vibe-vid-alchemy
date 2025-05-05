@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
@@ -20,6 +21,9 @@ export const useEditorClips = () => {
       return;
     }
     
+    console.log("Processing video file:", file.name, file.type, file.size);
+    toast.info("Processing video file...");
+    
     // Create a temporary video element to extract duration and other metadata
     const video = document.createElement('video');
     video.preload = 'metadata';
@@ -30,10 +34,12 @@ export const useEditorClips = () => {
     
     // When metadata is loaded, create the clip
     video.onloadedmetadata = () => {
+      console.log("Video metadata loaded:", file.name, "duration:", video.duration);
+      
       const newClip: VideoClip = {
         id: uuidv4(),
-        src: objectUrl,
-        file: file,
+        src: objectUrl, // Keep the objectUrl reference
+        file: file, // Store the original file object for reliable loading
         start: 0,
         end: video.duration,
         position: 0,
@@ -44,16 +50,17 @@ export const useEditorClips = () => {
       
       setClips([newClip]);
       setSelectedClipId(newClip.id);
-      toast.success(`Video "${file.name}" uploaded successfully`);
+      toast.success(`Video "${file.name}" processed successfully`);
       
-      // Clean up the object URL
+      // Clean up the temporary video element
       video.onloadedmetadata = null;
       video.onerror = null;
     };
     
     video.onerror = () => {
+      console.error("Error loading video metadata:", video.error);
       URL.revokeObjectURL(objectUrl);
-      toast.error('Error loading video. The file may be corrupted or in an unsupported format.');
+      toast.error('Error processing video. The file may be corrupted or in an unsupported format.');
     };
     
     // Load the video to trigger onloadedmetadata

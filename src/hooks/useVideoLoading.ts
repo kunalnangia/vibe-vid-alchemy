@@ -28,12 +28,23 @@ export const useVideoLoading = ({
         if (!video) return;
         
         // For security and reliability, let's always create a fresh object URL
-        // even if one is provided in the clip
+        // to avoid caching issues and ensure proper loading
         if (clips[0].file) {
           // If we have a file object, create a new object URL
-          const objectUrl = URL.createObjectURL(clips[0].file);
-          video.src = objectUrl;
-          console.log("Loading video from file:", clips[0].name);
+          try {
+            // Revoke any existing object URL first
+            if (video.src && video.src.startsWith('blob:')) {
+              URL.revokeObjectURL(video.src);
+            }
+            
+            const objectUrl = URL.createObjectURL(clips[0].file);
+            video.src = objectUrl;
+            console.log("Loading video from file:", clips[0].name, "objectUrl:", objectUrl);
+          } catch (e) {
+            console.error("Error creating object URL:", e);
+            toast.error("Error creating video source");
+            return;
+          }
         } else if (clips[0].src) {
           // Fall back to src if available
           video.src = clips[0].src;
@@ -46,23 +57,30 @@ export const useVideoLoading = ({
         
         // Add preload attribute to ensure content is loaded
         video.preload = "auto";
+        // Make sure crossOrigin is properly set
+        video.crossOrigin = "anonymous";
         // Force video to load
         video.load();
+        
+        console.log("Video load initiated:", video.src);
       };
       
       const handleLoaded = () => {
-        setVideoLoaded(true);
-        console.log("Video loaded successfully");
-        toast.success("Video loaded successfully");
-        
-        // Set video currentTime to match app's currentTime
-        if (videoRef.current) {
-          videoRef.current.currentTime = currentTime;
+        console.log("Video loaded successfully, readyState:", videoRef.current?.readyState);
+        if (videoRef.current?.readyState >= 3) { // HAVE_FUTURE_DATA or better
+          setVideoLoaded(true);
+          toast.success("Video loaded successfully");
+          
+          // Set video currentTime to match app's currentTime
+          if (videoRef.current) {
+            videoRef.current.currentTime = currentTime;
+          }
         }
       };
       
-      const handleError = (err: any) => {
-        console.error("Error loading video:", err);
+      const handleError = (err: Event) => {
+        const video = videoRef.current;
+        console.error("Error loading video:", video?.error?.message || "Unknown error");
         
         // Retry loading if we haven't reached max attempts
         if (loadAttempts < 3) {
@@ -91,7 +109,7 @@ export const useVideoLoading = ({
           video.removeEventListener('error', handleError);
           
           // Clean up object URL if created from file
-          if (video.src.startsWith('blob:')) {
+          if (video.src && video.src.startsWith('blob:')) {
             URL.revokeObjectURL(video.src);
           }
         }
