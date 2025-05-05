@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -858,4 +859,57 @@ const Publishing = () => {
                     <h3 className="font-medium mb-4">Top Performing Content</h3>
                     <div className="space-y-3">
                       <div className="flex items-center p-2 bg-gray-50 rounded-md">
-                        <div className="w-1
+                        <div className="w-10 h-10 bg-gray-200 rounded mr-3 flex-shrink-0"></div>
+                        <div>
+                          <div className="font-medium text-sm">Product Demo Video</div>
+                          <div className="text-xs text-gray-500">5.2K views • 48% engagement</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center p-2 bg-gray-50 rounded-md">
+                        <div className="w-10 h-10 bg-gray-200 rounded mr-3 flex-shrink-0"></div>
+                        <div>
+                          <div className="font-medium text-sm">Tutorial: Getting Started</div>
+                          <div className="text-xs text-gray-500">3.8K views • 62% engagement</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center p-2 bg-gray-50 rounded-md">
+                        <div className="w-10 h-10 bg-gray-200 rounded mr-3 flex-shrink-0"></div>
+                        <div>
+                          <div className="font-medium text-sm">Customer Testimonial</div>
+                          <div className="text-xs text-gray-500">2.4K views • 38% engagement</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-8 flex justify-end">
+                  <Button 
+                    onClick={handleViewAnalyticsDashboard}
+                    disabled={isLoadingAnalytics}
+                  >
+                    {isLoadingAnalytics ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        <BarChart3 className="mr-2 h-4 w-4" />
+                        View Detailed Analytics
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+};
+
+export default Publishing;
