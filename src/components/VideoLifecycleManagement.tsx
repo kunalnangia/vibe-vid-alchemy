@@ -116,7 +116,7 @@ const VideoLifecycleManagement: React.FC = () => {
           return {
             ...stage,
             score: newScore,
-            status: newScore >= 80 ? 'completed' : stage.status
+            status: newScore >= 80 ? 'completed' as const : stage.status
           };
         }
         return stage;
@@ -149,10 +149,11 @@ const VideoLifecycleManagement: React.FC = () => {
       const updatedStages = stages.map(stage => {
         if (stage.name === stageName) {
           const newScore = Math.min(100, stage.score + Math.floor(Math.random() * 20) + 10);
+          const newStatus: LifecycleStage['status'] = newScore >= 75 ? 'in-progress' : 'issue';
           return {
             ...stage,
             score: newScore,
-            status: newScore >= 75 ? 'in-progress' : 'issue'
+            status: newStatus
           };
         }
         return stage;
