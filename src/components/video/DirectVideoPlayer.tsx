@@ -41,21 +41,23 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
     
     // Load from File or URL
     if (src instanceof File) {
+      console.log("Creating object URL for file:", src.name, src.type);
       const objectURL = URL.createObjectURL(src);
       video.src = objectURL;
-      console.log("Loading video from File:", src.name);
       
       // Clean up object URL when component unmounts or src changes
       return () => {
+        console.log("Cleaning up object URL");
         URL.revokeObjectURL(objectURL);
       };
     } else if (typeof src === 'string') {
+      console.log("Loading video from string URL:", src);
       video.src = src;
-      console.log("Loading video from URL:", src);
     }
     
     // Attempt to load the video
     video.load();
+    console.log("Video element created with src:", video.src);
     
   }, [src]);
 
@@ -77,6 +79,11 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
       }
     };
     
+    const handleLoadedData = () => {
+      console.log("Video data loaded and can be played");
+      setIsLoaded(true);
+    };
+    
     const handleError = () => {
       const errorMessage = video.error 
         ? `Error code: ${video.error.code}, message: ${video.error.message}` 
@@ -95,10 +102,12 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
     };
     
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('loadeddata', handleLoadedData);
     video.addEventListener('error', handleError);
     
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('loadeddata', handleLoadedData);
       video.removeEventListener('error', handleError);
     };
   }, [autoPlay, onLoadedMetadata, onError]);
@@ -113,6 +122,7 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
         setIsPlaying(false);
         if (onPlayStateChange) onPlayStateChange(false);
       } else {
+        console.log("Attempting to play video");
         await videoRef.current.play();
         setIsPlaying(true);
         if (onPlayStateChange) onPlayStateChange(true);
@@ -128,12 +138,13 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
     if (!videoRef.current || !isLoaded || isPlaying) return;
     
     try {
+      console.log("Attempting autoplay");
       await videoRef.current.play();
       setIsPlaying(true);
       if (onPlayStateChange) onPlayStateChange(true);
     } catch (error) {
       console.error("Error playing video:", error);
-      toast.error("Couldn't play video. Your browser may be blocking autoplay.");
+      toast.error("Couldn't autoplay video. Your browser may be blocking autoplay.");
     }
   };
   
@@ -165,6 +176,8 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
           playsInline
           muted={muted}
           onClick={handleTogglePlay}
+          controls={isLoaded && !hasError} // Add native controls for better user experience
+          poster={!isLoaded ? undefined : undefined} // Could add a poster image here
         />
         
         {/* Loading overlay */}
@@ -186,18 +199,14 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
           </div>
         )}
         
-        {/* Play/Pause button overlay */}
-        {isLoaded && !hasError && (
+        {/* Play/Pause button overlay (only show when video is paused) */}
+        {isLoaded && !hasError && !isPlaying && (
           <div 
-            className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300"
+            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30"
             onClick={handleTogglePlay}
           >
             <div className="bg-black bg-opacity-50 rounded-full p-5">
-              {isPlaying ? (
-                <Pause className="h-8 w-8 text-white" />
-              ) : (
-                <Play className="h-8 w-8 text-white ml-1" />
-              )}
+              <Play className="h-8 w-8 text-white ml-1" />
             </div>
           </div>
         )}

@@ -37,6 +37,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [hasError, setHasError] = useState(false);
   const [volume, setVolume] = useState(1);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [useCustomControls, setUseCustomControls] = useState(false);
 
   // Handle external props changes
   useEffect(() => {
@@ -149,6 +150,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     return <Volume2 size={18} />;
   };
 
+  // Toggle between native and custom controls
+  const toggleControls = () => {
+    setUseCustomControls(!useCustomControls);
+  };
+
   return (
     <div className="video-player w-full flex flex-col">
       {/* Video container with direct playback */}
@@ -158,6 +164,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           className={`w-full h-full object-contain ${!videoSrc ? 'hidden' : ''}`}
           playsInline
           onClick={onPlayPause}
+          controls={!useCustomControls && videoLoaded} // Use native controls by default
         />
         
         {!videoSrc && (
@@ -175,8 +182,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </div>
         )}
         
-        {/* Overlay play/pause button */}
-        {videoLoaded && (
+        {/* Overlay play/pause button (only show with custom controls) */}
+        {videoLoaded && useCustomControls && (
           <div 
             className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
             onClick={onPlayPause}
@@ -192,65 +199,78 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         )}
       </div>
       
-      {/* Video controls */}
-      <div className="flex items-center space-x-2">
-        <button 
-          className="p-1 rounded-full hover:bg-gray-200"
-          onClick={() => {
-            if (videoRef.current) {
-              videoRef.current.currentTime = 0;
-              setLocalTime(0);
-              if (onTimeUpdate) onTimeUpdate(0);
-            }
-          }}
+      {/* Toggle controls button */}
+      <div className="flex justify-end mb-2">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={toggleControls}
         >
-          <SkipBack size={18} />
-        </button>
-        
-        <button 
-          className="p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white"
-          onClick={onPlayPause}
-          disabled={!videoLoaded}
-        >
-          {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-        </button>
-        
-        <div className="flex-1 mx-2">
-          <Slider
-            value={[localTime]}
-            min={0}
-            max={localDuration || 100}
-            step={0.1}
-            onValueChange={handleSliderChange}
-            disabled={!videoLoaded}
-          />
-        </div>
-        
-        <div className="text-sm text-gray-600 w-16 text-right">
-          {formatTime(localTime)} / {formatTime(localDuration)}
-        </div>
-        
-        <div className="relative">
-          <button
+          {useCustomControls ? "Use Browser Controls" : "Use Custom Controls"}
+        </Button>
+      </div>
+      
+      {/* Custom video controls */}
+      {useCustomControls && videoLoaded && (
+        <div className="flex items-center space-x-2">
+          <button 
             className="p-1 rounded-full hover:bg-gray-200"
-            onClick={() => setShowVolumeSlider(!showVolumeSlider)}
+            onClick={() => {
+              if (videoRef.current) {
+                videoRef.current.currentTime = 0;
+                setLocalTime(0);
+                if (onTimeUpdate) onTimeUpdate(0);
+              }
+            }}
           >
-            {getVolumeIcon()}
+            <SkipBack size={18} />
           </button>
           
-          {showVolumeSlider && (
-            <div className="absolute bottom-full mb-2 -left-12 bg-white p-2 rounded-md shadow-lg w-32">
-              <Slider
-                value={[volume]}
-                min={0}
-                max={1}
-                step={0.01}
-                onValueChange={handleVolumeChange}
-              />
-            </div>
-          )}
+          <button 
+            className="p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={onPlayPause}
+            disabled={!videoLoaded}
+          >
+            {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+          </button>
+          
+          <div className="flex-1 mx-2">
+            <Slider
+              value={[localTime]}
+              min={0}
+              max={localDuration || 100}
+              step={0.1}
+              onValueChange={handleSliderChange}
+              disabled={!videoLoaded}
+            />
+          </div>
+          
+          <div className="text-sm text-gray-600 w-16 text-right">
+            {formatTime(localTime)} / {formatTime(localDuration)}
+          </div>
+          
+          <div className="relative">
+            <button
+              className="p-1 rounded-full hover:bg-gray-200"
+              onClick={() => setShowVolumeSlider(!showVolumeSlider)}
+            >
+              {getVolumeIcon()}
+            </button>
+            
+            {showVolumeSlider && (
+              <div className="absolute bottom-full mb-2 -left-12 bg-white p-2 rounded-md shadow-lg w-32">
+                <Slider
+                  value={[volume]}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onValueChange={handleVolumeChange}
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       
       {/* Error troubleshooter */}
       {hasError && videoRef.current && (

@@ -3,6 +3,7 @@ import React from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import VideoLifecycleManagement from '@/components/VideoLifecycleManagement';
+import VideoPlaybackApp from '@/components/VideoPlaybackApp';
 
 const PLMDashboard: React.FC = () => {
   return (
@@ -14,6 +15,9 @@ const PLMDashboard: React.FC = () => {
             <h1 className="text-2xl font-bold text-purple-900">Video Lifecycle Management</h1>
             <p className="text-purple-700">Optimize your video's entire production cycle</p>
           </header>
+          
+          {/* Insert the VideoPlaybackApp component for direct video playback */}
+          <VideoPlaybackApp />
           
           <VideoLifecycleManagement />
         </div>

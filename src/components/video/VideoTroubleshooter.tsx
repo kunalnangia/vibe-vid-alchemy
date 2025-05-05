@@ -38,7 +38,7 @@ const VideoTroubleshooter: React.FC<VideoTroubleshooterProps> = ({
     // Collect diagnostic information
     try {
       const video = videoRef.current;
-      const currentClip = clips[0];
+      const currentClip = clips[0]; // Fixed: renamed from 'clip' to 'currentClip'
       
       videoInfo = `${currentClip.name} (${currentClip.type}, ${Math.round(currentClip.duration)}s)`;
       

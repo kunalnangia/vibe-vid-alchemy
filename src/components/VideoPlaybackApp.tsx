@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import ReliableVideoUploader from './ReliableVideoUploader';
 import DirectVideoPlayer from './video/DirectVideoPlayer';
 import VideoPlayer from './VideoPlayer';
+import VideoConverter from './video/VideoConverter';
 
 const VideoPlaybackApp: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -11,6 +12,7 @@ const VideoPlaybackApp: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoDuration, setVideoDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [formatWarning, setFormatWarning] = useState(false);
 
   // Handle file upload
   const handleFileUpload = (file: File) => {
@@ -22,12 +24,21 @@ const VideoPlaybackApp: React.FC = () => {
     setIsPlaying(false);
     
     console.log(`Video file uploaded: ${file.name}, size: ${Math.round(file.size / 1024)}KB, type: ${file.type}`);
+    
+    // Check if this is not a common web video format
+    if (file.type !== 'video/mp4' && file.type !== 'video/webm' && file.type !== 'video/ogg') {
+      setFormatWarning(true);
+      toast.warning(`Video format ${file.type} might have limited browser support`);
+    } else {
+      setFormatWarning(false);
+    }
   };
   
   // Handle metadata loaded
   const handleMetadataLoaded = (duration: number) => {
     setVideoDuration(duration);
     console.log(`Video metadata loaded. Duration: ${duration}s`);
+    toast.success(`Video loaded successfully (${Math.round(duration)}s)`);
   };
   
   // Toggle play/pause
@@ -40,11 +51,29 @@ const VideoPlaybackApp: React.FC = () => {
     setCurrentTime(time);
   };
   
+  // Handle format conversion
+  const handleFormatConversion = (convertedFile: File) => {
+    // Clean up old blob URL
+    if (videoSrc && videoSrc.startsWith('blob:')) {
+      URL.revokeObjectURL(videoSrc);
+    }
+    
+    // Create new blob URL
+    const url = URL.createObjectURL(convertedFile);
+    setVideoFile(convertedFile);
+    setVideoSrc(url);
+    setFormatWarning(false);
+    setCurrentTime(0);
+    
+    console.log(`Video converted to: ${convertedFile.type}`);
+  };
+  
   // Clear blob URL when component unmounts or video changes
   useEffect(() => {
     return () => {
       if (videoSrc && videoSrc.startsWith('blob:')) {
         URL.revokeObjectURL(videoSrc);
+        console.log("Cleaned up blob URL");
       }
     };
   }, [videoSrc]);
@@ -60,6 +89,15 @@ const VideoPlaybackApp: React.FC = () => {
           maxSizeMB={100}
         />
       </div>
+      
+      {formatWarning && videoFile && (
+        <div className="mb-6">
+          <VideoConverter 
+            file={videoFile}
+            onConversionComplete={handleFormatConversion}
+          />
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
