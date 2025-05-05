@@ -142,3 +142,23 @@
 .btn-purple {
   @apply bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white hover:from-purple-700 hover:to-fuchsia-600 shadow-md;
 }
+
+/* Fix for shadcn dialog, popover, and sheet background opacity */
+.dialog-content,
+[data-radix-popper-content-wrapper] .popover-content,
+.drawer-content,
+.sheet-content {
+  @apply bg-white dark:bg-gray-800 !important;
+}
+
+/* Higher z-index for popover content to ensure visibility */
+[data-radix-popper-content-wrapper] {
+  z-index: 50 !important;
+}
+
+/* Solid background for dialog overlay */
+.dialog-overlay,
+.drawer-overlay,
+.sheet-overlay {
+  @apply bg-black/60 backdrop-blur-sm !important;
+}
