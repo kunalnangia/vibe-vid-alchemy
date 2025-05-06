@@ -1,194 +1,80 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { 
-  Sidebar, 
-  SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton
-} from "@/components/ui/sidebar";
-import { 
-  Home, Video, Users, Settings, FileText, PanelLeft, 
-  Layers, Upload, FileBox, Share2, MessageSquare, 
-  Database, BarChart
+  Home, 
+  Video, 
+  Layout, 
+  Wand2, 
+  Share2, 
+  Settings,
+  Users,
+  TrendingUp
 } from 'lucide-react';
 
 export function AppSidebar() {
-  const location = useLocation();
-  
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-  
+  const navigation = [
+    { name: 'Home', href: '/', icon: Home },
+    { name: 'Projects', href: '/projects', icon: Video },
+    { name: 'Templates', href: '/templates', icon: Layout },
+    { name: 'AI Workspace', href: '/ai-creator', icon: Wand2 },
+    { name: 'PLM', href: '/plm', icon: TrendingUp },
+    { name: 'Collaborate', href: '/collaborate', icon: Users },
+    { name: 'Publishing', href: '/publishing', icon: Share2 },
+    { name: 'Settings', href: '/settings', icon: Settings },
+  ];
+
   return (
-    <Sidebar className="studio-sidebar">
-      <div className="flex flex-col h-full">
-        <div className="py-4 px-2">
-          <h2 className="text-xl font-bold text-center mb-6 text-white">
-            VideoVibe
-          </h2>
-          
-          <SidebarContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/')} 
-                  asChild
-                  className="side-menu-item"
-                >
-                  <Link to="/">
-                    <Home className="h-5 w-5" />
-                    <span>Dashboard</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/video-demo')} 
-                  asChild
-                  className="side-menu-item"
-                >
-                  <Link to="/video-demo">
-                    <Video className="h-5 w-5" />
-                    <span>Editor</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/scripts')} 
-                  asChild
-                  className="side-menu-item"
-                >
-                  <Link to="/scripts">
-                    <FileText className="h-5 w-5" />
-                    <span>Scripts</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/projects')} 
-                  asChild
-                >
-                  <Link to="/projects">
-                    <Layers className="h-5 w-5" />
-                    <span>Projects</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/media')} 
-                  asChild
-                >
-                  <Link to="/media">
-                    <Upload className="h-5 w-5" />
-                    <span>Media</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/templates')} 
-                  asChild
-                >
-                  <Link to="/templates">
-                    <FileBox className="h-5 w-5" />
-                    <span>Templates</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/publishing')} 
-                  asChild
-                >
-                  <Link to="/publishing">
-                    <Share2 className="h-5 w-5" />
-                    <span>Publishing</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/plm')} 
-                  asChild
-                >
-                  <Link to="/plm">
-                    <Database className="h-5 w-5" />
-                    <span>PLM</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarContent>
+    <Sidebar>
+      <div className="flex flex-col h-full py-4 bg-purple-800 text-white">
+        <div className="px-4 mb-6">
+          <h2 className="text-xl font-bold">VideoVibes</h2>
+          <p className="text-sm text-purple-200">Video Editor Pro</p>
         </div>
         
-        <div className="mt-auto pb-6 px-2">
-          <SidebarContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/team')} 
-                  asChild
-                >
-                  <Link to="/team">
-                    <Users className="h-5 w-5" />
-                    <span>Team</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/support')} 
-                  asChild
-                >
-                  <Link to="/support">
-                    <MessageSquare className="h-5 w-5" />
-                    <span>Support</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/analytics')} 
-                  asChild
-                >
-                  <Link to="/analytics">
-                    <BarChart className="h-5 w-5" />
-                    <span>Analytics</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  isActive={isActive('/settings')} 
-                  asChild
-                >
-                  <Link to="/settings">
-                    <Settings className="h-5 w-5" />
-                    <span>Settings</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarContent>
+        <SidebarContent className="flex-1">
+          <nav className="space-y-1 px-2">
+            {navigation.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                className={({ isActive }) => 
+                  isActive
+                    ? 'flex items-center px-2 py-2 text-base font-medium rounded-md bg-purple-700 text-white'
+                    : 'flex items-center px-2 py-2 text-base font-medium rounded-md text-purple-100 hover:bg-purple-700 hover:text-white'
+                }
+              >
+                {({isActive}) => (
+                  <>
+                    <item.icon 
+                      className={`mr-3 h-6 w-6 ${isActive ? 'text-white' : 'text-purple-300'}`} 
+                      aria-hidden="true" 
+                    />
+                    {item.name}
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+        </SidebarContent>
+        
+        <div className="px-4 py-4 border-t border-purple-700">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <img
+                className="h-8 w-8 rounded-full"
+                src="https://i.pravatar.cc/100?img=12"
+                alt="User avatar"
+              />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-white">John Smith</p>
+              <p className="text-xs text-purple-300">Pro Account</p>
+            </div>
+          </div>
         </div>
       </div>
     </Sidebar>
   );
 }
-
-export default AppSidebar;

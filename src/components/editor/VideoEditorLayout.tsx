@@ -1,167 +1,127 @@
 
 import React from 'react';
-import { Separator } from "@/components/ui/separator";
-import VideoPreview from "@/components/video/VideoPreview";
-import VideoPlaybackControls from "@/components/video/VideoPlaybackControls";
-import { Button } from "@/components/ui/button";
-import { Scissors, Video, Captions, Music, Download, Share2 } from "lucide-react";
-import { toast } from "sonner";
+import { AppSidebar } from '../AppSidebar';
+import EditorRightSidebar from '../EditorRightSidebar';
+import EditorHeader from './EditorHeader';
+import SidebarPanels from '../SidebarPanels';
+import EditorContent from './EditorContent';
+import { SidebarProvider } from "@/components/ui/sidebar";
+import EditorStateProvider from './EditorStateProvider';
+import { toast } from 'sonner';
 
 interface VideoEditorLayoutProps {
   videoState: {
-    videoSrc: string | null;
-    isPlaying: boolean;
-    currentTime: number;
-    duration: number;
-    togglePlay: () => void;
-    seekTo: (time: number) => void;
-  };
+    currentFilter: string;
+    setCurrentFilter: (filter: string) => void;
+    aspectRatio: string;
+    setAspectRatio: (ratio: string) => void;
+    greenScreenEnabled: boolean;
+    setGreenScreenEnabled: (enabled: boolean) => void;
+    toggleGreenScreen: () => void;
+    autoCaptionsEnabled: boolean;
+    setAutoCaptionsEnabled: (enabled: boolean) => void;
+    toggleAutoCaptions: () => void;
+  }
 }
 
-const VideoEditorLayout: React.FC<VideoEditorLayoutProps> = ({ videoState }) => {
-  const { videoSrc, isPlaying, currentTime, duration, togglePlay, seekTo } = videoState;
+const VideoEditorLayout: React.FC<VideoEditorLayoutProps> = ({ 
+  videoState = {
+    currentFilter: 'normal',
+    setCurrentFilter: () => {},
+    aspectRatio: 'landscape',
+    setAspectRatio: () => {},
+    greenScreenEnabled: false,
+    setGreenScreenEnabled: () => {},
+    toggleGreenScreen: () => {},
+    autoCaptionsEnabled: false,
+    setAutoCaptionsEnabled: () => {},
+    toggleAutoCaptions: () => {}
+  }
+}) => {
+  // Handle unexpected errors during rendering
+  React.useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error('Runtime error detected:', event.error);
+      toast.error('Something went wrong', {
+        description: 'The editor encountered an error. Please refresh the page.',
+        duration: 5000
+      });
+      
+      event.preventDefault();
+    };
+    
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
   
-  const handleSplit = () => {
-    if (!videoSrc) {
-      toast.error('No video to split');
-      return;
-    }
-    toast.success(`Video split at ${formatTime(currentTime)}`);
-  };
-  
-  const handleChromaKey = () => {
-    if (!videoSrc) {
-      toast.error('No video loaded');
-      return;
-    }
-    toast.success('Chroma key applied');
-  };
-  
-  const handleCaptions = () => {
-    if (!videoSrc) {
-      toast.error('No video loaded');
-      return;
-    }
-    toast.success('Generating captions');
-  };
-  
-  const handleAudio = () => {
-    if (!videoSrc) {
-      toast.error('No video loaded');
-      return;
-    }
-    toast.success('Audio editor opened');
-  };
-  
-  const handleShare = () => {
-    if (!videoSrc) {
-      toast.error('No video loaded');
-      return;
-    }
-    toast.success('Sharing options opened');
-  };
-  
-  const handleExport = () => {
-    if (!videoSrc) {
-      toast.error('No video loaded');
-      return;
-    }
-    toast.success('Exporting video');
-  };
-  
-  const formatTime = (seconds: number): string => {
-    if (isNaN(seconds) || seconds === 0) return '00:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Video Editor</h1>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-purple-50 via-white to-fuchsia-50">
+        <AppSidebar />
         
-        <div className="grid grid-cols-1 gap-6">
-          {/* Video Preview */}
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden">
-              <VideoPreview videoSrc={videoSrc} />
+        <EditorStateProvider>
+          {(editorState) => (
+            <div className="flex-1 flex flex-col p-6 bg-gradient-to-br from-purple-100 via-white to-fuchsia-100">
+              {/* Top Navigation */}
+              <EditorHeader />
+              
+              {/* Main content area */}
+              <div className="flex-1 flex">
+                <EditorContent 
+                  editorState={{
+                    ...editorState,
+                    currentFilter: videoState.currentFilter,
+                    aspectRatio: videoState.aspectRatio,
+                    greenScreenEnabled: videoState.greenScreenEnabled,
+                    autoCaptionsEnabled: videoState.autoCaptionsEnabled
+                  }} 
+                />
+              
+                {/* Right sidebar */}
+                <EditorRightSidebar
+                  videoTitle={editorState.videoTitle}
+                  setVideoTitle={editorState.setVideoTitle}
+                  handleTrimVideo={editorState.handleTrimVideo}
+                  handleCropFrame={editorState.handleCropFrame}
+                  handleInsertToken={editorState.handleInsertToken}
+                  handleConnectCRM={editorState.handleConnectCRM}
+                  handleConnectSalesforce={editorState.handleConnectSalesforce}
+                  handlePublishLanding={editorState.handlePublishLanding}
+                  handleAIEnhance={editorState.handleAIEnhance}
+                  handleAutoCaption={() => {
+                    editorState.handleAutoCaption();
+                    videoState.toggleAutoCaptions();
+                  }}
+                  handleGreenScreen={() => {
+                    editorState.handleGreenScreen();
+                    videoState.toggleGreenScreen();
+                  }}
+                  handleMagicResize={editorState.handleMagicResize}
+                />
+              </div>
             </div>
-          </div>
-          
-          {/* Video Controls */}
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <VideoPlaybackControls
-              isPlaying={isPlaying}
-              togglePlay={togglePlay}
-              seekTo={seekTo}
-              currentTime={currentTime}
-              duration={duration}
-              disabled={!videoSrc}
-            />
-          </div>
-          
-          <Separator />
-          
-          {/* Editing Toolbar */}
-          <div className="flex flex-wrap gap-3">
-            <Button 
-              variant="outline" 
-              onClick={handleSplit} 
-              disabled={!videoSrc}
-            >
-              <Scissors className="h-4 w-4 mr-2" />
-              Split
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={handleChromaKey}
-              disabled={!videoSrc}
-            >
-              <Video className="h-4 w-4 mr-2" />
-              Chroma Key
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={handleCaptions}
-              disabled={!videoSrc}
-            >
-              <Captions className="h-4 w-4 mr-2" />
-              Captions
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={handleAudio}
-              disabled={!videoSrc}
-            >
-              <Music className="h-4 w-4 mr-2" />
-              Audio
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={handleShare}
-              disabled={!videoSrc}
-            >
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-            
-            <Button 
-              onClick={handleExport}
-              disabled={!videoSrc}
-              className="ml-auto"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </div>
-        </div>
+          )}
+        </EditorStateProvider>
+
+        {/* SidebarPanels component for supporting functionality */}
+        <EditorStateProvider>
+          {(editorState) => (
+            <div className="hidden">
+              <SidebarPanels
+                handleFileUpload={editorState.handleFileUpload}
+                addTextOverlay={editorState.addTextOverlay}
+                selectedOverlayId={editorState.selectedOverlayId}
+                textOverlays={editorState.textOverlays || []}
+                onUpdateOverlay={editorState.updateTextOverlay}
+                selectedClipId={editorState.selectedClipId}
+                setSelectedClipId={editorState.setSelectedClipId}
+                clips={editorState.clips || []}
+              />
+            </div>
+          )}
+        </EditorStateProvider>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
