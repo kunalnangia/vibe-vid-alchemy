@@ -1,80 +1,133 @@
 
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
+import { Link, useLocation } from 'react-router-dom';
+import { Sidebar, SidebarItem } from "@/components/ui/sidebar";
 import { 
-  Home, 
-  Video, 
-  Layout, 
-  Wand2, 
-  Share2, 
-  Settings,
-  Users,
-  TrendingUp
+  Home, Video, Users, Settings, FileText, PanelLeft, 
+  Layers, Upload, Templates, Share2, MessageSquare, 
+  Database, BarChart
 } from 'lucide-react';
 
 export function AppSidebar() {
-  const navigation = [
-    { name: 'Home', href: '/', icon: Home },
-    { name: 'Projects', href: '/projects', icon: Video },
-    { name: 'Templates', href: '/templates', icon: Layout },
-    { name: 'AI Workspace', href: '/ai-creator', icon: Wand2 },
-    { name: 'PLM', href: '/plm', icon: TrendingUp },
-    { name: 'Collaborate', href: '/collaborate', icon: Users },
-    { name: 'Publishing', href: '/publishing', icon: Share2 },
-    { name: 'Settings', href: '/settings', icon: Settings },
-  ];
-
+  const location = useLocation();
+  
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+  
   return (
     <Sidebar>
-      <div className="flex flex-col h-full py-4 bg-purple-800 text-white">
-        <div className="px-4 mb-6">
-          <h2 className="text-xl font-bold">VideoVibes</h2>
-          <p className="text-sm text-purple-200">Video Editor Pro</p>
+      <div className="flex flex-col h-full">
+        <div className="py-4 px-2">
+          <h2 className="text-xl font-bold text-center mb-6 text-blue-600">
+            VideoVibe
+          </h2>
+          
+          <nav className="space-y-1">
+            <SidebarItem 
+              icon={<Home className="h-5 w-5" />} 
+              title="Dashboard" 
+              isActive={isActive('/')} 
+              href="/"
+              as={Link}
+            />
+            
+            <SidebarItem 
+              icon={<Video className="h-5 w-5" />} 
+              title="Editor" 
+              isActive={isActive('/video-demo')} 
+              href="/video-demo"
+              as={Link}
+            />
+            
+            <SidebarItem 
+              icon={<FileText className="h-5 w-5" />} 
+              title="Scripts" 
+              isActive={isActive('/scripts')} 
+              href="/scripts"
+              as={Link}
+            />
+            
+            <SidebarItem 
+              icon={<Layers className="h-5 w-5" />} 
+              title="Projects" 
+              isActive={isActive('/projects')} 
+              href="/projects"
+              as={Link}
+            />
+            
+            <SidebarItem 
+              icon={<Upload className="h-5 w-5" />} 
+              title="Media" 
+              isActive={isActive('/media')} 
+              href="/media"
+              as={Link}
+            />
+            
+            <SidebarItem 
+              icon={<Templates className="h-5 w-5" />} 
+              title="Templates" 
+              isActive={isActive('/templates')} 
+              href="/templates"
+              as={Link}
+            />
+            
+            <SidebarItem 
+              icon={<Share2 className="h-5 w-5" />} 
+              title="Publishing" 
+              isActive={isActive('/publishing')} 
+              href="/publishing"
+              as={Link}
+            />
+            
+            <SidebarItem 
+              icon={<Database className="h-5 w-5" />} 
+              title="PLM" 
+              isActive={isActive('/plm')} 
+              href="/plm"
+              as={Link}
+            />
+          </nav>
         </div>
         
-        <SidebarContent className="flex-1">
-          <nav className="space-y-1 px-2">
-            {navigation.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.href}
-                className={({ isActive }) => 
-                  isActive
-                    ? 'flex items-center px-2 py-2 text-base font-medium rounded-md bg-purple-700 text-white'
-                    : 'flex items-center px-2 py-2 text-base font-medium rounded-md text-purple-100 hover:bg-purple-700 hover:text-white'
-                }
-              >
-                {({isActive}) => (
-                  <>
-                    <item.icon 
-                      className={`mr-3 h-6 w-6 ${isActive ? 'text-white' : 'text-purple-300'}`} 
-                      aria-hidden="true" 
-                    />
-                    {item.name}
-                  </>
-                )}
-              </NavLink>
-            ))}
+        <div className="mt-auto pb-6 px-2">
+          <nav className="space-y-1">
+            <SidebarItem 
+              icon={<Users className="h-5 w-5" />} 
+              title="Team" 
+              isActive={isActive('/team')} 
+              href="/team"
+              as={Link}
+            />
+            
+            <SidebarItem 
+              icon={<MessageSquare className="h-5 w-5" />} 
+              title="Support" 
+              isActive={isActive('/support')} 
+              href="/support"
+              as={Link}
+            />
+            
+            <SidebarItem 
+              icon={<BarChart className="h-5 w-5" />} 
+              title="Analytics" 
+              isActive={isActive('/analytics')} 
+              href="/analytics"
+              as={Link}
+            />
+            
+            <SidebarItem 
+              icon={<Settings className="h-5 w-5" />} 
+              title="Settings" 
+              isActive={isActive('/settings')} 
+              href="/settings"
+              as={Link}
+            />
           </nav>
-        </SidebarContent>
-        
-        <div className="px-4 py-4 border-t border-purple-700">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <img
-                className="h-8 w-8 rounded-full"
-                src="https://i.pravatar.cc/100?img=12"
-                alt="User avatar"
-              />
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-white">John Smith</p>
-              <p className="text-xs text-purple-300">Pro Account</p>
-            </div>
-          </div>
         </div>
       </div>
     </Sidebar>
   );
 }
+
+export default AppSidebar;
