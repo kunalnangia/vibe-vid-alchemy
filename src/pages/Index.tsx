@@ -43,13 +43,13 @@ const Index = () => {
             <h1 className="text-3xl font-bold text-gray-800 mb-6">VideoVibe Dashboard</h1>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
+              <div className="studio-card p-6">
                 <h2 className="text-xl font-semibold mb-4">Upload Video</h2>
                 <VideoUploader onFileSelected={handleFileSelected} />
                 
                 {videoUrl && (
                   <div className="mt-6 flex space-x-3">
-                    <Button onClick={handleExport} className="bg-blue-600 hover:bg-blue-700">
+                    <Button onClick={handleExport} className="btn-purple">
                       <Download className="h-4 w-4 mr-2" />
                       Export Video
                     </Button>
@@ -57,7 +57,7 @@ const Index = () => {
                 )}
               </div>
               
-              <div>
+              <div className="studio-card p-6">
                 <h2 className="text-xl font-semibold mb-4">Preview</h2>
                 <VideoPreview videoSrc={videoUrl} />
               </div>

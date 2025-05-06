@@ -22,10 +22,10 @@ export function AppSidebar() {
   };
   
   return (
-    <Sidebar>
+    <Sidebar className="studio-sidebar">
       <div className="flex flex-col h-full">
         <div className="py-4 px-2">
-          <h2 className="text-xl font-bold text-center mb-6 text-blue-600">
+          <h2 className="text-xl font-bold text-center mb-6 text-white">
             VideoVibe
           </h2>
           
@@ -35,6 +35,7 @@ export function AppSidebar() {
                 <SidebarMenuButton 
                   isActive={isActive('/')} 
                   asChild
+                  className="side-menu-item"
                 >
                   <Link to="/">
                     <Home className="h-5 w-5" />
@@ -47,6 +48,7 @@ export function AppSidebar() {
                 <SidebarMenuButton 
                   isActive={isActive('/video-demo')} 
                   asChild
+                  className="side-menu-item"
                 >
                   <Link to="/video-demo">
                     <Video className="h-5 w-5" />
@@ -59,6 +61,7 @@ export function AppSidebar() {
                 <SidebarMenuButton 
                   isActive={isActive('/scripts')} 
                   asChild
+                  className="side-menu-item"
                 >
                   <Link to="/scripts">
                     <FileText className="h-5 w-5" />

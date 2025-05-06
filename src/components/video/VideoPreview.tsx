@@ -31,7 +31,9 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     };
     
     const handleLoadedData = () => {
+      console.log("Video loaded successfully");
       setIsLoaded(true);
+      setDuration(video.duration);
       if (autoPlay) {
         video.play()
           .then(() => setIsPlaying(true))
@@ -43,7 +45,8 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
       setIsPlaying(false);
     };
     
-    const handleError = () => {
+    const handleError = (e: Event) => {
+      console.error("Video error:", e);
       toast.error('Error loading video');
       setIsLoaded(false);
     };
@@ -67,6 +70,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     if (!videoRef.current) return;
     
     if (videoSrc) {
+      console.log("Setting video source:", videoSrc);
       videoRef.current.src = videoSrc;
       videoRef.current.load();
       setIsLoaded(false);
@@ -74,7 +78,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   }, [videoSrc]);
   
   const togglePlay = () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !videoSrc) return;
     
     if (isPlaying) {
       videoRef.current.pause();
@@ -97,12 +101,13 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
 
   return (
     <div className="flex flex-col space-y-3">
-      <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+      <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video video-canvas">
         <video
           ref={videoRef}
           className="w-full h-full"
           playsInline
           preload="metadata"
+          onClick={togglePlay}
         ></video>
         
         {!videoSrc && (
@@ -114,6 +119,16 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
         {videoSrc && !isLoaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-800/50">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        )}
+        
+        {videoSrc && isLoaded && !isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center cursor-pointer" onClick={togglePlay}>
+            <div className="bg-black bg-opacity-50 rounded-full p-4 shadow-lg">
+              <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" />
+              </svg>
+            </div>
           </div>
         )}
       </div>
