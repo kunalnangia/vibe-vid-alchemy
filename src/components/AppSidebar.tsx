@@ -1,10 +1,16 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sidebar, SidebarItem } from "@/components/ui/sidebar";
+import { 
+  Sidebar, 
+  SidebarContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton
+} from "@/components/ui/sidebar";
 import { 
   Home, Video, Users, Settings, FileText, PanelLeft, 
-  Layers, Upload, Templates, Share2, MessageSquare, 
+  Layers, Upload, FileBox, Share2, MessageSquare, 
   Database, BarChart
 } from 'lucide-react';
 
@@ -23,107 +29,159 @@ export function AppSidebar() {
             VideoVibe
           </h2>
           
-          <nav className="space-y-1">
-            <SidebarItem 
-              icon={<Home className="h-5 w-5" />} 
-              title="Dashboard" 
-              isActive={isActive('/')} 
-              href="/"
-              as={Link}
-            />
-            
-            <SidebarItem 
-              icon={<Video className="h-5 w-5" />} 
-              title="Editor" 
-              isActive={isActive('/video-demo')} 
-              href="/video-demo"
-              as={Link}
-            />
-            
-            <SidebarItem 
-              icon={<FileText className="h-5 w-5" />} 
-              title="Scripts" 
-              isActive={isActive('/scripts')} 
-              href="/scripts"
-              as={Link}
-            />
-            
-            <SidebarItem 
-              icon={<Layers className="h-5 w-5" />} 
-              title="Projects" 
-              isActive={isActive('/projects')} 
-              href="/projects"
-              as={Link}
-            />
-            
-            <SidebarItem 
-              icon={<Upload className="h-5 w-5" />} 
-              title="Media" 
-              isActive={isActive('/media')} 
-              href="/media"
-              as={Link}
-            />
-            
-            <SidebarItem 
-              icon={<Templates className="h-5 w-5" />} 
-              title="Templates" 
-              isActive={isActive('/templates')} 
-              href="/templates"
-              as={Link}
-            />
-            
-            <SidebarItem 
-              icon={<Share2 className="h-5 w-5" />} 
-              title="Publishing" 
-              isActive={isActive('/publishing')} 
-              href="/publishing"
-              as={Link}
-            />
-            
-            <SidebarItem 
-              icon={<Database className="h-5 w-5" />} 
-              title="PLM" 
-              isActive={isActive('/plm')} 
-              href="/plm"
-              as={Link}
-            />
-          </nav>
+          <SidebarContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/')} 
+                  asChild
+                >
+                  <Link to="/">
+                    <Home className="h-5 w-5" />
+                    <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/video-demo')} 
+                  asChild
+                >
+                  <Link to="/video-demo">
+                    <Video className="h-5 w-5" />
+                    <span>Editor</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/scripts')} 
+                  asChild
+                >
+                  <Link to="/scripts">
+                    <FileText className="h-5 w-5" />
+                    <span>Scripts</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/projects')} 
+                  asChild
+                >
+                  <Link to="/projects">
+                    <Layers className="h-5 w-5" />
+                    <span>Projects</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/media')} 
+                  asChild
+                >
+                  <Link to="/media">
+                    <Upload className="h-5 w-5" />
+                    <span>Media</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/templates')} 
+                  asChild
+                >
+                  <Link to="/templates">
+                    <FileBox className="h-5 w-5" />
+                    <span>Templates</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/publishing')} 
+                  asChild
+                >
+                  <Link to="/publishing">
+                    <Share2 className="h-5 w-5" />
+                    <span>Publishing</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/plm')} 
+                  asChild
+                >
+                  <Link to="/plm">
+                    <Database className="h-5 w-5" />
+                    <span>PLM</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarContent>
         </div>
         
         <div className="mt-auto pb-6 px-2">
-          <nav className="space-y-1">
-            <SidebarItem 
-              icon={<Users className="h-5 w-5" />} 
-              title="Team" 
-              isActive={isActive('/team')} 
-              href="/team"
-              as={Link}
-            />
-            
-            <SidebarItem 
-              icon={<MessageSquare className="h-5 w-5" />} 
-              title="Support" 
-              isActive={isActive('/support')} 
-              href="/support"
-              as={Link}
-            />
-            
-            <SidebarItem 
-              icon={<BarChart className="h-5 w-5" />} 
-              title="Analytics" 
-              isActive={isActive('/analytics')} 
-              href="/analytics"
-              as={Link}
-            />
-            
-            <SidebarItem 
-              icon={<Settings className="h-5 w-5" />} 
-              title="Settings" 
-              isActive={isActive('/settings')} 
-              href="/settings"
-              as={Link}
-            />
-          </nav>
+          <SidebarContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/team')} 
+                  asChild
+                >
+                  <Link to="/team">
+                    <Users className="h-5 w-5" />
+                    <span>Team</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/support')} 
+                  asChild
+                >
+                  <Link to="/support">
+                    <MessageSquare className="h-5 w-5" />
+                    <span>Support</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/analytics')} 
+                  asChild
+                >
+                  <Link to="/analytics">
+                    <BarChart className="h-5 w-5" />
+                    <span>Analytics</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  isActive={isActive('/settings')} 
+                  asChild
+                >
+                  <Link to="/settings">
+                    <Settings className="h-5 w-5" />
+                    <span>Settings</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarContent>
         </div>
       </div>
     </Sidebar>
