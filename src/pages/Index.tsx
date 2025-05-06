@@ -5,15 +5,15 @@ import { Toaster } from "@/components/ui/sonner";
 import AppSidebar from "@/components/AppSidebar";
 import VideoUploader from "@/components/video/VideoUploader";
 import VideoPreview from "@/components/video/VideoPreview";
-import useVideoUpload from "@/hooks/useVideoUpload";
+import { useVideoUpload } from '@/hooks/useVideoUpload';
 import { Button } from '@/components/ui/button';
-import { Play, Upload, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Index = () => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   
-  const { uploadVideo, isUploading } = useVideoUpload();
+  const { uploadVideo } = useVideoUpload();
   
   const handleFileSelected = async (file: File) => {
     const url = await uploadVideo(file);

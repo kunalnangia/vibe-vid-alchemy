@@ -3,14 +3,14 @@ import { useState, useRef } from 'react';
 import { toast } from "sonner";
 
 interface UseVideoUploadProps {
-  onFileSelected: (file: File) => void;
+  onFileSelected?: (file: File) => void;
   maxSizeMB?: number;
 }
 
 export const useVideoUpload = ({
   onFileSelected,
   maxSizeMB = 500
-}: UseVideoUploadProps) => {
+}: UseVideoUploadProps = {}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -95,7 +95,9 @@ export const useVideoUpload = ({
         clearInterval(interval);
         setIsUploading(false);
         setUploadedFile(file);
-        onFileSelected(file);
+        if (onFileSelected) {
+          onFileSelected(file);
+        }
         toast.success(`Video "${file.name}" processed successfully`);
       }
     }, 300);
@@ -122,6 +124,33 @@ export const useVideoUpload = ({
     processFile(file);
   };
   
+  // Add uploadVideo function that was missing
+  const uploadVideo = (file: File): Promise<string | null> => {
+    return new Promise((resolve) => {
+      processFile(file);
+      
+      // Create a timeout to simulate the upload completion
+      const checkUpload = setInterval(() => {
+        if (!isUploading && uploadedFile) {
+          clearInterval(checkUpload);
+          // Return a blob URL for the video
+          const blobUrl = URL.createObjectURL(uploadedFile);
+          resolve(blobUrl);
+        }
+      }, 500);
+      
+      // Timeout after 15 seconds to prevent hanging
+      setTimeout(() => {
+        clearInterval(checkUpload);
+        if (isUploading) {
+          toast.error('Upload timed out');
+          setIsUploading(false);
+          resolve(null);
+        }
+      }, 15000);
+    });
+  };
+  
   return {
     fileInputRef,
     isDragging,
@@ -133,7 +162,8 @@ export const useVideoUpload = ({
     handleFileChange,
     handleDragOver,
     handleDragLeave,
-    handleDrop
+    handleDrop,
+    uploadVideo
   };
 };
 
