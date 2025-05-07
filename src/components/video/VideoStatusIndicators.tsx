@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AspectRatio, Subtitles, Video, Loader2 } from 'lucide-react';
+import { Maximize2, Subtitles, Video, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface VideoStatusIndicatorsProps {
@@ -26,7 +26,7 @@ const VideoStatusIndicators: React.FC<VideoStatusIndicatorsProps> = ({
       )}
       
       <Badge variant="outline" className="flex items-center gap-1">
-        <AspectRatio className="h-3 w-3" />
+        <Maximize2 className="h-3 w-3" />
         <span>{aspectRatio}</span>
       </Badge>
       
