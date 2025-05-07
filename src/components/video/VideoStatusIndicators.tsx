@@ -1,55 +1,47 @@
 
 import React from 'react';
-import { Shield, Video, Subtitles } from 'lucide-react';
+import { AspectRatio, Subtitles, Video, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface VideoStatusIndicatorsProps {
-  aspectRatio: string;
+  aspectRatio?: string;
   greenScreenEnabled?: boolean;
   autoCaptionsEnabled?: boolean;
   isLoading?: boolean;
 }
 
 const VideoStatusIndicators: React.FC<VideoStatusIndicatorsProps> = ({
-  aspectRatio,
+  aspectRatio = 'landscape',
   greenScreenEnabled = false,
   autoCaptionsEnabled = false,
   isLoading = false
 }) => {
   return (
-    <div className="absolute top-2 left-2 flex flex-col gap-2">
-      {/* Format indicator */}
-      <div className="bg-black/40 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-        <Video className="h-3.5 w-3.5" />
-        <span>{aspectRatio.charAt(0).toUpperCase() + aspectRatio.slice(1)}</span>
-      </div>
-      
-      {/* Green screen status */}
-      {greenScreenEnabled && (
-        <div 
-          className="bg-green-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1"
-          data-testid="green-screen-indicator"
-        >
-          <Shield className="h-3.5 w-3.5" />
-          <span>Green Screen</span>
-        </div>
-      )}
-      
-      {/* Auto captions status */}
-      {autoCaptionsEnabled && (
-        <div 
-          className="bg-blue-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1"
-          data-testid="captions-indicator"
-        >
-          <Subtitles className="h-3.5 w-3.5" />
-          <span>Auto Captions</span>
-        </div>
-      )}
-      
-      {/* Loading status */}
+    <div className="flex flex-wrap gap-2 mt-3">
       {isLoading && (
-        <div className="bg-purple-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-          <span className="animate-pulse">Loading...</span>
-        </div>
+        <Badge variant="outline" className="flex items-center gap-1 bg-blue-50">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          <span>Processing</span>
+        </Badge>
+      )}
+      
+      <Badge variant="outline" className="flex items-center gap-1">
+        <AspectRatio className="h-3 w-3" />
+        <span>{aspectRatio}</span>
+      </Badge>
+      
+      {greenScreenEnabled && (
+        <Badge className="bg-green-100 text-green-800 hover:bg-green-200 flex items-center gap-1 border-green-200">
+          <Video className="h-3 w-3" />
+          <span>Chroma Key</span>
+        </Badge>
+      )}
+      
+      {autoCaptionsEnabled && (
+        <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 flex items-center gap-1 border-blue-200">
+          <Subtitles className="h-3 w-3" />
+          <span>Captions</span>
+        </Badge>
       )}
     </div>
   );
