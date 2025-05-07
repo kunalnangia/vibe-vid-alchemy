@@ -24,6 +24,8 @@ const useVideoPlayer = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   // Load video when source changes
   useEffect(() => {
@@ -36,6 +38,7 @@ const useVideoPlayer = ({
     setIsLoaded(false);
     setHasError(false);
     setErrorDetails(null);
+    setCurrentTime(0);
     
     // Load from File or URL
     if (src instanceof File) {
@@ -67,6 +70,7 @@ const useVideoPlayer = ({
     const handleLoadedMetadata = () => {
       console.log("Video metadata loaded, duration:", video.duration);
       setIsLoaded(true);
+      setDuration(video.duration);
       if (onLoadedMetadata) {
         onLoadedMetadata(video.duration);
       }
@@ -80,6 +84,10 @@ const useVideoPlayer = ({
     const handleLoadedData = () => {
       console.log("Video data loaded and can be played");
       setIsLoaded(true);
+    };
+    
+    const handleTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
     };
     
     const handleError = () => {
@@ -101,11 +109,13 @@ const useVideoPlayer = ({
     
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('loadeddata', handleLoadedData);
+    video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('error', handleError);
     
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('loadeddata', handleLoadedData);
+      video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('error', handleError);
     };
   }, [autoPlay, onLoadedMetadata, onError]);
@@ -146,6 +156,13 @@ const useVideoPlayer = ({
     }
   };
   
+  // Set current time manually
+  const seekTo = (time: number) => {
+    if (!videoRef.current || !isLoaded) return;
+    videoRef.current.currentTime = time;
+    setCurrentTime(time);
+  };
+  
   // Handle retry for error cases
   const handleRetry = () => {
     if (!videoRef.current || !src) return;
@@ -170,8 +187,11 @@ const useVideoPlayer = ({
     isLoaded,
     hasError,
     errorDetails,
+    currentTime,
+    duration,
     handleTogglePlay,
     handlePlay,
+    seekTo,
     handleRetry
   };
 };

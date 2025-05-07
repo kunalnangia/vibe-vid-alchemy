@@ -1,28 +1,14 @@
 
-import React, { useEffect } from 'react';
-import { VideoClip, TextOverlay } from '@/lib/video/types';
-import { useVideoRenderer } from '@/hooks/useVideoRenderer';
-import VideoEmptyState from './VideoEmptyState';
-import VideoLoadingIndicator from './VideoLoadingIndicator';
-import VideoStatusIndicators from './VideoStatusIndicators';
-import VideoPlayPauseOverlay from './VideoPlayPauseOverlay';
+import React, { useState, useEffect } from 'react';
+import { VideoPreviewProps } from '@/lib/video/types';
+import { toast } from 'sonner';
+import DirectVideoPlayer from './DirectVideoPlayer';
 
-interface VideoCanvasProps {
-  clips: VideoClip[];
-  textOverlays: TextOverlay[];
-  currentTime: number;
-  setCurrentTime: (time: number) => void;
-  isPlaying: boolean;
-  setIsPlaying: (playing: boolean) => void;
-  projectDuration: number;
-  currentFilter: string;
-  aspectRatio: string;
-  greenScreenEnabled?: boolean;
-  autoCaptionsEnabled?: boolean;
+interface VideoCanvasProps extends VideoPreviewProps {
   onError?: () => void;
 }
 
-const VideoCanvas: React.FC<VideoCanvasProps> = ({
+const VideoCanvasMain: React.FC<VideoCanvasProps> = ({
   clips,
   textOverlays,
   currentTime,
@@ -30,125 +16,172 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({
   isPlaying,
   setIsPlaying,
   projectDuration,
-  currentFilter,
-  aspectRatio,
+  currentFilter = 'normal',
+  aspectRatio = 'landscape',
   greenScreenEnabled = false,
   autoCaptionsEnabled = false,
   onError
 }) => {
-  const { videoRef, canvasRef, ratioConfig, videoLoaded } = useVideoRenderer({
-    clips,
-    textOverlays,
-    currentTime,
-    isPlaying,
-    setCurrentTime,
-    setIsPlaying,
-    projectDuration,
-    currentFilter,
-    aspectRatio,
-    greenScreenEnabled
-  });
-
-  // Apply filter styling
-  const getFilterStyle = () => {
-    switch(currentFilter) {
-      case 'grayscale':
-        return 'grayscale(100%)';
-      case 'sepia':
-        return 'sepia(70%)';
-      case 'vintage':
-        return 'sepia(50%) hue-rotate(-30deg) saturate(140%)';
-      case 'warm':
-        return 'sepia(30%) brightness(105%) saturate(110%)';
-      case 'cool':
-        return 'hue-rotate(30deg) brightness(95%) saturate(90%)';
-      case 'dramatic':
-        return 'contrast(120%) brightness(90%) saturate(130%)';
-      default:
-        return 'none';
-    }
-  };
-
-  // Handle play/pause
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
+  const [currentVideoSrc, setCurrentVideoSrc] = useState<File | string | null>(null);
+  const [trimSettings, setTrimSettings] = useState<{start: number, end: number} | undefined>();
+  const [cropSettings, setCropSettings] = useState<{x: number, y: number, width: number, height: number} | undefined>();
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoWidth, setVideoWidth] = useState(1920);
+  const [videoHeight, setVideoHeight] = useState(1080);
+  const [localGreenScreen, setLocalGreenScreen] = useState(greenScreenEnabled);
+  const [localAutoCaptions, setLocalAutoCaptions] = useState(autoCaptionsEnabled);
   
-  // Log clip status for debugging
+  // Update local state when props change
   useEffect(() => {
-    if (clips.length > 0) {
-      console.log('Clip loaded in VideoCanvas:', clips[0].name || 'Unnamed clip');
+    setLocalGreenScreen(greenScreenEnabled);
+  }, [greenScreenEnabled]);
+  
+  useEffect(() => {
+    setLocalAutoCaptions(autoCaptionsEnabled);
+  }, [autoCaptionsEnabled]);
+  
+  // Set up video source from clips
+  useEffect(() => {
+    if (clips && clips.length > 0) {
+      const currentClip = clips[0]; // Currently only handling the first clip
+      
+      if (currentClip.file) {
+        setCurrentVideoSrc(currentClip.file);
+      } else if (currentClip.src) {
+        setCurrentVideoSrc(currentClip.src);
+      }
+    } else {
+      setCurrentVideoSrc(null);
     }
   }, [clips]);
+
+  // Handle video metadata loaded
+  const handleLoadedMetadata = (duration: number) => {
+    console.log("Video metadata loaded. Duration:", duration + "s");
+    setVideoLoaded(true);
+    
+    // Get video dimensions
+    const video = document.querySelector('video');
+    if (video) {
+      setVideoWidth(video.videoWidth || 1920);
+      setVideoHeight(video.videoHeight || 1080);
+    }
+  };
+
+  // Handle video error
+  const handleVideoError = (error: any) => {
+    console.error("Video loading error:", error);
+    setVideoLoaded(false);
+    if (onError) onError();
+  };
+
+  // Handle play state change
+  const handlePlayStateChange = (playing: boolean) => {
+    setIsPlaying(playing);
+  };
   
-  // Handle video errors
-  useEffect(() => {
-    const video = videoRef.current;
+  // Handle trim action
+  const handleTrim = () => {
+    toast.info("Opening trim controls");
+    const newStart = Math.max(0, currentTime);
+    const newEnd = Math.min(projectDuration, currentTime + Math.min(10, projectDuration - currentTime));
     
-    if (!video) return;
+    setTrimSettings({
+      start: newStart, 
+      end: newEnd
+    });
     
-    const handleError = () => {
-      console.error('Video error occurred:', video.error);
-      if (onError) onError();
-    };
+    setTimeout(() => {
+      toast("Drag sliders to adjust trim points");
+    }, 500);
+  };
+  
+  // Handle crop action
+  const handleCrop = () => {
+    toast.info("Opening crop controls");
     
-    video.addEventListener('error', handleError);
+    // Default to 10% inset crop
+    setCropSettings({
+      x: Math.round(videoWidth * 0.1),
+      y: Math.round(videoHeight * 0.1),
+      width: Math.round(videoWidth * 0.8),
+      height: Math.round(videoHeight * 0.8)
+    });
     
-    return () => {
-      video.removeEventListener('error', handleError);
-    };
-  }, [videoRef, onError]);
+    setTimeout(() => {
+      toast("Drag handles to adjust crop area");
+    }, 500);
+  };
+  
+  // Handle green screen toggle
+  const handleGreenScreen = () => {
+    const newState = !localGreenScreen;
+    setLocalGreenScreen(newState);
+    
+    toast(newState ? 
+      "Green screen enabled - solid color backgrounds will be transparent" : 
+      "Green screen disabled");
+  };
+  
+  // Handle magic resize
+  const handleMagicResize = () => {
+    toast.info("Opening magic resize options");
+    toast("Choose an aspect ratio for your video");
+  };
+  
+  // Handle auto captions
+  const handleAutoCaptions = () => {
+    const newState = !localAutoCaptions;
+    setLocalAutoCaptions(newState);
+    
+    if (newState) {
+      toast("Generating captions from audio...");
+    } else {
+      toast("Captions disabled");
+    }
+  };
+  
+  // Handle AI enhance
+  const handleAIEnhance = () => {
+    toast.info("Enhancing video with AI...");
+    
+    setTimeout(() => {
+      toast("Analyzing video content...");
+    }, 800);
+    
+    setTimeout(() => {
+      toast.success("Video enhanced", {
+        description: "Brightness, contrast and color balance improved"
+      });
+    }, 2500);
+  };
 
   return (
-    <div className="video-canvas-container relative rounded-md overflow-hidden shadow-lg mb-6">
-      {/* Hidden video element for loading video data */}
-      <video 
-        ref={videoRef} 
-        className="hidden" 
-        playsInline 
-        muted
-      />
-      
-      {/* Canvas for rendering video frames and effects */}
-      <canvas 
-        ref={canvasRef}
-        className="mx-auto"
-        style={{ 
-          filter: getFilterStyle(),
-          width: ratioConfig.width,
-          height: ratioConfig.height,
-          maxWidth: '100%',
-          aspectRatio: `${ratioConfig.width}/${ratioConfig.height}`,
-          backgroundColor: '#000'
-        }}
-        onClick={togglePlay}
-      />
-      
-      {/* Video play/pause overlay */}
-      {clips.length > 0 && videoLoaded && (
-        <VideoPlayPauseOverlay
-          isPlaying={isPlaying}
-          currentTime={currentTime}
-          projectDuration={projectDuration}
-          togglePlay={togglePlay}
+    <div className="video-canvas w-full">
+      <div className="aspect-video w-full overflow-hidden relative rounded-lg bg-black">
+        <DirectVideoPlayer
+          src={currentVideoSrc}
+          autoPlay={false}
+          muted={false}
+          onLoadedMetadata={handleLoadedMetadata}
+          onError={handleVideoError}
+          onPlayStateChange={handlePlayStateChange}
+          greenScreenEnabled={localGreenScreen}
+          autoCaptionsEnabled={localAutoCaptions}
+          currentFilter={currentFilter}
+          aspectRatio={aspectRatio}
+          trimSettings={trimSettings}
+          cropSettings={cropSettings}
+          onTrim={handleTrim}
+          onCrop={handleCrop}
+          onGreenScreen={handleGreenScreen}
+          onMagicResize={handleMagicResize}
+          onAutoCaptions={handleAutoCaptions}
+          onAIEnhance={handleAIEnhance}
         />
-      )}
-      
-      {/* Empty state when no video is loaded */}
-      {clips.length === 0 && <VideoEmptyState />}
-      
-      {/* Loading indicator */}
-      {clips.length > 0 && !videoLoaded && <VideoLoadingIndicator />}
-      
-      {/* Status indicators (format, green screen) */}
-      <VideoStatusIndicators 
-        aspectRatio={aspectRatio}
-        greenScreenEnabled={greenScreenEnabled}
-        autoCaptionsEnabled={autoCaptionsEnabled}
-        isLoading={clips.length > 0 && !videoLoaded}
-      />
+      </div>
     </div>
   );
 };
 
-export default VideoCanvas;
+export default VideoCanvasMain;

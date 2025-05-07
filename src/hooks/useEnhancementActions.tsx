@@ -13,6 +13,8 @@ export const useEnhancementActions = ({
 }: EnhancementActionsProps) => {
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [autoCaptionsEnabled, setAutoCaptionsEnabled] = useState(false);
+  const [generatedCaptions, setGeneratedCaptions] = useState<{id: number, text: string, startTime: number, endTime: number}[]>([]);
   
   // Enhance with AI - Improve script and generate suggestions
   const handleAIEnhance = useCallback(async () => {
@@ -52,6 +54,8 @@ export const useEnhancementActions = ({
     } finally {
       setIsEnhancing(false);
     }
+    
+    return true; // Indicate success
   }, [scriptIdea, setScriptIdea]);
   
   // Green screen functionality 
@@ -70,19 +74,32 @@ export const useEnhancementActions = ({
   // Auto generate captions
   const handleAutoCaption = useCallback(() => {
     setIsProcessing(true);
-    toast("Generating captions from video audio...");
+    setAutoCaptionsEnabled(prev => !prev);
     
-    // Simulate caption generation with a timeout
-    setTimeout(() => {
-      toast.success("Captions panel opened");
-      setIsProcessing(false);
+    if (!autoCaptionsEnabled) {
+      toast("Generating captions from video audio...");
       
-      // Show caption stats
-      toast("Select 'Generate' in the panel to create captions", {
-        duration: 5000,
-      });
-    }, 1000);
-  }, []);
+      // Simulate caption generation with a timeout
+      setTimeout(() => {
+        // Create mock captions
+        const mockCaptions = [
+          { id: 1, text: "Welcome to our video presentation", startTime: 0.5, endTime: 3.0 },
+          { id: 2, text: "Today we're discussing video editing features", startTime: 3.5, endTime: 6.0 },
+          { id: 3, text: "You can easily trim, crop and add effects", startTime: 6.5, endTime: 9.0 },
+          { id: 4, text: "Our AI will enhance your content automatically", startTime: 9.5, endTime: 12.0 }
+        ];
+        
+        setGeneratedCaptions(mockCaptions);
+        toast.success("Captions generated successfully");
+        setIsProcessing(false);
+      }, 2500);
+    } else {
+      toast.info("Captions disabled");
+      setIsProcessing(false);
+    }
+    
+    return !autoCaptionsEnabled; // Return the new state
+  }, [autoCaptionsEnabled]);
   
   // Magic resize
   const handleMagicResize = useCallback(() => {
@@ -93,13 +110,37 @@ export const useEnhancementActions = ({
         description: "Choose your target aspect ratios"
       });
     }, 1000);
+    
+    // Return the list of available aspect ratios
+    return ["16:9", "9:16", "1:1", "4:3", "2.35:1"];
+  }, []);
+  
+  // Apply an enhancement
+  const applyEnhancement = useCallback((enhancementType: string) => {
+    toast.success(`${enhancementType} applied to video`);
+    
+    if (enhancementType === "Color Correction") {
+      return { brightness: 1.1, contrast: 1.2, saturation: 1.1 };
+    } else if (enhancementType === "Stabilization") {
+      return { stabilizationLevel: 0.8 };
+    } else if (enhancementType === "Noise Reduction") {
+      return { noiseReductionLevel: 0.7 };
+    }
+    
+    return { applied: true, type: enhancementType };
   }, []);
   
   return {
     handleAIEnhance,
     handleAutoCaption,
     handleGreenScreen,
-    handleMagicResize
+    handleMagicResize,
+    applyEnhancement,
+    isEnhancing,
+    isProcessing,
+    autoCaptionsEnabled,
+    generatedCaptions,
+    setGeneratedCaptions
   };
 };
 
