@@ -88,3 +88,5 @@ export const useLandingPageActions = (): UseLandingPageActionsReturn => {
     handlePublishLanding
   };
 };
+
+export default useLandingPageActions;

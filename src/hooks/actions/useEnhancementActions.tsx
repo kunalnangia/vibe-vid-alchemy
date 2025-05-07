@@ -13,7 +13,6 @@ export const useEnhancementActions = ({
 }: EnhancementActionsProps) => {
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [enhancementsApplied, setEnhancementsApplied] = useState(false);
   
   // Enhance with AI - Improve script and generate suggestions
   const handleAIEnhance = useCallback(async () => {
@@ -34,7 +33,6 @@ export const useEnhancementActions = ({
       
       setScriptIdea(enhancedScript);
       toast.success("Script enhanced successfully!");
-      setEnhancementsApplied(true);
       
       // Show recommendations
       setTimeout(() => {
@@ -132,15 +130,13 @@ export const useEnhancementActions = ({
     }, 4000);
   }, []);
 
-  // Return all actions
   return {
     handleAIEnhance,
     handleAutoCaption,
     handleGreenScreen,
     handleMagicResize,
     isEnhancing,
-    isProcessing,
-    enhancementsApplied
+    isProcessing
   };
 };
 

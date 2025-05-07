@@ -17,6 +17,14 @@ export const useEditingActions = () => {
     toast.info('Opening trim interface', {
       description: 'Drag the handles to set in and out points'
     });
+    
+    // Simulate trim panel opening
+    setTimeout(() => {
+      toast('Trim panel opened', {
+        description: 'Select the portion of the video you want to keep',
+        duration: 3000
+      });
+    }, 500);
   }, []);
   
   // Handle crop frame
@@ -24,6 +32,14 @@ export const useEditingActions = () => {
     toast.info('Opening crop interface', {
       description: 'Drag the handles to adjust the crop area'
     });
+    
+    // Simulate crop panel opening
+    setTimeout(() => {
+      toast('Crop panel opened', {
+        description: 'Define the area you want to keep in your video',
+        duration: 3000
+      });
+    }, 500);
   }, []);
   
   // Handle slider change for trim

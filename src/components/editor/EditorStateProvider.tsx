@@ -62,11 +62,12 @@ const EditorStateProvider: React.FC<EditorStateProviderProps> = ({ children }) =
   const playback = useEditorPlayback();
   const overlays = useEditorOverlays();
   const clips = useEditorClips();
+  const [scriptIdea, setScriptIdea] = React.useState('');
   const actions = useEditorActions({
     // Pass necessary dependencies to handleSplitClip
     currentTime: playback.currentTime, 
-    scriptIdea: '', 
-    setScriptIdea: () => {}
+    scriptIdea, 
+    setScriptIdea
   });
   
   // Combine all states and actions from the hooks
@@ -75,8 +76,12 @@ const EditorStateProvider: React.FC<EditorStateProviderProps> = ({ children }) =
     ...overlays,
     ...clips,
     ...actions,
+    scriptIdea,
+    setScriptIdea,
     // Add handlePlay for toggling play state
-    handlePlay: playback.handleTogglePlay,
+    handlePlay: playback.handleTogglePlay || (() => {
+      playback.setIsPlaying(!playback.isPlaying);
+    }),
     // Make sure handleSliderChange exists
     handleSliderChange: playback.handleSliderChange || actions.handleSliderChange || ((value: number[]) => {}),
     // Add handleSplitClip that uses the current time

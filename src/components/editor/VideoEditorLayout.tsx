@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { AppSidebar } from '../AppSidebar';
 import EditorRightSidebar from '../EditorRightSidebar';
 import EditorHeader from './EditorHeader';
@@ -10,7 +10,7 @@ import EditorStateProvider from './EditorStateProvider';
 import { toast } from 'sonner';
 
 interface VideoEditorLayoutProps {
-  videoState: {
+  videoState?: {
     currentFilter: string;
     setCurrentFilter: (filter: string) => void;
     aspectRatio: string;
@@ -38,6 +38,30 @@ const VideoEditorLayout: React.FC<VideoEditorLayoutProps> = ({
     toggleAutoCaptions: () => {}
   }
 }) => {
+  // Local state for green screen and captions if not provided
+  const [localGreenScreenEnabled, setLocalGreenScreenEnabled] = useState(false);
+  const [localAutoCaptionsEnabled, setLocalAutoCaptionsEnabled] = useState(false);
+  
+  // Use provided state or local state
+  const greenScreenEnabled = videoState.greenScreenEnabled || localGreenScreenEnabled;
+  const autoCaptionsEnabled = videoState.autoCaptionsEnabled || localAutoCaptionsEnabled;
+  
+  const toggleGreenScreen = () => {
+    if (videoState.toggleGreenScreen) {
+      videoState.toggleGreenScreen();
+    } else {
+      setLocalGreenScreenEnabled(prev => !prev);
+    }
+  };
+  
+  const toggleAutoCaptions = () => {
+    if (videoState.toggleAutoCaptions) {
+      videoState.toggleAutoCaptions();
+    } else {
+      setLocalAutoCaptionsEnabled(prev => !prev);
+    }
+  };
+  
   // Handle unexpected errors during rendering
   React.useEffect(() => {
     const handleError = (event: ErrorEvent) => {
@@ -72,31 +96,35 @@ const VideoEditorLayout: React.FC<VideoEditorLayoutProps> = ({
                     ...editorState,
                     currentFilter: videoState.currentFilter,
                     aspectRatio: videoState.aspectRatio,
-                    greenScreenEnabled: videoState.greenScreenEnabled,
-                    autoCaptionsEnabled: videoState.autoCaptionsEnabled
+                    greenScreenEnabled,
+                    autoCaptionsEnabled
                   }} 
                 />
               
                 {/* Right sidebar */}
                 <EditorRightSidebar
-                  videoTitle={editorState.videoTitle}
-                  setVideoTitle={editorState.setVideoTitle}
-                  handleTrimVideo={editorState.handleTrimVideo}
-                  handleCropFrame={editorState.handleCropFrame}
-                  handleInsertToken={editorState.handleInsertToken}
-                  handleConnectCRM={editorState.handleConnectCRM}
-                  handleConnectSalesforce={editorState.handleConnectSalesforce}
-                  handlePublishLanding={editorState.handlePublishLanding}
-                  handleAIEnhance={editorState.handleAIEnhance}
+                  videoTitle={editorState.videoTitle || ''}
+                  setVideoTitle={editorState.setVideoTitle || (() => {})}
+                  handleTrimVideo={editorState.handleTrimVideo || (() => {})}
+                  handleCropFrame={editorState.handleCropFrame || (() => {})}
+                  handleInsertToken={editorState.handleInsertToken || (() => {})}
+                  handleConnectCRM={editorState.handleConnectCRM || (() => {})}
+                  handleConnectSalesforce={editorState.handleConnectSalesforce || (() => {})}
+                  handlePublishLanding={editorState.handlePublishLanding || (() => {})}
+                  handleAIEnhance={editorState.handleAIEnhance || (() => {})}
                   handleAutoCaption={() => {
-                    editorState.handleAutoCaption();
-                    videoState.toggleAutoCaptions();
+                    if (editorState.handleAutoCaption) {
+                      editorState.handleAutoCaption();
+                    }
+                    toggleAutoCaptions();
                   }}
                   handleGreenScreen={() => {
-                    editorState.handleGreenScreen();
-                    videoState.toggleGreenScreen();
+                    if (editorState.handleGreenScreen) {
+                      editorState.handleGreenScreen();
+                    }
+                    toggleGreenScreen();
                   }}
-                  handleMagicResize={editorState.handleMagicResize}
+                  handleMagicResize={editorState.handleMagicResize || (() => {})}
                 />
               </div>
             </div>
@@ -108,13 +136,13 @@ const VideoEditorLayout: React.FC<VideoEditorLayoutProps> = ({
           {(editorState) => (
             <div className="hidden">
               <SidebarPanels
-                handleFileUpload={editorState.handleFileUpload}
-                addTextOverlay={editorState.addTextOverlay}
+                handleFileUpload={editorState.handleFileUpload || (() => {})}
+                addTextOverlay={editorState.addTextOverlay || (() => {})}
                 selectedOverlayId={editorState.selectedOverlayId}
                 textOverlays={editorState.textOverlays || []}
-                onUpdateOverlay={editorState.updateTextOverlay}
+                onUpdateOverlay={editorState.updateTextOverlay || (() => {})}
                 selectedClipId={editorState.selectedClipId}
-                setSelectedClipId={editorState.setSelectedClipId}
+                setSelectedClipId={editorState.setSelectedClipId || (() => {})}
                 clips={editorState.clips || []}
               />
             </div>

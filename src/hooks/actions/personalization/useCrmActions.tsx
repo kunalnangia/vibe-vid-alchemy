@@ -155,3 +155,5 @@ export const useCrmActions = (): UseCrmActionsReturn => {
     handleConnectSalesforce
   };
 };
+
+export default useCrmActions;

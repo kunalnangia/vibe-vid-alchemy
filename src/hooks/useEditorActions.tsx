@@ -4,6 +4,8 @@ import { useBasicActions } from './actions/useBasicActions';
 import { useEditingActions } from './actions/useEditingActions';
 import { usePersonalizationActions } from './actions/usePersonalizationActions';
 import { useEnhancementActions } from './actions/useEnhancementActions';
+import { useCrmActions } from './actions/personalization/useCrmActions';
+import { useLandingPageActions } from './actions/personalization/useLandingPageActions';
 
 interface UseEditorActionsProps {
   currentTime?: number;
@@ -54,9 +56,11 @@ export const useEditorActions = ({
   const editingActions = useEditingActions();
   const personalizationActions = usePersonalizationActions();
   const enhancementActions = useEnhancementActions({ 
-    scriptIdea: basicActions.scriptIdea || localScriptIdea, 
+    scriptIdea: basicActions.scriptIdea || localScriptIdea || initialScriptIdea, 
     setScriptIdea: basicActions.setScriptIdea || initialSetScriptIdea || setLocalScriptIdea
   });
+  const crmActions = useCrmActions();
+  const landingPageActions = useLandingPageActions();
   
   // Handle slider changes
   const handleSliderChange = (value: number[]) => {
@@ -69,7 +73,7 @@ export const useEditorActions = ({
   return {
     videoTitle: basicActions.videoTitle || '',
     setVideoTitle: basicActions.setVideoTitle || (() => {}),
-    scriptIdea: basicActions.scriptIdea || localScriptIdea,
+    scriptIdea: basicActions.scriptIdea || localScriptIdea || initialScriptIdea,
     setScriptIdea: basicActions.setScriptIdea || initialSetScriptIdea || setLocalScriptIdea,
     views: basicActions.views || 0,
     clicks: basicActions.clicks || 0,
@@ -84,10 +88,10 @@ export const useEditorActions = ({
     handleTrimVideo: editingActions.handleTrimVideo || (() => {}),
     handleCropFrame: editingActions.handleCropFrame || (() => {}),
     handleInsertToken: personalizationActions.handleInsertToken || (() => {}),
-    handleConnectCRM: personalizationActions.handleConnectCRM || (() => {}),
-    handleConnectSalesforce: personalizationActions.handleConnectSalesforce || (() => {}),
+    handleConnectCRM: crmActions.handleConnectCRM || personalizationActions.handleConnectCRM || (() => {}),
+    handleConnectSalesforce: crmActions.handleConnectSalesforce || personalizationActions.handleConnectSalesforce || (() => {}),
     handleExport: basicActions.handleExport || (() => {}),
-    handlePublishLanding: personalizationActions.handlePublishLanding || (() => {}),
+    handlePublishLanding: landingPageActions.handlePublishLanding || personalizationActions.handlePublishLanding || (() => {}),
     handleDownloadAnalytics: basicActions.handleDownloadAnalytics || (() => {}),
     handleAIEnhance: enhancementActions.handleAIEnhance || (() => {}),
     handleAutoCaption: enhancementActions.handleAutoCaption || (() => {}),
