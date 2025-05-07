@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { VideoPreviewProps } from '@/lib/video/types';
 import { toast } from 'sonner';
@@ -45,8 +46,10 @@ const VideoCanvasMain: React.FC<VideoCanvasProps> = ({
       const currentClip = clips[0]; // Currently only handling the first clip
       
       if (currentClip.file) {
+        console.log("Setting video source from file:", currentClip.name);
         setCurrentVideoSrc(currentClip.file);
       } else if (currentClip.src) {
+        console.log("Setting video source from src:", currentClip.src);
         setCurrentVideoSrc(currentClip.src);
       }
     } else {
@@ -61,42 +64,13 @@ const VideoCanvasMain: React.FC<VideoCanvasProps> = ({
     console.log("File uploaded from video player:", file.name);
     toast.success(`Video uploaded: ${file.name}`);
     
-    // Create a temporary video element to extract metadata
-    const video = document.createElement('video');
-    video.preload = 'metadata';
-    
-    // Create a URL for the file
-    const objectUrl = URL.createObjectURL(file);
-    video.src = objectUrl;
-    
-    // When metadata is loaded, add the clip
-    video.onloadedmetadata = () => {
-      const duration = video.duration || 0;
-      
-      // Clean up the temporary video element
-      URL.revokeObjectURL(objectUrl);
-      
-      // We'll keep the file object for reliable loading
+    // Use the editorClips global handler if available
+    if (window.editorClips && typeof window.editorClips.handleUpload === 'function') {
+      window.editorClips.handleUpload(file);
+    } else {
+      console.log("Editor clip management not available, handling locally");
       setCurrentVideoSrc(file);
-      setVideoLoaded(false); // Reset loaded state for new video
-      
-      // If we have access to the clip management functions, use them
-      if (window.editorClips && typeof window.editorClips.handleUpload === 'function') {
-        window.editorClips.handleUpload(file);
-      } else {
-        // Otherwise just set the current source and let the player handle it
-        console.log("Editor clip management not available, handling locally");
-      }
-    };
-    
-    video.onerror = () => {
-      console.error("Error loading video metadata:", file.name);
-      URL.revokeObjectURL(objectUrl);
-      toast.error("Error processing video. The file may be corrupted.");
-    };
-    
-    // Load the video to trigger onloadedmetadata
-    video.load();
+    }
   };
 
   // Handle video metadata loaded
@@ -117,10 +91,12 @@ const VideoCanvasMain: React.FC<VideoCanvasProps> = ({
     console.error("Video loading error:", error);
     setVideoLoaded(false);
     if (onError) onError();
+    toast.error("Error loading video. Please try another file.");
   };
 
   // Handle play state change
   const handlePlayStateChange = (playing: boolean) => {
+    console.log("Play state changed:", playing ? "playing" : "paused");
     setIsPlaying(playing);
   };
   

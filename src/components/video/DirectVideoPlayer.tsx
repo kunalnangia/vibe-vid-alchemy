@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import useVideoPlayer from '@/hooks/useVideoPlayer';
 import VideoTroubleshooter from './VideoTroubleshooter';
 import VideoLoadingOverlay from './VideoLoadingOverlay';
@@ -78,8 +78,31 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
     onPlayStateChange
   });
   
-  const [canvasRef] = useState<React.RefObject<HTMLCanvasElement>>(React.createRef());
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showControls, setShowControls] = useState(true);
+  
+  // Handle file upload and automatic playback
+  const handleFileUpload = (file: File) => {
+    console.log('DirectVideoPlayer: Handling file upload:', file.name);
+    if (onFileUpload) {
+      onFileUpload(file);
+    }
+  };
+  
+  // Auto-play when source is loaded
+  useEffect(() => {
+    if (isLoaded && videoRef.current && !isPlaying) {
+      console.log('Video loaded, attempting to play automatically');
+      const playPromise = videoRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error('Auto-play prevented:', error);
+          // We'll keep the video paused in this case
+        });
+      }
+    }
+  }, [isLoaded, videoRef, isPlaying]);
   
   // Apply video effects using canvas
   useEffect(() => {
@@ -229,7 +252,7 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
         {src && !isLoaded && !hasError && <VideoLoadingOverlay />}
         
         {/* No video state with upload capability */}
-        {!src && <NoVideoState onUpload={onFileUpload} />}
+        {!src && <NoVideoState onUpload={handleFileUpload} />}
         
         {/* Play/Pause button overlay (only show when video is paused) */}
         {isLoaded && !hasError && !isPlaying && (

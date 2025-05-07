@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 interface UseVideoPlayerProps {
@@ -19,168 +19,206 @@ const useVideoPlayer = ({
   onError,
   onPlayStateChange
 }: UseVideoPlayerProps) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<any>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const objectUrlRef = useRef<string | null>(null);
 
-  // Load video when source changes
+  // Clean up object URL on component unmount or when src changes
   useEffect(() => {
-    if (!src) return;
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+    };
+  }, [src]);
+
+  // Set up video source when it changes
+  useEffect(() => {
+    if (!videoRef.current) return;
     
     const video = videoRef.current;
-    if (!video) return;
-    
-    // Reset state
     setIsLoaded(false);
     setHasError(false);
     setErrorDetails(null);
-    setCurrentTime(0);
     
-    // Load from File or URL
-    if (src instanceof File) {
-      console.log("Creating object URL for file:", src.name, src.type);
-      const objectURL = URL.createObjectURL(src);
-      video.src = objectURL;
-      
-      // Clean up object URL when component unmounts or src changes
-      return () => {
-        console.log("Cleaning up object URL");
-        URL.revokeObjectURL(objectURL);
-      };
-    } else if (typeof src === 'string') {
-      console.log("Loading video from string URL:", src);
-      video.src = src;
+    // Clean up previous object URL if any
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
     }
     
-    // Attempt to load the video
-    video.load();
-    console.log("Video element created with src:", video.src);
+    if (!src) {
+      video.removeAttribute('src');
+      video.load();
+      return;
+    }
     
-  }, [src]);
-
-  // Set up event listeners
+    // Set video source based on type
+    try {
+      if (src instanceof File) {
+        console.log('Loading video from File object:', src.name);
+        const objectUrl = URL.createObjectURL(src);
+        objectUrlRef.current = objectUrl;
+        video.src = objectUrl;
+      } else if (typeof src === 'string') {
+        console.log('Loading video from URL:', src);
+        video.src = src;
+      }
+      
+      // Force video to load
+      video.load();
+      
+    } catch (err) {
+      console.error('Error setting video source:', err);
+      setHasError(true);
+      setErrorDetails(err);
+      if (onError) onError(err);
+    }
+  }, [src, onError]);
+  
+  // Set up video event listeners
   useEffect(() => {
+    if (!videoRef.current) return;
     const video = videoRef.current;
-    if (!video) return;
     
     const handleLoadedMetadata = () => {
-      console.log("Video metadata loaded, duration:", video.duration);
+      console.log('Video metadata loaded, duration:', video.duration);
       setIsLoaded(true);
       setDuration(video.duration);
       if (onLoadedMetadata) {
         onLoadedMetadata(video.duration);
       }
       
-      // Auto play if requested
-      if (autoPlay) {
-        handlePlay();
+      // Auto play if enabled
+      if (autoPlay && video.paused) {
+        console.log('Auto-playing video');
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.warn('Auto-play prevented:', error);
+            setIsPlaying(false);
+            if (onPlayStateChange) onPlayStateChange(false);
+          });
+        }
       }
     };
     
-    const handleLoadedData = () => {
-      console.log("Video data loaded and can be played");
-      setIsLoaded(true);
+    const handlePlay = () => {
+      console.log('Video playback started');
+      setIsPlaying(true);
+      if (onPlayStateChange) onPlayStateChange(true);
+    };
+    
+    const handlePause = () => {
+      setIsPlaying(false);
+      if (onPlayStateChange) onPlayStateChange(false);
     };
     
     const handleTimeUpdate = () => {
       setCurrentTime(video.currentTime);
     };
     
-    const handleError = () => {
-      const errorMessage = video.error 
-        ? `Error code: ${video.error.code}, message: ${video.error.message}` 
-        : 'Unknown video error';
-      
-      console.error("Video error:", errorMessage);
+    const handleError = (e: Event) => {
+      console.error('Video error:', video.error);
       setHasError(true);
-      setErrorDetails(errorMessage);
-      setIsPlaying(false);
+      setErrorDetails(video.error);
+      setIsLoaded(false);
       
-      if (onError) {
-        onError(video.error);
-      }
+      if (onError) onError(video.error);
       
-      toast.error("Error loading video");
+      toast.error(`Error playing video: ${video.error?.message || 'Unknown error'}`);
     };
     
+    const handleCanPlay = () => {
+      setIsLoaded(true);
+      console.log('Video can play now');
+      
+      // Auto play if enabled
+      if (autoPlay && video.paused) {
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.warn('Auto-play prevented on canplay:', error);
+          });
+        }
+      }
+    };
+    
+    // Add event listeners
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('loadeddata', handleLoadedData);
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('error', handleError);
+    video.addEventListener('canplay', handleCanPlay);
     
     return () => {
+      // Remove event listeners
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('loadeddata', handleLoadedData);
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('error', handleError);
+      video.removeEventListener('canplay', handleCanPlay);
     };
-  }, [autoPlay, onLoadedMetadata, onError]);
-
-  // Handle play/pause
-  const handleTogglePlay = async () => {
+  }, [videoRef, autoPlay, onLoadedMetadata, onPlayStateChange, onError]);
+  
+  // Handle toggle play/pause
+  const handleTogglePlay = () => {
     if (!videoRef.current || !isLoaded) return;
     
-    try {
-      if (isPlaying) {
-        videoRef.current.pause();
+    if (isPlaying) {
+      videoRef.current.pause();
+    } else {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error('Error playing video:', error);
+          toast.error('Playback was prevented by your browser. Try clicking play again.');
+        });
+      }
+    }
+  };
+  
+  // Handle direct play command
+  const handlePlay = () => {
+    if (!videoRef.current || !isLoaded) return;
+    
+    const playPromise = videoRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.error('Error playing video:', error);
         setIsPlaying(false);
         if (onPlayStateChange) onPlayStateChange(false);
-      } else {
-        console.log("Attempting to play video");
-        await videoRef.current.play();
-        setIsPlaying(true);
-        if (onPlayStateChange) onPlayStateChange(true);
-      }
-    } catch (error) {
-      console.error("Error toggling play state:", error);
-      toast.error("Couldn't play video. Try again or check if the format is supported.");
+      });
     }
   };
   
-  // Handle play directly
-  const handlePlay = async () => {
-    if (!videoRef.current || !isLoaded || isPlaying) return;
-    
-    try {
-      console.log("Attempting autoplay");
-      await videoRef.current.play();
-      setIsPlaying(true);
-      if (onPlayStateChange) onPlayStateChange(true);
-    } catch (error) {
-      console.error("Error playing video:", error);
-      toast.error("Couldn't autoplay video. Your browser may be blocking autoplay.");
-    }
-  };
-  
-  // Set current time manually
-  const seekTo = (time: number) => {
-    if (!videoRef.current || !isLoaded) return;
-    videoRef.current.currentTime = time;
-    setCurrentTime(time);
-  };
-  
-  // Handle retry for error cases
+  // Handle retry after error
   const handleRetry = () => {
     if (!videoRef.current || !src) return;
     
     setHasError(false);
     setErrorDetails(null);
     
-    if (src instanceof File) {
-      const objectURL = URL.createObjectURL(src);
-      videoRef.current.src = objectURL;
-    } else if (typeof src === 'string') {
-      videoRef.current.src = src;
+    try {
+      // Reload video
+      videoRef.current.load();
+      toast.info('Retrying video playback...');
+    } catch (err) {
+      console.error('Error retrying video playback:', err);
+      setHasError(true);
+      setErrorDetails(err);
+      if (onError) onError(err);
     }
-    
-    videoRef.current.load();
-    toast.info("Retrying video playback...");
   };
-
+  
   return {
     videoRef,
     isPlaying,
@@ -191,7 +229,6 @@ const useVideoPlayer = ({
     duration,
     handleTogglePlay,
     handlePlay,
-    seekTo,
     handleRetry
   };
 };

@@ -28,7 +28,9 @@ const NoVideoState: React.FC<NoVideoStateProps> = ({ onUpload }) => {
       }
       
       if (onUpload) {
+        console.log('NoVideoState: File selected for upload:', file.name);
         onUpload(file);
+        toast.success(`Video "${file.name}" selected`);
       }
       
       // Reset the file input
