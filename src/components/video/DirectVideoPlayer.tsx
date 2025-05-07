@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import useVideoPlayer from '@/hooks/useVideoPlayer';
 import VideoTroubleshooter from './VideoTroubleshooter';
@@ -16,6 +15,7 @@ interface DirectVideoPlayerProps {
   onLoadedMetadata?: (duration: number) => void;
   onError?: (error: any) => void;
   onPlayStateChange?: (isPlaying: boolean) => void;
+  onFileUpload?: (file: File) => void;
   greenScreenEnabled?: boolean;
   autoCaptionsEnabled?: boolean;
   currentFilter?: string;
@@ -45,6 +45,7 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
   onLoadedMetadata,
   onError,
   onPlayStateChange,
+  onFileUpload,
   greenScreenEnabled = false,
   autoCaptionsEnabled = false,
   currentFilter = 'normal',
@@ -227,8 +228,8 @@ const DirectVideoPlayer: React.FC<DirectVideoPlayerProps> = ({
         {/* Loading overlay */}
         {src && !isLoaded && !hasError && <VideoLoadingOverlay />}
         
-        {/* No video state */}
-        {!src && <NoVideoState />}
+        {/* No video state with upload capability */}
+        {!src && <NoVideoState onUpload={onFileUpload} />}
         
         {/* Play/Pause button overlay (only show when video is paused) */}
         {isLoaded && !hasError && !isPlaying && (

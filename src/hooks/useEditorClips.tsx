@@ -1,8 +1,16 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { VideoClip } from '@/lib/video/types';
+
+// Declare global interface to expose editor clips functionality
+declare global {
+  interface Window {
+    editorClips?: {
+      handleUpload: (file: File) => void;
+    };
+  }
+}
 
 export const useEditorClips = () => {
   const [clips, setClips] = useState<VideoClip[]>([]);
@@ -74,6 +82,18 @@ export const useEditorClips = () => {
     
     handleUpload(file);
   };
+  
+  // Expose the clip management functions globally
+  useEffect(() => {
+    // Make the upload function available globally
+    window.editorClips = {
+      handleUpload
+    };
+    
+    return () => {
+      delete window.editorClips;
+    };
+  }, []);
   
   // Function to handle recording - will be implemented in a separate component
   const handleRecord = () => {

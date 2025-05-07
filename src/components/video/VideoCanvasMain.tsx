@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { VideoPreviewProps } from '@/lib/video/types';
 import { toast } from 'sonner';
@@ -54,6 +53,51 @@ const VideoCanvasMain: React.FC<VideoCanvasProps> = ({
       setCurrentVideoSrc(null);
     }
   }, [clips]);
+
+  // Handler for file upload directly from the player
+  const handleFileUpload = (file: File) => {
+    if (!file) return;
+    
+    console.log("File uploaded from video player:", file.name);
+    toast.success(`Video uploaded: ${file.name}`);
+    
+    // Create a temporary video element to extract metadata
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    // Create a URL for the file
+    const objectUrl = URL.createObjectURL(file);
+    video.src = objectUrl;
+    
+    // When metadata is loaded, add the clip
+    video.onloadedmetadata = () => {
+      const duration = video.duration || 0;
+      
+      // Clean up the temporary video element
+      URL.revokeObjectURL(objectUrl);
+      
+      // We'll keep the file object for reliable loading
+      setCurrentVideoSrc(file);
+      setVideoLoaded(false); // Reset loaded state for new video
+      
+      // If we have access to the clip management functions, use them
+      if (window.editorClips && typeof window.editorClips.handleUpload === 'function') {
+        window.editorClips.handleUpload(file);
+      } else {
+        // Otherwise just set the current source and let the player handle it
+        console.log("Editor clip management not available, handling locally");
+      }
+    };
+    
+    video.onerror = () => {
+      console.error("Error loading video metadata:", file.name);
+      URL.revokeObjectURL(objectUrl);
+      toast.error("Error processing video. The file may be corrupted.");
+    };
+    
+    // Load the video to trigger onloadedmetadata
+    video.load();
+  };
 
   // Handle video metadata loaded
   const handleLoadedMetadata = (duration: number) => {
@@ -166,6 +210,7 @@ const VideoCanvasMain: React.FC<VideoCanvasProps> = ({
           onLoadedMetadata={handleLoadedMetadata}
           onError={handleVideoError}
           onPlayStateChange={handlePlayStateChange}
+          onFileUpload={handleFileUpload}
           greenScreenEnabled={localGreenScreen}
           autoCaptionsEnabled={localAutoCaptions}
           currentFilter={currentFilter}
