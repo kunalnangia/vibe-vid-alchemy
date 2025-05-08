@@ -2,4 +2,7 @@
 export * from './useVideoEvents';
 export * from './useVideoSource';
 export * from './useVideoControls';
-export * from './useVideoPlayer';
+
+// Re-export the default hook for backward compatibility
+import useVideoPlayer from './useVideoPlayer';
+export default useVideoPlayer;

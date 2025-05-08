@@ -28,6 +28,7 @@ export const useVideoRenderer = ({
   setCurrentTime,
   setIsPlaying,
   projectDuration,
+  currentFilter,
   aspectRatio,
   greenScreenEnabled = false
 }: UseVideoRendererProps) => {

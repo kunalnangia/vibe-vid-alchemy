@@ -1,22 +1,23 @@
 
-import { useCallback } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';
 
-interface UseVideoControlsProps {
+interface UseVideoControlsWithErrorProps {
   videoRef: React.RefObject<HTMLVideoElement>;
   isLoaded: boolean;
   isPlaying: boolean;
   setIsPlaying: (isPlaying: boolean) => void;
+  onError?: (error: any) => void;
 }
 
-export const useVideoControls = ({
+export const useVideoControlsWithError = ({
   videoRef,
   isLoaded,
   isPlaying,
-  setIsPlaying
-}: UseVideoControlsProps) => {
+  setIsPlaying,
+  onError
+}: UseVideoControlsWithErrorProps) => {
   // Handle toggle play/pause
-  const handleTogglePlay = useCallback(() => {
+  const handleTogglePlay = () => {
     if (!videoRef.current || !isLoaded) return;
     
     if (isPlaying) {
@@ -26,14 +27,16 @@ export const useVideoControls = ({
       if (playPromise !== undefined) {
         playPromise.catch(error => {
           console.error('Error playing video:', error);
-          toast.error('Playback was prevented by your browser. Try clicking play again.');
+          if (onError) {
+            onError(error);
+          }
         });
       }
     }
-  }, [videoRef, isLoaded, isPlaying]);
+  };
   
   // Handle direct play command
-  const handlePlay = useCallback(() => {
+  const handlePlay = () => {
     if (!videoRef.current || !isLoaded) return;
     
     const playPromise = videoRef.current.play();
@@ -41,68 +44,28 @@ export const useVideoControls = ({
       playPromise.catch(error => {
         console.error('Error playing video:', error);
         setIsPlaying(false);
+        if (onError) {
+          onError(error);
+        }
       });
     }
-  }, [videoRef, isLoaded, setIsPlaying]);
+  };
   
   // Handle retry after error
-  const handleRetry = useCallback(() => {
+  const handleRetry = () => {
     if (!videoRef.current) return;
     
     try {
       // Reload video
       videoRef.current.load();
-      toast.info('Retrying video playback...');
     } catch (err) {
       console.error('Error retrying video playback:', err);
-      if (videoRef.current.error && onError) {
-        onError(videoRef.current.error);
+      if (onError) {
+        onError(err);
       }
     }
-  }, [videoRef]);
-
-  return {
-    handleTogglePlay,
-    handlePlay,
-    handleRetry
   };
-};
-
-// Missing parameter in the interface
-interface UseVideoControlsPropsWithError extends UseVideoControlsProps {
-  onError?: (error: any) => void;
-}
-
-// Updated function definition
-export const useVideoControlsWithError = ({
-  videoRef,
-  isLoaded,
-  isPlaying,
-  setIsPlaying,
-  onError
-}: UseVideoControlsPropsWithError) => {
-  // Handle retry after error
-  const handleRetry = useCallback(() => {
-    if (!videoRef.current) return;
-    
-    try {
-      // Reload video
-      videoRef.current.load();
-      toast.info('Retrying video playback...');
-    } catch (err) {
-      console.error('Error retrying video playback:', err);
-      if (onError) onError(err);
-    }
-  }, [videoRef, onError]);
-
-  // Reuse other controls
-  const { handleTogglePlay, handlePlay } = useVideoControls({
-    videoRef,
-    isLoaded,
-    isPlaying,
-    setIsPlaying
-  });
-
+  
   return {
     handleTogglePlay,
     handlePlay,
