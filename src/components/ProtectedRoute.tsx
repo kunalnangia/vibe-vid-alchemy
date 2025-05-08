@@ -19,16 +19,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
   
-  // For preview purposes, allow access even if not authenticated
-  // This ensures the preview will always work while maintaining the route protection in production
+  // Always enforce authentication check, regardless of environment
   if (!user) {
-    // In development preview mode, render children even without authentication
-    if (window.location.hostname.includes('lovable.dev') || 
-        window.location.hostname.includes('localhost')) {
-      return <>{children}</>;
-    }
-    
-    // In production, redirect to auth page
+    // Always redirect to auth page when not authenticated
     return <Navigate to="/auth" />;
   }
   
