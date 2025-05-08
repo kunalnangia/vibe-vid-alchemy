@@ -8,7 +8,7 @@ interface VideoSourceProps {
   onSourceChange: (source: File | string | null) => void;
 }
 
-const VideoSource: React.FC<VideoSourceProps> = ({ clips, onSourceChange }) => {
+const VideoSource = ({ clips, onSourceChange }: VideoSourceProps) => {
   // Set up video source from clips
   useEffect(() => {
     if (clips && clips.length > 0) {

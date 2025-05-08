@@ -1,10 +1,11 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import VideoTroubleshooter from './VideoTroubleshooter';
 import VideoLoadingOverlay from './VideoLoadingOverlay';
 import VideoPlayOverlay from './VideoPlayOverlay';
 import NoVideoState from './NoVideoState';
 import AutoCaptionsHandler from './AutoCaptionsHandler';
-import useVideoPlayer from '@/hooks/useVideoPlayer';
+import useVideoPlayer from '@/hooks/player/useVideoPlayer';
 import VideoControlsToolbar from './VideoControlsToolbar';
 import VideoEffects from './VideoEffects';
 import VideoTrimHandler from './VideoTrimHandler';

@@ -10,12 +10,12 @@ interface VideoToolbarActionsProps {
   videoHeight: number;
 }
 
-const VideoToolbarActions: React.FC<VideoToolbarActionsProps> = ({
+const VideoToolbarActions = ({
   currentTime,
   projectDuration,
   videoWidth,
   videoHeight
-}) => {
+}: VideoToolbarActionsProps) => {
   const {
     setTrimSettings,
     setCropSettings,

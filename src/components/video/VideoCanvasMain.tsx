@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { VideoPreviewProps } from '@/lib/video/types';
 import { toast } from 'sonner';
 import DirectVideoPlayer from './DirectVideoPlayer';
-import VideoSettingsProvider from './VideoSettingsProvider';
+import VideoSettingsProvider, { useVideoSettings } from './VideoSettingsProvider';
 import VideoSource from './VideoSource';
 import VideoToolbarActions from './VideoToolbarActions';
 
@@ -31,10 +31,13 @@ const VideoCanvasMain: React.FC<VideoCanvasProps> = ({
   const [videoHeight, setVideoHeight] = useState(1080);
 
   // Initialize video source from clips
-  const { handleFileUpload } = VideoSource({
+  const videoSource = VideoSource({
     clips,
     onSourceChange: setCurrentVideoSrc
   });
+
+  // Extract the handleFileUpload function
+  const handleFileUpload = videoSource.handleFileUpload;
 
   // Handle video metadata loaded
   const handleLoadedMetadata = (duration: number) => {
@@ -117,11 +120,10 @@ const DirectVideoPlayerWithActions: React.FC<DirectVideoPlayerWithActionsProps> 
   onPlayStateChange,
   onFileUpload
 }) => {
-  const { useVideoSettings } = require('./VideoSettingsProvider');
   const { trimSettings, cropSettings, greenScreenEnabled, autoCaptionsEnabled } = useVideoSettings();
   
   // Get toolbar action handlers
-  const actions = VideoToolbarActions({
+  const toolbarActions = VideoToolbarActions({
     currentTime,
     projectDuration,
     videoWidth,
@@ -143,12 +145,12 @@ const DirectVideoPlayerWithActions: React.FC<DirectVideoPlayerWithActionsProps> 
       aspectRatio={aspectRatio}
       trimSettings={trimSettings}
       cropSettings={cropSettings}
-      onTrim={actions.handleTrim}
-      onCrop={actions.handleCrop}
-      onGreenScreen={actions.handleGreenScreen}
-      onMagicResize={actions.handleMagicResize}
-      onAutoCaptions={actions.handleAutoCaptions}
-      onAIEnhance={actions.handleAIEnhance}
+      onTrim={toolbarActions.handleTrim}
+      onCrop={toolbarActions.handleCrop}
+      onGreenScreen={toolbarActions.handleGreenScreen}
+      onMagicResize={toolbarActions.handleMagicResize}
+      onAutoCaptions={toolbarActions.handleAutoCaptions}
+      onAIEnhance={toolbarActions.handleAIEnhance}
     />
   );
 };
