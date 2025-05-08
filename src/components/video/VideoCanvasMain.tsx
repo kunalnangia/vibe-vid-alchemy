@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { VideoPreviewProps } from '@/lib/video/types';
 import { toast } from 'sonner';
 import DirectVideoPlayer from './DirectVideoPlayer';
+import VideoSettingsProvider from './VideoSettingsProvider';
+import VideoSource from './VideoSource';
+import VideoToolbarActions from './VideoToolbarActions';
 
 interface VideoCanvasProps extends VideoPreviewProps {
   onError?: () => void;
@@ -23,55 +26,15 @@ const VideoCanvasMain: React.FC<VideoCanvasProps> = ({
   onError
 }) => {
   const [currentVideoSrc, setCurrentVideoSrc] = useState<File | string | null>(null);
-  const [trimSettings, setTrimSettings] = useState<{start: number, end: number} | undefined>();
-  const [cropSettings, setCropSettings] = useState<{x: number, y: number, width: number, height: number} | undefined>();
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoWidth, setVideoWidth] = useState(1920);
   const [videoHeight, setVideoHeight] = useState(1080);
-  const [localGreenScreen, setLocalGreenScreen] = useState(greenScreenEnabled);
-  const [localAutoCaptions, setLocalAutoCaptions] = useState(autoCaptionsEnabled);
-  
-  // Update local state when props change
-  useEffect(() => {
-    setLocalGreenScreen(greenScreenEnabled);
-  }, [greenScreenEnabled]);
-  
-  useEffect(() => {
-    setLocalAutoCaptions(autoCaptionsEnabled);
-  }, [autoCaptionsEnabled]);
-  
-  // Set up video source from clips
-  useEffect(() => {
-    if (clips && clips.length > 0) {
-      const currentClip = clips[0]; // Currently only handling the first clip
-      
-      if (currentClip.file) {
-        console.log("Setting video source from file:", currentClip.name);
-        setCurrentVideoSrc(currentClip.file);
-      } else if (currentClip.src) {
-        console.log("Setting video source from src:", currentClip.src);
-        setCurrentVideoSrc(currentClip.src);
-      }
-    } else {
-      setCurrentVideoSrc(null);
-    }
-  }, [clips]);
 
-  // Handler for file upload directly from the player
-  const handleFileUpload = (file: File) => {
-    if (!file) return;
-    
-    console.log("File uploaded from video player:", file.name);
-    toast.success(`Video uploaded: ${file.name}`);
-    
-    // Use the editorClips global handler if available
-    if (window.editorClips && typeof window.editorClips.handleUpload === 'function') {
-      window.editorClips.handleUpload(file);
-    } else {
-      console.log("Editor clip management not available, handling locally");
-      setCurrentVideoSrc(file);
-    }
-  };
+  // Initialize video source from clips
+  const { handleFileUpload } = VideoSource({
+    clips,
+    onSourceChange: setCurrentVideoSrc
+  });
 
   // Handle video metadata loaded
   const handleLoadedMetadata = (duration: number) => {
@@ -99,109 +62,94 @@ const VideoCanvasMain: React.FC<VideoCanvasProps> = ({
     console.log("Play state changed:", playing ? "playing" : "paused");
     setIsPlaying(playing);
   };
-  
-  // Handle trim action
-  const handleTrim = () => {
-    toast.info("Opening trim controls");
-    const newStart = Math.max(0, currentTime);
-    const newEnd = Math.min(projectDuration, currentTime + Math.min(10, projectDuration - currentTime));
-    
-    setTrimSettings({
-      start: newStart, 
-      end: newEnd
-    });
-    
-    setTimeout(() => {
-      toast("Drag sliders to adjust trim points");
-    }, 500);
-  };
-  
-  // Handle crop action
-  const handleCrop = () => {
-    toast.info("Opening crop controls");
-    
-    // Default to 10% inset crop
-    setCropSettings({
-      x: Math.round(videoWidth * 0.1),
-      y: Math.round(videoHeight * 0.1),
-      width: Math.round(videoWidth * 0.8),
-      height: Math.round(videoHeight * 0.8)
-    });
-    
-    setTimeout(() => {
-      toast("Drag handles to adjust crop area");
-    }, 500);
-  };
-  
-  // Handle green screen toggle
-  const handleGreenScreen = () => {
-    const newState = !localGreenScreen;
-    setLocalGreenScreen(newState);
-    
-    toast(newState ? 
-      "Green screen enabled - solid color backgrounds will be transparent" : 
-      "Green screen disabled");
-  };
-  
-  // Handle magic resize
-  const handleMagicResize = () => {
-    toast.info("Opening magic resize options");
-    toast("Choose an aspect ratio for your video");
-  };
-  
-  // Handle auto captions
-  const handleAutoCaptions = () => {
-    const newState = !localAutoCaptions;
-    setLocalAutoCaptions(newState);
-    
-    if (newState) {
-      toast("Generating captions from audio...");
-    } else {
-      toast("Captions disabled");
-    }
-  };
-  
-  // Handle AI enhance
-  const handleAIEnhance = () => {
-    toast.info("Enhancing video with AI...");
-    
-    setTimeout(() => {
-      toast("Analyzing video content...");
-    }, 800);
-    
-    setTimeout(() => {
-      toast.success("Video enhanced", {
-        description: "Brightness, contrast and color balance improved"
-      });
-    }, 2500);
-  };
 
   return (
-    <div className="video-canvas w-full">
-      <div className="aspect-video w-full overflow-hidden relative rounded-lg bg-black">
-        <DirectVideoPlayer
-          src={currentVideoSrc}
-          autoPlay={false}
-          muted={false}
-          onLoadedMetadata={handleLoadedMetadata}
-          onError={handleVideoError}
-          onPlayStateChange={handlePlayStateChange}
-          onFileUpload={handleFileUpload}
-          greenScreenEnabled={localGreenScreen}
-          autoCaptionsEnabled={localAutoCaptions}
-          currentFilter={currentFilter}
-          aspectRatio={aspectRatio}
-          trimSettings={trimSettings}
-          cropSettings={cropSettings}
-          onTrim={handleTrim}
-          onCrop={handleCrop}
-          onGreenScreen={handleGreenScreen}
-          onMagicResize={handleMagicResize}
-          onAutoCaptions={handleAutoCaptions}
-          onAIEnhance={handleAIEnhance}
-        />
+    <VideoSettingsProvider
+      initialGreenScreen={greenScreenEnabled}
+      initialAutoCaptions={autoCaptionsEnabled}
+    >
+      <div className="video-canvas w-full">
+        <div className="aspect-video w-full overflow-hidden relative rounded-lg bg-black">
+          <DirectVideoPlayerWithActions
+            src={currentVideoSrc}
+            currentTime={currentTime}
+            projectDuration={projectDuration}
+            videoWidth={videoWidth}
+            videoHeight={videoHeight}
+            currentFilter={currentFilter}
+            aspectRatio={aspectRatio}
+            onLoadedMetadata={handleLoadedMetadata}
+            onError={handleVideoError}
+            onPlayStateChange={handlePlayStateChange}
+            onFileUpload={handleFileUpload}
+          />
+        </div>
       </div>
-    </div>
+    </VideoSettingsProvider>
+  );
+};
+
+// Separate component that combines DirectVideoPlayer with toolbar actions
+interface DirectVideoPlayerWithActionsProps {
+  src: File | string | null;
+  currentTime: number;
+  projectDuration: number;
+  videoWidth: number;
+  videoHeight: number;
+  currentFilter?: string;
+  aspectRatio?: string;
+  onLoadedMetadata?: (duration: number) => void;
+  onError?: (error: any) => void;
+  onPlayStateChange?: (isPlaying: boolean) => void;
+  onFileUpload?: (file: File) => void;
+}
+
+const DirectVideoPlayerWithActions: React.FC<DirectVideoPlayerWithActionsProps> = ({
+  src,
+  currentTime,
+  projectDuration,
+  videoWidth,
+  videoHeight,
+  currentFilter,
+  aspectRatio,
+  onLoadedMetadata,
+  onError,
+  onPlayStateChange,
+  onFileUpload
+}) => {
+  const { useVideoSettings } = require('./VideoSettingsProvider');
+  const { trimSettings, cropSettings, greenScreenEnabled, autoCaptionsEnabled } = useVideoSettings();
+  
+  // Get toolbar action handlers
+  const actions = VideoToolbarActions({
+    currentTime,
+    projectDuration,
+    videoWidth,
+    videoHeight
+  });
+
+  return (
+    <DirectVideoPlayer
+      src={src}
+      autoPlay={false}
+      muted={false}
+      onLoadedMetadata={onLoadedMetadata}
+      onError={onError}
+      onPlayStateChange={onPlayStateChange}
+      onFileUpload={onFileUpload}
+      greenScreenEnabled={greenScreenEnabled}
+      autoCaptionsEnabled={autoCaptionsEnabled}
+      currentFilter={currentFilter}
+      aspectRatio={aspectRatio}
+      trimSettings={trimSettings}
+      cropSettings={cropSettings}
+      onTrim={actions.handleTrim}
+      onCrop={actions.handleCrop}
+      onGreenScreen={actions.handleGreenScreen}
+      onMagicResize={actions.handleMagicResize}
+      onAutoCaptions={actions.handleAutoCaptions}
+      onAIEnhance={actions.handleAIEnhance}
+    />
   );
 };
 
