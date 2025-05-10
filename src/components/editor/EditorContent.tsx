@@ -3,7 +3,6 @@ import React from 'react';
 import VideoPreview from '../VideoPreview';
 import VideoControls from '../VideoControls';
 import ScriptIdeaSection from '../ScriptIdeaSection';
-import SimpleVideoUploader from '../SimpleVideoUploader';
 import EditorTabsContainer from './EditorTabsContainer';
 import AnalyticsSection from '../AnalyticsSection';
 
@@ -49,14 +48,6 @@ const EditorContent: React.FC<EditorContentProps> = ({ editorState }) => {
         scriptIdea={editorState.scriptIdea || ''}
         setScriptIdea={editorState.setScriptIdea || (() => {})}
       />
-      
-      {/* Upload Section - Only shown when no clips */}
-      {(editorState.clips || []).length === 0 && (
-        <div className="p-6 bg-white rounded-xl shadow-sm">
-          <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Upload Your Video</h2>
-          <SimpleVideoUploader onFileSelected={editorState.handleUpload || (() => {})} />
-        </div>
-      )}
       
       {/* Editor Tabs Container */}
       <EditorTabsContainer 
